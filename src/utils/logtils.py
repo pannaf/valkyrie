@@ -47,12 +47,12 @@ def logger_wraps(*, entry=True, exit=True, level="DEBUG", timing=True):
             if entry:
                 logger_.log(level, f"Entering '{name}' ({args=}, {kwargs=})")
             if timing:
-                start = time.time()
+                start = time.perf_counter()
 
             result = func(*args, **kwargs)
 
             if timing:
-                end = time.time() - start
+                end = time.perf_counter() - start
                 logger_.log(level, "Function '{}' executed in {:.3f}s", name, end)
 
             if exit:
