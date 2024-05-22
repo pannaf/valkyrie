@@ -53,7 +53,7 @@ def logger_wraps(*, entry=True, exit=True, level="DEBUG", timing=True):
 
             if timing:
                 end = time.perf_counter() - start
-                logger_.log(level, "Function '{}' executed in {:.3f}s", name, end)
+                logger_.log(level, "Function '{name}' executed in {end}s")
 
             if exit:
                 logger_.log(level, f"Exiting '{name}' ({result=})")
