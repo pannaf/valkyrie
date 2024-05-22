@@ -38,12 +38,12 @@ def get_bound_logger():
 
 
 def logger_wraps(*, entry=True, exit=True, level="DEBUG", timing=True):
-    def wrapper(func):
+    def decorator(func):
         name = func.__name__
 
         @functools.wraps(func)
-        def wrapped(*args, **kwargs):
-            logger_ = logger.bind(user_id=user_id_var.get()).opt(depth=1)  # logger.opt(depth=1)
+        def wrapper(*args, **kwargs):
+            logger_ = logger.bind(user_id=user_id_var.get()).opt(depth=1)
             if entry:
                 logger_.log(level, f"Entering '{name}' ({args=}, {kwargs=})")
             if timing:
@@ -59,9 +59,9 @@ def logger_wraps(*, entry=True, exit=True, level="DEBUG", timing=True):
                 logger_.log(level, f"Exiting '{name}' ({result=})")
             return result
 
-        return wrapped
+        return wrapper
 
-    return wrapper
+    return decorator
 
 
 class LoggingContextManager:
