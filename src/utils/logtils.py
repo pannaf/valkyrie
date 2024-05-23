@@ -45,16 +45,6 @@ except TypeError as exc:
         raise
 
 
-# global logger configuration
-logger.add(
-    sys.stdout,
-    format="<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level> | <level>{extra}</level>",
-    level="DEBUG",
-    colorize=None,
-)
-logger.add("file_{time}.log", format="{time:YYYY-MM-DD at HH:mm:ss} | {level} | {message} | {extra[user_id]}", level="DEBUG")
-
-
 def get_bound_logger():
     return logger.bind(user_id=user_id_var.get())
 
