@@ -15,6 +15,7 @@ user_id_var = contextvars.ContextVar("user_id", default="anonymous")
 
 
 def configure_logging(cfg: DictConfig):
+    """Configure logging based on provided yaml configuration."""
     logger.remove()
 
     if cfg.logging.console.enable:
@@ -45,10 +46,13 @@ except TypeError as exc:
 
 
 def get_bound_logger():
+    """Convenience function to get a logger bound to the current user_id context."""
     return logger.bind(user_id=user_id_var.get())
 
 
-def logger_wraps(*, entry=True, exit=True, level="DEBUG", timing=True):
+def logger_wraps(*, level="DEBUG", entry=True, exit=True, timing=True):
+    """Convenience decorator to log function entry, exit, and timing."""
+
     def decorator(func):
         name = func.__name__
 
@@ -76,6 +80,8 @@ def logger_wraps(*, entry=True, exit=True, level="DEBUG", timing=True):
 
 
 class LoggingContextManager:
+    """Helper class to manage logging context for a specific user."""
+
     def __init__(self, user_id):
         self.user_id = user_id
         self.token = None

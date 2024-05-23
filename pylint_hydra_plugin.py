@@ -1,9 +1,13 @@
+"""Custom pylint plugin to suppress no-value-for-parameter for Hydra main decorated functions."""
+
 from pylint.checkers import BaseChecker
 from pylint.interfaces import HIGH
 from astroid import nodes
 
 
 class HydraMainChecker(BaseChecker):
+    """HydraMainChecker class to suppress no-value-for-parameter for Hydra main decorated functions."""
+
     __implements__ = (BaseChecker,)
 
     name = "hydra-main-checker"
@@ -18,6 +22,7 @@ class HydraMainChecker(BaseChecker):
     options = ()
 
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
+        """visit_functiondef method to check for Hydra main decorated functions."""
         if node.decorators:
             for decorator in node.decorators.nodes:
                 if (
