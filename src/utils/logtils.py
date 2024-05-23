@@ -123,17 +123,7 @@ def g():
     f(0)
 
 
-def custom_exception_handler(exc_type, exc_value, exc_traceback):
-    tb = "".join(traceback.format_exception(exc_type, exc_value, exc_traceback))
-    filtered_tb = "\n".join(line for line in tb.splitlines() if "hydra" not in line and "site-packages" not in line)
-    logger.error(f"Uncaught exception:\n{filtered_tb}")
-
-
-# Register the custom exception handler
-sys.excepthook = custom_exception_handler
-
-
-@hydra.main(config_path="../../conf", config_name="config")
+@hydra.main(config_path="../../conf", config_name="config", version_base="1.3")
 def main(cfg: DictConfig):
     configure_logging(cfg)
     user_id = "12345"
