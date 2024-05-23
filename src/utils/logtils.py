@@ -114,6 +114,7 @@ def g():
 
 @hydra.main(config_path="../../configs", config_name="base", version_base="1.3")
 def main(cfg: DictConfig):
+    """Simple entry point to demonstrate logging utilities."""
     configure_logging(cfg)
     user_id = "12345"
     with LoggingContextManager(user_id) as logger_context:

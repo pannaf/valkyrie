@@ -9,7 +9,7 @@ class HydraMainChecker(BaseChecker):
     name = "hydra-main-checker"
     priority = HIGH
     msgs = {
-        "W0001": (
+        "R1001": (
             "Suppressed no-value-for-parameter for Hydra main",
             "hydra-main-no-value-for-parameter",
             "Hydra main decorated functions do not need explicit cfg parameter in function signature",
@@ -27,10 +27,10 @@ class HydraMainChecker(BaseChecker):
                     and isinstance(decorator.func.expr, nodes.Name)
                     and decorator.func.expr.name == "hydra"
                 ):
-                    # Suppress the warning E1120
-                    self.add_message("W0001", node=node)
-                    # Suppress the specific Pylint warning
-                    self.linter.disable("no-value-for-parameter", node)
+                    # suppress no-value-for-parameter for hydra.main decorated functions
+                    # the add_message will still show a message tho
+                    self.add_message("R1001", node=node)
+                    self.linter.disable("no-value-for-parameter", scope="package")
 
 
 def register(linter):
