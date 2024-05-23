@@ -1,0 +1,17 @@
+defaults:
+  - _self_
+  - override hydra/hydra_logging: disabled  
+  - override hydra/job_logging: disabled
+
+logging:
+  console:
+    enable: true
+    level: DEBUG
+    format: "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level> | <level>{extra[user_id]}</level>"
+    colorize: true
+
+  file:
+    enable: true
+    path: "file_{time}.log"
+    level: DEBUG
+    format: "{time:YYYY-MM-DD at HH:mm:ss} | {level} | {message} | {extra[user_id]}"

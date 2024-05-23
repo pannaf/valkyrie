@@ -8,7 +8,6 @@ import logging
 
 from omegaconf import DictConfig
 import hydra
-import traceback
 
 from loguru import logger
 
@@ -113,7 +112,7 @@ def g():
     f(0)
 
 
-@hydra.main(config_path="../../conf", config_name="config", version_base="1.3")
+@hydra.main(config_path="../../configs", config_name="base", version_base="1.3")
 def main(cfg: DictConfig):
     configure_logging(cfg)
     user_id = "12345"
