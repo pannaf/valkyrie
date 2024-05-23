@@ -6,11 +6,33 @@ import contextvars
 import sys
 import logging
 
+from omegaconf import DictConfig
+import hydra
+import traceback
+
 from loguru import logger
 
 user_id_var = contextvars.ContextVar("user_id", default="anonymous")
 
-logger.remove()
+
+def configure_logging(cfg: DictConfig):
+    logger.remove()
+
+    if cfg.logging.console.enable:
+        logger.add(
+            sys.stdout,
+            format=cfg.logging.console.format,
+            level=cfg.logging.console.level,
+            colorize=cfg.logging.console.colorize,
+        )
+
+    if cfg.logging.file.enable:
+        logger.add(
+            cfg.logging.file.path,
+            format=cfg.logging.file.format,
+            level=cfg.logging.file.level,
+        )
+
 
 # additional log levels
 try:
@@ -18,8 +40,8 @@ try:
     logging.addLevelName(5, "TRACE")
     logging.addLevelName(25, "SUCCESS")
     logging.addLevelName(27, "NOTICE")
-except TypeError as e:
-    if "already exists" not in str(e):
+except TypeError as exc:
+    if "already exists" not in str(exc):
         raise
 
 
@@ -43,7 +65,7 @@ def logger_wraps(*, entry=True, exit=True, level="DEBUG", timing=True):
 
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
-            logger_ = logger.bind(user_id=user_id_var.get()).opt(depth=1)
+            logger_ = get_bound_logger().opt(depth=1)
             if entry:
                 logger_.log(level, f"Entering '{name}' ({args=}, {kwargs=})")
             if timing:
@@ -101,17 +123,27 @@ def g():
     f(0)
 
 
-def main():
+def custom_exception_handler(exc_type, exc_value, exc_traceback):
+    tb = "".join(traceback.format_exception(exc_type, exc_value, exc_traceback))
+    filtered_tb = "\n".join(line for line in tb.splitlines() if "hydra" not in line and "site-packages" not in line)
+    logger.error(f"Uncaught exception:\n{filtered_tb}")
+
+
+# Register the custom exception handler
+sys.excepthook = custom_exception_handler
+
+
+@hydra.main(config_path="../../conf", config_name="config")
+def main(cfg: DictConfig):
+    configure_logging(cfg)
     user_id = "12345"
-    token = user_id_var.set(user_id)
-    logger_context = logger.bind(user_id=user_id)
-    try:
-        with logger_context.catch(reraise=False):
-            g()
-    finally:
-        logger_context.info(f"Completed execution for user {user_id}")
-        user_id_var.reset(token)
-        print(f"{user_id_var.get()=}")
+    with LoggingContextManager(user_id) as logger_context:
+        try:
+            with logger_context.catch(reraise=False):
+                g()
+        finally:
+            logger_context.info(f"Completed execution for user {user_id}")
+            print(f"{user_id_var.get()=}")
 
 
 if __name__ == "__main__":
