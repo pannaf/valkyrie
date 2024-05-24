@@ -11,7 +11,11 @@ import hydra
 
 from loguru import logger
 
-user_id_var = contextvars.ContextVar("user_id", default="anonymous")
+# for context variables that need to be shared
+context_vars = {
+    "user_id": contextvars.ContextVar("user_id", default="anonymous"),
+    # ready to add more context variables as needed
+}
 
 
 def configure_logging(cfg: DictConfig):
@@ -47,7 +51,7 @@ except TypeError as exc:
 
 def get_bound_logger():
     """Convenience function to get a logger bound to the current user_id context."""
-    return logger.bind(user_id=user_id_var.get())
+    return logger.bind(user_id=context_vars.get("user_id").get())
 
 
 def logger_wraps(*, level="DEBUG", entry=True, exit=True, timing=True):
@@ -87,12 +91,12 @@ class LoggingContextManager:
         self.token = None
 
     def __enter__(self):
-        self.token = user_id_var.set(self.user_id)
+        self.token = context_vars.get("user_id").set(self.user_id)
         logger_context = logger.bind(user_id=self.user_id)
         return logger_context
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        user_id_var.reset(self.token)
+        context_vars.get("user_id").reset(self.token)
 
 
 ###-----------------###
@@ -100,27 +104,25 @@ class LoggingContextManager:
 ###-----------------###
 
 
-@logger_wraps(level="NOTICE")
-def test_func(sleep_time=None):
-    time.sleep(sleep_time)
-    return "test"
-
-
-@logger_wraps()
-def f(x):
-    return 100 / x
-
-
-@logger_wraps()
-def g():
-    f(10)
-    test_func(0.1)
-    f(0)
-
-
 @hydra.main(config_path="../../configs", config_name="base", version_base="1.3")
 def main(cfg: DictConfig):
     """Simple entry point to demonstrate logging utilities."""
+
+    @logger_wraps(level="NOTICE")
+    def test_func(sleep_time=None):
+        time.sleep(sleep_time)
+        return "test"
+
+    @logger_wraps()
+    def f(x):
+        return 100 / x
+
+    @logger_wraps()
+    def g():
+        f(10)
+        test_func(0.1)
+        f(0)
+
     configure_logging(cfg)
     user_id = "12345"
     with LoggingContextManager(user_id) as logger_context:
@@ -129,7 +131,7 @@ def main(cfg: DictConfig):
                 g()
         finally:
             logger_context.info(f"Completed execution for user {user_id}")
-            print(f"{user_id_var.get()=}")
+            print(f"{context_vars.get("user_id").get()=}")
 
 
 if __name__ == "__main__":
