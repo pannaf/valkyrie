@@ -1,0 +1,10 @@
+hydra-core
+langgraph
+langchain-community
+langchain-anthropic
+langsmith
+loguru
+pandas
+pylint
+python-dotenv
+pyowm
