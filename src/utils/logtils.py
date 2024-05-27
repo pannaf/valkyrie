@@ -98,7 +98,6 @@ class LoggingContextManager:
     def __exit__(self, exc_type, exc_val, exc_tb):
         context_vars.get("user_id").reset(self.token)
 
-
 ###-----------------###
 # Usage example
 ###-----------------###
