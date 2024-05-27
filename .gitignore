@@ -1,5 +1,9 @@
-*.log
 *.pyc
+
+*.log
+
+*.db
+*.sqlite3
 
 .v-arti
 .env
