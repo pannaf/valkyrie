@@ -2,3 +2,5 @@
 *.pyc
 
 .v-arti
+.env
+.DS_Store
