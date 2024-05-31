@@ -4,6 +4,7 @@ import json
 import textwrap
 
 import io
+import uuid
 from pathlib import Path
 from PIL import Image
 
@@ -25,7 +26,14 @@ from langchain_core.tools import tool
 
 from dotenv import load_dotenv
 
-from src.sandbox.db_utils import fetch_user, fetch_user_profile, update_user_profile, fetch_goals_db, update_goal_db
+from src.sandbox.db_utils import (
+    fetch_user,
+    fetch_user_profile,
+    update_user_profile,
+    fetch_goals_db,
+    update_goal_db,
+    create_empty_goal_db,
+)
 
 load_dotenv()
 
@@ -51,6 +59,7 @@ class State(TypedDict):
     messages: Annotated[list[AnyMessage], add_messages]
     user_info: dict[str, str]
     dialog_state: Annotated[list[Literal["assistant", "onboarding_wizard", "goal_wizard"]], update_dialog_stack]
+    current_goal_id: Optional[str]
 
 
 class Assistant:
@@ -161,15 +170,35 @@ goal_wizard_prompt = ChatPromptTemplate.from_messages(
             - When replying to the user, it may sometimes make sense to draw from the text in the ai message when calling the previous tool. Otherwise the user doesn't see that text. 
             </response guidelines>
             <task instructions>
-            You have one objective: help the user set their fitness goals.
-            You should guuide the user to set 1-3 specific, measurable, achievable, relevant, and time-bound goals.
+            You have one objective: help the user set their fitness goals. Each goal needs to go into the goals table in the database.
+            You should guide the user to set 1-3 specific, measurable, achievable, relevant, and time-bound goals.
             There are two main types of goals: outcome goals and process goals. Outcome goals are the end result, like losing 10 pounds. Process goals are the steps you take to achieve the outcome goal, like exercising 3 times a week.
             The user might not know the difference between outcome and process goals, so you should explain it to them if necessary. 
             For every outcome goal, there should be at least one process goal supporting it.
+            Every field in the goals table should be filled out for each goal. Ask the user for the information you need to fill out the fields.
             </task instructions>
+            <tools available>
+            The user doesn't know you have tools available. It would be confusing to mention them.
+            Even though you have these tools available, you can also choose to chat with the user without using them.
+            - fetch_goals : Use this tool to fetch the user's current goals.
+            - handle_create_goal : Use this tool to create a new, empty goal for the user. You need to call this tool before updating the goal.
+            - update_goal_state : Use this tool to update the current goal id in the state, based on the goal being discussed.
+            - clear_goal_state : Use this tool to clear the current goal id in the state. Before returning to the host assistant, you should clear the current goal id.
+            - update_goal : Use this tool to update the user's goal with the information you learn about them.
+            </tools available>
+            <conversation structure>
+            Follow these steps:
+            Step 0 - In 2 sentences or less, introduce that you're now going to help the user set their fitness goals. Tell them you'll be asking them some questions to help them set their goals. Tell them we'll be setting 1-3 goals.
+            Step 1 - Ask the user if they already has any fitness goals. If they do, ask them to share them with you. If they don't, help them discover some goals by asking them about their fitness journey. 
+            Step 2 - Update the database with as much information as you can about the user's goals. Before adding a new goal, make sure to call the tool handle_create_goal to create a new goal entry for it.
+            Step 3 - Ask the user for the remaining information you need to fill out the fields in the goals table, this may be things like the start_date, end_date, current_value, etc. Only ask one question at a time when clarifying.
+            </conversation structure>
             <when to return to the host assistant>
             If the user doesn't want to answer your questions, escalate to the host assistant.
+            When the user has set 1-3 goals and seems done with goal setting, return to the host assistant.
+            Before returning to the host assistant, you must clear the current goal id using the tool clear_goal_state.
             </when to return to the host assistant>
+            <current time>{time}</current time>
             """
             ),
         ),
@@ -177,15 +206,16 @@ goal_wizard_prompt = ChatPromptTemplate.from_messages(
     ]
 ).partial(time=datetime.now())
 
+# "Transfer to the Onboarding Wizard first and immediately! "
+# "The Onboarding Wizard can look up for itself the user's profile and update it. "
+# "Only the specialized assistants are given permission to access the user's personal information. "
+# "After the Onboarding Wizard has completed its task, transfer to the Goal Wizard. "
 primary_assistant_prompt = ChatPromptTemplate.from_messages(
     [
         (
             "system",
             "You are a helpful personal trainer. "
-            "Transfer to the Onboarding Wizard first and immediately! "
-            "The Onboarding Wizard can look up for itself the user's profile and update it. "
-            "Only the specialized assistants are given permission to access the user's personal information. "
-            "After the Onboarding Wizard has completed its task, transfer to the Goal Wizard. "
+            "Transfer to the Goal Wizard first and immediately! "
             "The user is not aware of the different specialized assistants, so do not mention them; just quietly delegate through function calls. "
             "Provide detailed information to the user, and always double-check the database before concluding that information is unavailable. "
             "\n\nInfo about the user you're currently chatting with:\n<User>{user_info}</User>"
@@ -330,12 +360,57 @@ def fetch_goals():
 
 
 @tool
-def update_goal(goal_field: str, goal_value: Union[str, int, float, list, dict]):
+def handle_create_goal(state: State):
+    """
+    Create a new goal for the user.
+    Parameters:
+        state: The current state of the dialog.
+    """
+    cfg = ensure_config()
+    configuration = cfg.get("configurable", {})
+    user_id = configuration.get("user_id")
+    if not user_id:
+        raise ValueError("User ID is not set in the configuration")
+
+    goal_id = str(uuid.uuid4())
+    state["current_goal_id"] = goal_id
+    create_empty_goal_db(user_id, goal_id)
+    return f"Created a new goal with id {goal_id} for user {user_id}"
+
+
+@tool
+def update_goal_state(state: State, goal_id: str):
+    """
+    Update the current goal id in the state, based on the goal being discussed. To know which goal is being discussed,
+    you need to look up the goals for the user which can be done with the fetch_goals tool. The goal_id should be one of the goal_ids
+    from the goals table.
+    Parameters:
+        state: The current state of the dialog.
+        goal_id: The id of the goal being discussed.
+    """
+    state["current_goal_id"] = goal_id
+    return f"Updated current goal id to {goal_id}"
+
+
+@tool
+def clear_goal_state(state: State):
+    """
+    Clear the current goal id in the state.
+    Parameters:
+        state: The current state of the dialog.
+    """
+    state["current_goal_id"] = None
+    return "Cleared current goal id"
+
+
+@tool
+def update_goal(state: State, goal_field: str, goal_value: Union[str, int, float, list, dict]):
     """
     Updates a user's goal information in the goals table based on the provided field and value.
     If the field is already set to the provided value, don't use this tool.
 
     Parameters:
+    - state (State): The current state of the dialog... this is needed to know which goal to update because it has current_goal_id.
     - goal_field (str): The field in the goal to update.
         Must be one of: 'goal_type', 'description', 'target_value', 'current_value', 'unit', 'start_date', 'end_date', 'goal_status', 'notes', 'last_updated'
     - goal_value (Union[str, int, float, list, dict]): The new value to set for the specified field.
@@ -358,6 +433,8 @@ def update_goal(goal_field: str, goal_value: Union[str, int, float, list, dict])
     user_id = configuration.get("user_id")
     if not user_id:
         raise ValueError("User ID is not set in the configuration")
+
+    goal_id = state.get("current_goal_id")
 
     if isinstance(goal_value, dict):
         goal_value = json.dumps(goal_value)
@@ -394,8 +471,8 @@ onboarding_wizard_sensitive_tools = [set_user_profile_info]
 onboarding_wizard_tools = onboarding_wizard_safe_tools + onboarding_wizard_sensitive_tools
 onboarding_wizard_runnable = onboarding_wizard_prompt | llm.bind_tools(onboarding_wizard_tools + [CompleteOrEscalate])
 
-goal_wizard_safe_tools = []
-goal_wizard_sensitive_tools = []
+goal_wizard_safe_tools = [fetch_goals]
+goal_wizard_sensitive_tools = [handle_create_goal, update_goal]
 goal_wizard_tools = goal_wizard_safe_tools + goal_wizard_sensitive_tools
 goal_wizard_runnable = goal_wizard_prompt | llm.bind_tools(goal_wizard_tools + [CompleteOrEscalate])
 

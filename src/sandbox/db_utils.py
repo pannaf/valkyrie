@@ -63,3 +63,17 @@ def update_goal_db(user_id, goal_id, field, value):
             cur.execute(query, (value, user_id, goal_id))
             conn.commit()
     return f"Goal updated successfully {field} = {value}"
+
+
+def create_empty_goal_db(user_id, goal_id):
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO goals (goal_id, user_id, goal_type, description, target_value, current_value, unit, start_date, end_date, goal_status, notes, last_updated)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
+            """,
+                (goal_id, user_id, None, None, None, None, None, None, None, "Pending", None),
+            )
+            conn.commit()
+    return goal_id
