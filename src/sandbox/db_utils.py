@@ -46,3 +46,20 @@ def update_user_profile(user_id, field, value):
             cur.execute(query, (value, user_id))
             conn.commit()
     return f"User profile updated successfully {field} = {value}"
+
+
+def fetch_goals_db(user_id):
+    with get_db_connection() as conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("SELECT * FROM goals WHERE user_id = %s", (user_id,))
+            goals = cur.fetchall()
+            return goals
+
+
+def update_goal_db(user_id, goal_id, field, value):
+    with get_db_connection() as conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            query = f"UPDATE goals SET {field} = %s, last_updated = NOW() WHERE user_id = %s AND goal_id = %s"
+            cur.execute(query, (value, user_id, goal_id))
+            conn.commit()
+    return f"Goal updated successfully {field} = {value}"

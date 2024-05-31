@@ -1,6 +1,7 @@
 from typing import Annotated, Literal, Optional, Callable, Union
 from datetime import datetime, date
 import json
+import textwrap
 
 import io
 from pathlib import Path
@@ -14,6 +15,7 @@ from langgraph.graph import END, StateGraph
 from langgraph.prebuilt import tools_condition, ToolNode
 
 from langchain_anthropic import ChatAnthropic
+from langchain_groq import ChatGroq
 
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.pydantic_v1 import BaseModel, Field
@@ -21,13 +23,23 @@ from langchain_core.runnables import Runnable, RunnableConfig, ensure_config, Ru
 from langchain_core.messages import ToolMessage
 from langchain_core.tools import tool
 
-from src.sandbox.db_utils import fetch_user, fetch_user_profile, update_user_profile
+from dotenv import load_dotenv
 
-llm = ChatAnthropic(model="claude-3-haiku-20240307")
+from src.sandbox.db_utils import fetch_user, fetch_user_profile, update_user_profile, fetch_goals_db, update_goal_db
+
+load_dotenv()
+
+
+if True:
+    # llm = ChatAnthropic(model="claude-3-haiku-20240307")
+    llm = ChatAnthropic(model="claude-3-sonnet-20240229", temperature=1)
+else:
+    llm = ChatGroq(temperature=0, model_name="mixtral-8x7b-32768")
 
 
 def update_dialog_stack(left: list[str], right: Optional[str]) -> list[str]:
     """Push or pop the state"""
+    print(f"update_dialog_stack: {left=} {right=}")
     if right is None:
         return left
     if right == "pop":
@@ -38,7 +50,7 @@ def update_dialog_stack(left: list[str], right: Optional[str]) -> list[str]:
 class State(TypedDict):
     messages: Annotated[list[AnyMessage], add_messages]
     user_info: dict[str, str]
-    dialog_stack: Annotated[list[Literal["assistant", "rapport_wizard", "goal_wizard"]], update_dialog_stack]
+    dialog_state: Annotated[list[Literal["assistant", "onboarding_wizard", "goal_wizard"]], update_dialog_stack]
 
 
 class Assistant:
@@ -46,9 +58,6 @@ class Assistant:
         self.runnable = runnable
 
     def __call__(self, state: State, config: RunnableConfig):
-        # TODO: do i need this?
-        user_id = config.get("user_id", None)
-        state = {**state, "user_id": user_id}
         while True:
             result = self.runnable.invoke(state)
 
@@ -86,22 +95,50 @@ class CompleteOrEscalate(BaseModel):
 
 ## PROMPTS
 
-rapport_wizard_prompt = ChatPromptTemplate.from_messages(
+onboarding_wizard_prompt = ChatPromptTemplate.from_messages(
     [
         (
             "system",
-            "You are a specialized assistant for building rapport with the user. "
-            "The primary assistant delegates work to you whenever it needs to learn about the user's preferences, "
-            "emotions, habits, or other personal information. "
-            "When asking about the user's profile information if there's any missing information, only ask for ONE piece of information at a time. "
-            "You can also help the user feel more comfortable and engaged with the primary assistant. "
-            "If you need more information or the user changes their mind, escalate the task back to the main assistant. "
-            "If you have completed your task, mark it as complete. "
-            "\n\nCurrent user info:\n<User>{user_info}</User>"
-            "\nCurrent time: {time}"
-            "\n\nIf the user needs help, and none of your tools are appropriate for it, then"
-            ' "CompleteOrEscalate" the dialog to the host assistant. Do not waste the user\'s time. '
-            "Do not make up invalid tools or functions.",
+            textwrap.dedent(
+                """As their personal trainer named V, you are getting to know a new client. 
+            Initially, you should ask them some basic getting to know you questions, such as "how are you?" "how's your day going?" or other such questions.
+            <response guidelines>
+            - Sound friendly and approachable, as if you were texting with a friend. For example, phrases like "Hey there!" or "Cool beans!" or "Gotcha!" or "Roger that!" may be appropriate.
+            - Always reply to the user.
+            - It should feel like a conversation and sound natural.
+            - Use the user's name when addressing them.
+            - Use emojis where appropriate.
+            - Send messages that are 1-3 sentences long.
+            - When asking a question, ask one question at a time.
+            - When replying to the user, it may sometimes make sense to draw from the text in the ai message when calling the previous tool. Otherwise the user doesn't see that text. 
+            </response guidelines>
+            <task instructions>
+            You have two objectives: 1. get to know the user, and 2. update their profile with any relevant information you learn about them.
+            You are responsible for filling out the fields in the user's profile.
+            You can only update one field at a time in the user's profile.
+            Only the user knows their personal information, so you should ask them for it.
+            </task instructions>
+            <tools available>
+            The user doesn't know you have tools available. It would be confusing to mention them.
+            Even though you have these tools available, you can also choose to chat with the user without using them. For example, when
+            introducing yourself, you don't need to use a tool. 
+            - fetch_user_profile_info : Use this tool to fetch the user's profile information. Only use AFTER you've introduced yourself and had a brief conversation with the user that included 1-2 icebreaker questions AND asked if you can ask them some questions.  
+            - set_user_profile_info : Use this tool to update the user's profile with the information you learn about them. ONLY use this tool if you've learned something about their activity preferences, workout location, workout frequency, workout duration, workout constraints, fitness level, weight, or goal weight.
+            </tools available>
+            <conversation structure>
+            Follow these steps:
+            Step 0 - If it's your first time meeting the user, introduce yourself (you are V, their new virtual personal trainer).
+            Step 1 - Ask 1-2 basic getting-to-know-you icebreaker questions, one at a time.
+            Step 2 - engage with the user in a brief conversation, double-clicking with them on their responses to the icebreaker questions.
+            Step 3 - ask the user if it's ok to ask them some personal questions.
+            Step 4 - if they respond positively, fetch the user's profile information and ask them a question. if they respond negatively, escalate to the host assistant.
+            Step 5 - update the user's profile with the information you learn, if it's relevant to their profile data table entry
+            </conversation structure>
+            <when to return to the host assistant>
+            If the user doesn't want to answer your questions, escalate to the host assistant.
+            Check if the user's profile is completely filled out without any missing fields. If it is, return to the host assistant. If it isn't, continue asking questions as the Onboarding Wizard.
+            </when to return to the host assistant>"""
+            ),
         ),
         ("placeholder", "{messages}"),
     ]
@@ -111,17 +148,30 @@ goal_wizard_prompt = ChatPromptTemplate.from_messages(
     [
         (
             "system",
-            "You are a specialized assistant for helping the user set and achieve their goals. "
-            "The primary assistant delegates work to you whenever it needs to help the user set goals, "
-            "track progress, or achieve milestones. "
-            "You can also help the user stay motivated and on track. "
-            "If you need more information or the user changes their mind, escalate the task back to the main assistant. "
-            "If you have completed your task, mark it as complete. "
-            "\n\nCurrent user info:\n<User>{user_info}</User>"
-            "\nCurrent time: {time}"
-            "\n\nIf the user needs help, and none of your tools are appropriate for it, then"
-            ' "CompleteOrEscalate" the dialog to the host assistant. Do not waste the user\'s time. '
-            "Do not make up invalid tools or functions.",
+            textwrap.dedent(
+                """As their personal trainer named V, you are helping the user set and achieve their fitness goals.
+            <response guidelines>
+            - Sound friendly and approachable, as if you were texting with a friend. For example, phrases like "Hey there!" or "Cool beans!" or "Gotcha!" or "Roger that!" may be appropriate.
+            - Always reply to the user.
+            - It should feel like a conversation and sound natural.
+            - Use the user's name when addressing them.
+            - Use emojis where appropriate.
+            - Send messages that are 1-3 sentences long.
+            - When asking a question, ask one question at a time.
+            - When replying to the user, it may sometimes make sense to draw from the text in the ai message when calling the previous tool. Otherwise the user doesn't see that text. 
+            </response guidelines>
+            <task instructions>
+            You have one objective: help the user set their fitness goals.
+            You should guuide the user to set 1-3 specific, measurable, achievable, relevant, and time-bound goals.
+            There are two main types of goals: outcome goals and process goals. Outcome goals are the end result, like losing 10 pounds. Process goals are the steps you take to achieve the outcome goal, like exercising 3 times a week.
+            The user might not know the difference between outcome and process goals, so you should explain it to them if necessary. 
+            For every outcome goal, there should be at least one process goal supporting it.
+            </task instructions>
+            <when to return to the host assistant>
+            If the user doesn't want to answer your questions, escalate to the host assistant.
+            </when to return to the host assistant>
+            """
+            ),
         ),
         ("placeholder", "{messages}"),
     ]
@@ -132,15 +182,13 @@ primary_assistant_prompt = ChatPromptTemplate.from_messages(
         (
             "system",
             "You are a helpful personal trainer. "
-            "Your primary role is to help the user achieve their fitness goals by planning workouts for them and checking in with them. "
-            "If a user requests help with a task that you are not specialized in, "
-            "you can delegate the task to a specialized assistant. "
-            "First check the user's profile to see if the information is already available. If anything is missing of not specified, "
-            "task the Rapport Wizard to ask the user for the missing information. "
+            "Transfer to the Onboarding Wizard first and immediately! "
+            "The Onboarding Wizard can look up for itself the user's profile and update it. "
             "Only the specialized assistants are given permission to access the user's personal information. "
+            "After the Onboarding Wizard has completed its task, transfer to the Goal Wizard. "
             "The user is not aware of the different specialized assistants, so do not mention them; just quietly delegate through function calls. "
             "Provide detailed information to the user, and always double-check the database before concluding that information is unavailable. "
-            "\n\nCurrent user information:\n<User>{user_info}</User>"
+            "\n\nInfo about the user you're currently chatting with:\n<User>{user_info}</User>"
             "\nCurrent time: {time}",
         ),
         ("placeholder", "{messages}"),
@@ -154,6 +202,9 @@ primary_assistant_prompt = ChatPromptTemplate.from_messages(
 def handle_tool_error(state) -> dict:
     error = state.get("error")
     tool_calls = state["messages"][-1].tool_calls
+    import ipdb
+
+    ipdb.set_trace()
     return {
         "messages": [
             ToolMessage(
@@ -193,8 +244,8 @@ def fetch_user_info():
     Returns:
         The user's information, as described above.
     """
-    config = ensure_config()
-    configuration = config.get("configurable", {})
+    cfg = ensure_config()
+    configuration = cfg.get("configurable", {})
     user_id = configuration.get("user_id")
     if not user_id:
         raise ValueError("User ID is not set in the configuration")
@@ -206,61 +257,128 @@ def fetch_user_info():
 @tool
 def fetch_user_profile_info():
     """
-    Fetch all known mutable information about the user: weight, fitness level, activity preferences, workout constraints, goal weight,
-    workout frequency, workout location, workout duration.
+    Fetch all known mutable information about the user: activity preferences, workout location, workout frequency, workout duration, workout constraints,
+         fitness level, weight, goal weight
 
     Returns:
         The user's profile information, as described above.
     """
-    config = ensure_config()
-    configuration = config.get("configurable", {})
+    print("Fetching user profile info.......")
+    cfg = ensure_config()
+    configuration = cfg.get("configurable", {})
     user_id = configuration.get("user_id")
     if not user_id:
         raise ValueError("User ID is not set in the configuration")
 
     user_profile = fetch_user_profile(user_id)
+    print(f"Fetched user profile for user_id {user_id}: {user_profile}")
     return user_profile
 
 
 @tool
-def set_user_profile_info(user_profile_field: str, user_profile_value: Union[str, int, float]):
+def set_user_profile_info(user_profile_field: str, user_profile_value: Union[str, int, float, list, dict]):
     """
-    Given the provided field and value, update the user's profile information.
+    Updates a user's profile information in the user_profiles table based on the provided field and value.
     If the field is already set to the provided value, don't use this tool.
 
+    Parameters:
+    - user_profile_field (str): The field in the user profile to update.
+        Must be one of: 'activity_preferences', 'workout_location', 'workout_frequency', 'workout_duration', 'workout_constraints',
+         'fitness_level', 'weight', 'goal_weight'
+    - user_profile_value (Union[str, int, float, list, dict]): The new value to set for the specified field.
+        The type of this value should match the type of the field in the database schema.
+
     The schema for the user_profiles table is as follows:
-     weight REAL,
-     fitness_level TEXT,
-     activity_preferences TEXT,
-     workout_constraints TEXT,
-     goal_weight REAL,
-     workout_frequency INTEGER,
-     workout_location TEXT,
-     workout_duration INTEGER,
+     - activity_preferences TEXT
+     - workout_location TEXT
+     - workout_frequency TEXT
+     - workout_duration TEXT
+     - workout_constraints TEXT
+     - fitness_level TEXT
+     - weight REAL
+     - goal_weight REAL
     """
 
-    config = ensure_config()
-    configuration = config.get("configurable", {})
+    cfg = ensure_config()
+    configuration = cfg.get("configurable", {})
     user_id = configuration.get("user_id")
     if not user_id:
         raise ValueError("User ID is not set in the configuration")
+
+    if isinstance(user_profile_value, dict):
+        user_profile_value = json.dumps(user_profile_value)
 
     update_user_profile(user_id, user_profile_field, user_profile_value)
 
     return f"Successfully updated {user_profile_field} to {user_profile_value} for user {user_id}"
 
 
-## PRIMARY ASSISTANT
-class ToRapportWizard(BaseModel):
-    """Transfers work to a specialized assistant to handle tasks associated with setting user profile info, including weight,
-    fitness level, activity preferences, workout constraints, goal weight, workout frequency, workout location, and workout duration.
+@tool
+def fetch_goals():
+    """
+    Fetch all known goals for the user.
     """
 
-    request: str = Field(description="Any necessary follup questions the rapport wizard should clarify before proceeding.")
+    cfg = ensure_config()
+    configuration = cfg.get("configurable", {})
+    user_id = configuration.get("user_id")
+    if not user_id:
+        raise ValueError("User ID is not set in the configuration")
+
+    goals = fetch_goals_db(user_id)
+    return goals
+
+
+@tool
+def update_goal(goal_field: str, goal_value: Union[str, int, float, list, dict]):
+    """
+    Updates a user's goal information in the goals table based on the provided field and value.
+    If the field is already set to the provided value, don't use this tool.
+
+    Parameters:
+    - goal_field (str): The field in the goal to update.
+        Must be one of: 'goal_type', 'description', 'target_value', 'current_value', 'unit', 'start_date', 'end_date', 'goal_status', 'notes', 'last_updated'
+    - goal_value (Union[str, int, float, list, dict]): The new value to set for the specified field.
+        The type of this value should match the type of the field in the database schema.
+
+    The schema for the goals table is as follows:
+     - goal_type TEXT
+     - description TEXT
+     - target_value TEXT
+     - current_value TEXT
+     - unit TEXT
+     - start_date DATE
+     - end_date DATE
+     - goal_status TEXT
+     - notes TEXT
+    """
+
+    cfg = ensure_config()
+    configuration = cfg.get("configurable", {})
+    user_id = configuration.get("user_id")
+    if not user_id:
+        raise ValueError("User ID is not set in the configuration")
+
+    if isinstance(goal_value, dict):
+        goal_value = json.dumps(goal_value)
+
+    update_goal_db(user_id, goal_id, goal_field, goal_value)
+
+    return f"Successfully updated {goal_field} to {goal_value} for user {user_id}"
+
+
+## PRIMARY ASSISTANT
+class ToOnboardingWizard(BaseModel):
+    """Transfers work to a specialized assistant to handle tasks associated with setting user profile info, including what activities
+    the user prefers, where they workout, how often they workout, how long they typically workout for, any constraints they have, what
+    their fitness level is, how much they weight and what their goal weight is.
+    """
+
+    request: str = Field(description="Any necessary follup questions the onboarding wizard should clarify before proceeding.")
 
 
 class ToGoalWizard(BaseModel):
-    """Transfers work to a specialized assistant to handle goal-setting tasks, except the rapport wizard handles marking the user's goal weight."""
+    """Transfers work to a specialized assistant to handle goal-setting tasks, except the onboarding wizard handles marking the user's goal weight."""
 
     request: str = Field(description="Any necessary follup questions the goal wizard should clarify before proceeding.")
 
@@ -269,22 +387,25 @@ class ToGoalWizard(BaseModel):
 
 # TODO: provide tools
 
-rapport_wizard_safe_tools = [fetch_user_profile_info]
-rapport_wizard_sensitive_tools = [set_user_profile_info]
-rapport_wizard_tools = rapport_wizard_safe_tools + rapport_wizard_sensitive_tools
-rapport_wizard_runnable = rapport_wizard_prompt | llm.bind_tools(rapport_wizard_tools + [CompleteOrEscalate])
+onboarding_wizard_safe_tools = [
+    fetch_user_profile_info,
+]
+onboarding_wizard_sensitive_tools = [set_user_profile_info]
+onboarding_wizard_tools = onboarding_wizard_safe_tools + onboarding_wizard_sensitive_tools
+onboarding_wizard_runnable = onboarding_wizard_prompt | llm.bind_tools(onboarding_wizard_tools + [CompleteOrEscalate])
 
 goal_wizard_safe_tools = []
 goal_wizard_sensitive_tools = []
 goal_wizard_tools = goal_wizard_safe_tools + goal_wizard_sensitive_tools
 goal_wizard_runnable = goal_wizard_prompt | llm.bind_tools(goal_wizard_tools + [CompleteOrEscalate])
 
-primary_assistant_tools = [fetch_user_profile_info]
-assistant_runnable = primary_assistant_prompt | llm.bind_tools(primary_assistant_tools + [ToRapportWizard, ToGoalWizard])
+primary_assistant_tools = []
+assistant_runnable = primary_assistant_prompt | llm.bind_tools(primary_assistant_tools + [ToOnboardingWizard, ToGoalWizard])
 
 
 def create_entry_node(assistant_name: str, new_dialog_state: str) -> Callable:
     def entry_node(state: State) -> dict:
+
         tool_call_id = state["messages"][-1].tool_calls[0]["id"]
         return {
             "messages": [
@@ -324,28 +445,28 @@ def user_info(state: State):
 builder.add_node("fetch_user_info", user_info)
 builder.set_entry_point("fetch_user_info")
 
-# rapport wizard assistant
+# onboarding wizard assistant
 builder.add_node(
-    "enter_rapport_wizard",
-    create_entry_node("Rapport Building Wizard", "rapport_wizard"),
+    "enter_onboarding_wizard",
+    create_entry_node("Onboarding Wizard", "onboarding_wizard"),
 )
-builder.add_node("rapport_wizard", Assistant(rapport_wizard_runnable))
-builder.add_edge("enter_rapport_wizard", "rapport_wizard")
+builder.add_node("onboarding_wizard", Assistant(onboarding_wizard_runnable))
+builder.add_edge("enter_onboarding_wizard", "onboarding_wizard")
 builder.add_node(
-    "rapport_wizard_sensitive_tools",
-    create_tool_node_with_fallback(rapport_wizard_sensitive_tools),
+    "onboarding_wizard_sensitive_tools",
+    create_tool_node_with_fallback(onboarding_wizard_sensitive_tools),
 )
 builder.add_node(
-    "rapport_wizard_safe_tools",
-    create_tool_node_with_fallback(rapport_wizard_safe_tools),
+    "onboarding_wizard_safe_tools",
+    create_tool_node_with_fallback(onboarding_wizard_safe_tools),
 )
 
 
-def route_rapport_wizard(
+def route_onboarding_wizard(
     state: State,
 ) -> Literal[
-    "rapport_wizard_sensitive_tools",
-    "rapport_wizard_safe_tools",
+    "onboarding_wizard_sensitive_tools",
+    "onboarding_wizard_safe_tools",
     "leave_skill",
     "__end__",
 ]:
@@ -356,15 +477,15 @@ def route_rapport_wizard(
     did_cancel = any(tc["name"] == CompleteOrEscalate.__name__ for tc in tool_calls)
     if did_cancel:
         return "leave_skill"
-    safe_toolnames = [t.name for t in rapport_wizard_safe_tools]
+    safe_toolnames = [t.name for t in onboarding_wizard_safe_tools]
     if all(tc["name"] in safe_toolnames for tc in tool_calls):
-        return "rapport_wizard_safe_tools"
-    return "rapport_wizard_sensitive_tools"
+        return "onboarding_wizard_safe_tools"
+    return "onboarding_wizard_sensitive_tools"
 
 
-builder.add_edge("rapport_wizard_sensitive_tools", "rapport_wizard")
-builder.add_edge("rapport_wizard_safe_tools", "rapport_wizard")
-builder.add_conditional_edges("rapport_wizard", route_rapport_wizard)
+builder.add_edge("onboarding_wizard_sensitive_tools", "onboarding_wizard")
+builder.add_edge("onboarding_wizard_safe_tools", "onboarding_wizard")
+builder.add_conditional_edges("onboarding_wizard", route_onboarding_wizard)
 
 # goal wizard assistant
 builder.add_node(
@@ -421,7 +542,7 @@ def pop_dialog_state(state: State) -> dict:
         # Note: Doesn't currently handle the edge case where the llm performs parallel tool calls
         messages.append(
             ToolMessage(
-                content="Resuming dialog with the host assistant. Please reflect on the past conversation and assist the user as needed.",
+                content="Resuming dialog with the host assistant. Please reflect on the past conversation and continue the conversation.",
                 tool_call_id=state["messages"][-1].tool_calls[0]["id"],
             )
         )
@@ -442,7 +563,7 @@ def route_primary_assistant(
     state: State,
 ) -> Literal[
     "primary_assistant_tools",
-    "enter_rapport_wizard",
+    "enter_onboarding_wizard",
     "enter_goal_wizard",
     "__end__",
 ]:
@@ -451,8 +572,8 @@ def route_primary_assistant(
         return END
     tool_calls = state["messages"][-1].tool_calls
     if tool_calls:
-        if tool_calls[0]["name"] == ToRapportWizard.__name__:
-            return "enter_rapport_wizard"
+        if tool_calls[0]["name"] == ToOnboardingWizard.__name__:
+            return "enter_onboarding_wizard"
         if tool_calls[0]["name"] == ToGoalWizard.__name__:
             return "enter_goal_wizard"
         return "primary_assistant_tools"
@@ -465,7 +586,7 @@ builder.add_conditional_edges(
     "primary_assistant",
     route_primary_assistant,
     {
-        "enter_rapport_wizard": "enter_rapport_wizard",
+        "enter_onboarding_wizard": "enter_onboarding_wizard",
         "enter_goal_wizard": "enter_goal_wizard",
         "primary_assistant_tools": "primary_assistant_tools",
         END: END,
@@ -480,7 +601,7 @@ def route_to_workflow(
     state: State,
 ) -> Literal[
     "primary_assistant",
-    "rapport_wizard",
+    "onboarding_wizard",
     "goal_wizard",
 ]:
     """If we are in a delegated state, route directly to the appropriate assistant."""
@@ -496,12 +617,15 @@ builder.add_conditional_edges("fetch_user_info", route_to_workflow)
 memory = SqliteSaver.from_conn_string(":memory:")
 graph = builder.compile(
     checkpointer=memory,
-    # Let the user approve or deny the use of sensitive tools
-    interrupt_before=[
-        "rapport_wizard_sensitive_tools",
-        "goal_wizard_sensitive_tools",
-    ],
 )
+# graph = builder.compile(
+#     checkpointer=memory,
+#     # Let the user approve or deny the use of sensitive tools
+#     interrupt_before=[
+#         "onboarding_wizard_sensitive_tools",
+#         "goal_wizard_sensitive_tools",
+#     ],
+# )
 
 visualize_graph = False
 
@@ -512,7 +636,7 @@ if visualize_graph:
     image.save(graph_path)
 
 thread_id = "1"
-config = {"configurable": {"user_id": "bf9d8cd5-3c89-40ef-965b-ad2ff148e52a", "thread_id": thread_id}}
+config_c = {"configurable": {"user_id": "bf9d8cd5-3c89-40ef-965b-ad2ff148e52a", "thread_id": thread_id}}
 
 _printed = set()
 
@@ -521,35 +645,37 @@ while True:
     if user_input.lower() in ["quit", "exit", "q"]:
         print("Goodbye!")
         break
-    events = graph.stream({"messages": [("user", user_input)]}, config, stream_mode="values")
+    events = graph.stream({"messages": [("user", user_input)]}, config_c, stream_mode="values")
     for event in events:
         _print_event(event, _printed)
-    snapshot = graph.get_state(config)
-    while snapshot.next:
-        # We have an interrupt! The agent is trying to use a tool, and the user can approve or deny it
-        # Note: This code is all outside of your graph. Typically, you would stream the output to a UI.
-        # Then, you would have the frontend trigger a new run via an API call when the user has provided input.
-        user_input = input(
-            "Do you approve of the above actions? Type 'y' to continue;" " otherwise, explain your requested changed.\n\n"
-        )
-        if user_input.strip() == "y":
-            # Just continue
-            result = graph.invoke(
-                None,
-                config,
+
+    if 0:
+        snapshot = graph.get_state(config_c)
+        while snapshot.next:
+            # We have an interrupt! The agent is trying to use a tool, and the user can approve or deny it
+            # Note: This code is all outside of your graph. Typically, you would stream the output to a UI.
+            # Then, you would have the frontend trigger a new run via an API call when the user has provided input.
+            user_input = input(
+                "Do you approve of the above actions? Type 'y' to continue;" " otherwise, explain your requested changed.\n\n"
             )
-        else:
-            # Satisfy the tool invocation by
-            # providing instructions on the requested changes / change of mind
-            result = graph.invoke(
-                {
-                    "messages": [
-                        ToolMessage(
-                            tool_call_id=event["messages"][-1].tool_calls[0]["id"],
-                            content=f"API call denied by user. Reasoning: '{user_input}'. Continue assisting, accounting for the user's input.",
-                        )
-                    ]
-                },
-                config,
-            )
-        snapshot = graph.get_state(config)
+            if user_input.strip() == "y":
+                # Just continue
+                result = graph.invoke(
+                    None,
+                    config_c,
+                )
+            else:
+                # Satisfy the tool invocation by
+                # providing instructions on the requested changes / change of mind
+                result = graph.invoke(
+                    {
+                        "messages": [
+                            ToolMessage(
+                                tool_call_id=event["messages"][-1].tool_calls[0]["id"],
+                                content=f"API call denied by user. Reasoning: '{user_input}'. Continue assisting, accounting for the user's input.",
+                            )
+                        ]
+                    },
+                    config_c,
+                )
+            snapshot = graph.get_state(config_c)

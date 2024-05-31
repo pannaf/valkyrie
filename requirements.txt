@@ -2,6 +2,7 @@ hydra-core
 langgraph
 langchain-community
 langchain-anthropic
+langchain-groq
 langsmith
 loguru
 pandas
