@@ -15,7 +15,8 @@ To construct meaningful workouts, V needed to be able to draw from a solid exerc
 To construct meaningful workouts, V needed a solid exercise list. I used NeMo Curator to generate this list through a data curation pipeline that gathered, cleaned, and processed data scraped from various web sources.
 
 #### Pipeline Overview
-Following the NeMo Curator tutorial [here](https://developer.nvidia.com/blog/curating-custom-datasets-for-llm-training-with-nvidia-nemo-curator/), my pipeline included the following high-level steps. Refer to [src/datasets/nemo_exercise_downloader.py](src/datasets/nemo_exercise_downloader.py) for the full code implementation:
+> Refer to [src/datasets/nemo_exercise_downloader.py](src/datasets/nemo_exercise_downloader.py) for the full code implementation
+Following the NeMo Curator tutorial [here](https://developer.nvidia.com/blog/curating-custom-datasets-for-llm-training-with-nvidia-nemo-curator/), my pipeline included the following high-level steps:
 
 1. Download and Extract Data:
 - `ExerciseDownloader`: Downloads exercises from specified URLs and saves them as HTML files.
