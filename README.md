@@ -10,7 +10,7 @@ To construct meaningful workouts, V needed to be able to draw from an exercise l
 
 ### A couple notes
 #### Installation
-Installation on a Mac was painful. I did see in the GitHub Issues that it's only meant for Linux machines. But.. this didn't stop me from trying to install on my Mac laptop anyway 🙃. After some trial and error, I did land on something that ultimately worked. I'm not even convinced I could retrace the steps for what ultimately worked. In case others find this helpful, looking through my `~/.zsh_history` shows these steps just prior to getting things working: 
+Installation on a Mac was painful. I did see in the GitHub Issues that it's only meant for Linux machines. But.. this didn't stop me from trying to install on my Mac laptop anyway 🙃. After some trial and error, I did land on something that ultimately worked. In case others find this helpful, looking through my `~/.zsh_history` shows these steps just prior to getting things working: 
 - use `conda` .. I'm not normally a fan of how bloated `conda` environments can be, so I tend to `venv` and `pip install`, but in this case.. it was needed for the `pyini` install that `nemo_text_processing` relies on
 - `conda install -c conda-forge pynini=2.1.5`.
 - `pip install nemo_text_processing`
