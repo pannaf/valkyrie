@@ -19,9 +19,10 @@ Installation on a Mac was painful 😅. I did see in the GitHub Issues [here](ht
 ➜ conda install -c conda-forge pynini=2.1.5
 ➜ pip install nemo_text_processing
 ➜ pip install 'nemo-toolkit[all]'
-➜ cd NeMo-Curator; pip install . # note I cloned the NeMo-Curator repo for this install
-➜ brew install opencc
-➜ export DYLD_LIBRARY_PATH=/opt/homebrew/Cellar/opencc/1.1.7/lib:$DYLD_LIBRARY_PATH
+➜ cd NeMo-Curator # note I cloned the NeMo-Curator repo for this install
+NeMo-Curator git:(main) ➜ pip install .
+NeMo-Curator git:(main) ➜ brew install opencc
+NeMo-Curator git:(main) ➜ export DYLD_LIBRARY_PATH=/opt/homebrew/Cellar/opencc/1.1.7/lib:$DYLD_LIBRARY_PATH
 ```
 #### NeMo Magic Sauce
 I didn't get a chance to take full advantage of what I think probably makes the magic sauce for NeMo Curator. Namely... Next time!
