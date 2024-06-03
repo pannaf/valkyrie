@@ -8,18 +8,33 @@ TODO system diagram
 - [x] LangSmith - prompt evaluation
 - [ ] NeMo Guardrails - ensure V doesn't venture into a medical domain space
 
-## [NeMo Curator] Building a Dataset of Exercises
-To construct meaningful workouts, V needed to be able to draw from an exercise list. To generate this list, I used [NeMo Curator](https://github.com/NVIDIA/NeMo-Curator).
+## [NeMo Curator] Building an Exercise Dataset
+To construct meaningful workouts, V needed to be able to draw from a solid exercise list.
 
-Following the NeMo Curator tutorial [here](https://developer.nvidia.com/blog/curating-custom-datasets-for-llm-training-with-nvidia-nemo-curator/), I built a pipeline (refer to TODO link with code) that includes the following high-level steps:
+### [NeMo Curator] Generating a List of Exercises
+To construct meaningful workouts, V needed a solid exercise list. I used NeMo Curator to generate this list through a data curation pipeline that gathered, cleaned, and processed data scraped from various web sources.
 
-1. Define a custom document builder to download the dataset from the web and convert to JSONL format.
-2. Define custom modifiers to clean and unify the text data.
-3. Filter the dataset using predefined and custom heuristics.
-4. Deduplicate the dataset to remove identical records.
-5. Output the results to JSONL format.
+#### Pipeline Overview
+Following the NeMo Curator tutorial [here](https://developer.nvidia.com/blog/curating-custom-datasets-for-llm-training-with-nvidia-nemo-curator/), my pipeline included the following high-level steps. Refer to [src/datasets/nemo_exercise_downloader.py](src/datasets/nemo_exercise_downloader.py) for the full code implementation:
 
+1. Download and Extract Data:
+- `ExerciseDownloader`: Downloads exercises from specified URLs and saves them as HTML files.
+- `ExerciseIterator`: Splits the HTML content into individual records with metadata.
+- `ExerciseExtractor`: Extracts and cleans text content from HTML, removing unnecessary tags.
 
+2. Clean and Unify Text:
+- `UnicodeCleaner`: Removes non-ASCII characters.
+- `UnicodeReformatter`: Standardizes Unicode formatting.
+
+3. Filter the Dataset:
+- `KeywordFilter`: Removes irrelevant documents based on specific keywords.
+- `WordCountFilter`: Ensures documents meet a minimum word count, at least 1 word.
+
+4. Deduplicate Records:
+- `ExactDuplicates`: Identifies and removes exact duplicate records.
+
+5. Output the Results:
+- Saves the final dataset in JSONL format.
 
 ### A few notes
 #### Installation
