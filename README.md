@@ -9,7 +9,15 @@ TODO system diagram
 - [ ] NeMo Guardrails - ensure V doesn't venture into a medical domain space
 
 ## [NeMo Curator] Building a Dataset of Exercises
-To construct meaningful workouts, V needed to be able to draw from an exercise list. I used [NeMo Curator](https://github.com/NVIDIA/NeMo-Curator) to generate said exercise list, pulled from scraping a couple exercise database sites. This made it easy to build a pipeline where I could pull from these sites and auto-filter down to an exercise list through a sequence of `modify_document` calls via `Sequential([Modify(...), Modify(...),])`. Refer to TODO link for the full code.
+To construct meaningful workouts, V needed to be able to draw from an exercise list. To generate this list, I used [NeMo Curator](https://github.com/NVIDIA/NeMo-Curator). Refer to TODO link for the full code.
+
+Following the NeMo Curator tutorial [here](https://developer.nvidia.com/blog/curating-custom-datasets-for-llm-training-with-nvidia-nemo-curator/), I built a pipeline that includes the following high-level steps:
+
+1. Define a custom document builder to download the dataset from the web and convert to JSONL format.
+2. Define custom modifiers to clean and unify the text data.
+3. Filter the dataset using predefined and custom heuristics.
+4. Deduplicate the dataset to remove identical records.
+5. Output the results to JSONL format.
 
 ### A few notes
 #### Installation
