@@ -1,5 +1,7 @@
 # V : AI Personal Trainer
 
+My entry for the [Generative AI Agents Developer Contest by NVIDIA and LangChain](https://www.nvidia.com/en-us/ai-data-science/generative-ai/developer-contest-with-langchain/).
+
 TODO system diagram
 
 ## Tech Used
