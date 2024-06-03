@@ -12,28 +12,28 @@ TODO system diagram
 To construct meaningful workouts, V needed to be able to draw from a solid exercise list.
 
 ### [NeMo Curator] Generating a List of Exercises
-To construct meaningful workouts, V needed a solid exercise list. I used NeMo Curator to generate this list through a data curation pipeline that gathered, cleaned, and processed data scraped from various web sources.
+To construct meaningful workouts, V needed a solid exercise list. I used NeMo Curator to generate this list through a data curation pipeline that gathers, cleans, and processes data scraped from various web sources.
 
 #### Pipeline Overview
 > Refer to [src/datasets/nemo_exercise_downloader.py](src/datasets/nemo_exercise_downloader.py) for the full code implementation
 
-Following the NeMo Curator tutorial [here](https://developer.nvidia.com/blog/curating-custom-datasets-for-llm-training-with-nvidia-nemo-curator/), my pipeline included the following high-level steps:
+Following the NeMo Curator tutorial [here](https://developer.nvidia.com/blog/curating-custom-datasets-for-llm-training-with-nvidia-nemo-curator/), my pipeline includes the following steps:
 
 1. Download and Extract Data:
-- `ExerciseDownloader`: Downloads exercises from specified URLs and saves them as HTML files.
-- `ExerciseIterator`: Splits the HTML content into individual records with metadata.
-- `ExerciseExtractor`: Extracts and cleans text content from HTML, removing unnecessary tags.
+- `ExerciseDownloader` (custom): Downloads HTML from specified URLs that contain exercise lists.
+- `ExerciseIterator` (custom): Splits the HTML content into individual records with metadata.
+- `ExerciseExtractor` (custom): Extracts and cleans text content from HTML, removing unnecessary tags.
 
 2. Clean and Unify Text:
-- `UnicodeCleaner`: Removes non-ASCII characters.
-- `UnicodeReformatter`: Standardizes Unicode formatting.
+- `UnicodeCleaner` (custom): Removes non-ASCII characters.
+- `UnicodeReformatter` (direct NeMo): Standardizes Unicode formatting.
 
 3. Filter the Dataset:
-- `KeywordFilter`: Removes irrelevant documents based on specific keywords.
-- `WordCountFilter`: Ensures documents meet a minimum word count, at least 1 word.
+- `KeywordFilter` (custom): Removes irrelevant documents based on specific keywords.
+- `WordCountFilter` (direct NeMo): Ensures documents meet a minimum word count, at least 1 word.
 
 4. Deduplicate Records:
-- `ExactDuplicates`: Identifies and removes exact duplicate records.
+- `ExactDuplicates` (direct NeMo): Identifies and removes exact duplicate records.
 
 5. Output the Results:
 - Saves the final dataset in JSONL format.
