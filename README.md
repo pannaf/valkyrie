@@ -67,24 +67,23 @@ I explored a couple aspects of NeMo Curator that I ultimately didn't get to use 
 - Common data crawler - no insights to report.. [this example](https://github.com/NVIDIA/NeMo-Curator/blob/main/examples/download_common_crawl.py) worked pretty well for me, just requires you to specify a reasonable directory
 
 ### Cleaning the `.jsonl` format a little
-Normally I wouldn't include this type of detail, but I thought this was pretty neat! And wanted to share. My `.jsonl` files end up with this type of format:
+Normally I wouldn't include this type of detail, but I thought this was pretty neat and worth a quick share! My `.jsonl` files output from my NeMo Curator pipeline end up with this type of format:
 
 ```json
 {"filename":"exercises-0.jsonl","id":"doc_id-04900","text":"Seated Barbell Shoulder Press","word_count":4}
 {"filename":"exercises-0.jsonl","id":"doc_id-06200","text":"Dumbbell Goblet Squat","word_count":3}
 {"filename":"exercises-0.jsonl","id":"doc_id-07500","text":"Curtsy Lunge","word_count":2}
-...
 ```
 
-I wanted to transform this into a simple text file that has just the text fields extracted. There's lotsa ways I could have done this in Python, but there's also this pretty sweet command line JSON processor `jq` that can do this in a really simple way. Head over [here](https://formulae.brew.sh/formula/jq) if you haven't heard of `jq` before. Here's the command:
+I wanted to transform this into a simple text file that has just the text fields extracted. There's lotsa ways I could have done this in Python, but there's also this pretty sweet command line JSON processor `jq` for these types of things. Head over [here](https://formulae.brew.sh/formula/jq) if you haven't heard of `jq` before. Here's the command:
 
 ```zsh
 for file in exercises-*.jsonl; do
-    jq -r '.text' "$file" > "${file%.jsonl}-text.jsonl"
+    jq -r '.text' "$file" > "${file%.jsonl}-text.jsonl" # pulls out the "text" field from each JSON line
 done
 ```
 
-The `jq -r '.text' "$file"` pulls out the `"text"` field from each JSON line, giving the output:
+Giving the output:
 
 ```text
 Seated Barbell Shoulder Press
