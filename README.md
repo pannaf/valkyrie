@@ -5,7 +5,7 @@
 - [x] LangGraph
 - [x] LangSmith
 
-## Building a Dataset of Exercises
+## [NeMo Curator] Building a Dataset of Exercises
 To construct meaningful workouts, V needed to be able to draw from an exercise list. I used [NeMo Curator](https://github.com/NVIDIA/NeMo-Curator) to generate an exercise list, pulled from scraping a couple exercise database sites. This made it easy to build a pipeline where I could pull and auto-filter the exercise list through a sequence of `modify_document` calls via `Sequential([Modify(...), Modify(...),])`. Refer to TODO link for the full code.
 
 ### A couple notes
