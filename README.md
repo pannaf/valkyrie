@@ -63,6 +63,8 @@ I didn't get a chance to take full advantage of what I think is a key ingredient
 
 ##### Experiments that didn't make the cut
 I explored a couple aspects of NeMo Curator that I ultimately didn't get to use in my final system:
-- Wikipedia data pull - one thing I found here is that I needed to set `dump_date=None` in `download_wikpedia()` from `nemo_curator.download` in order to get [this example](https://github.com/NVIDIA/NeMo-Curator/blob/main/examples/download_wikipedia.py) working
+- Wikipedia data pull - one thing I found here is that I needed to set `dump_date=None` in `download_wikipedia()` from `nemo_curator.download` in order to get [this example](https://github.com/NVIDIA/NeMo-Curator/blob/main/examples/download_wikipedia.py) working
 - Common data crawler - no insights to report.. [this example](https://github.com/NVIDIA/NeMo-Curator/blob/main/examples/download_common_crawl.py) worked pretty well for me, just requires you to specify a reasonable directory
 
+### Annotating Exercises with Attributes
+... TODO ...
