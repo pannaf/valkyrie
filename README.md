@@ -3,15 +3,15 @@
 TODO system diagram
 
 ## Tech Used
-- [x] NeMo Curator - build a dataset of exercises 💪
+- [x] ![image](https://github.com/pannaf/artemis/assets/18562964/3ec5b89a-8634-492f-8077-b636466de285) NeMo Curator - build a dataset of exercises 💪
 - [x] LangGraph - V as an agent
 - [x] LangSmith - prompt evaluation
-- [ ] NeMo Guardrails - ensure V doesn't venture into a medical domain space
+- [ ] ![image](https://github.com/pannaf/artemis/assets/18562964/3ec5b89a-8634-492f-8077-b636466de285) NeMo Guardrails - ensure V doesn't venture into a medical domain space
 
-## [NeMo Curator] Building an Exercise Dataset
+## ![image](https://github.com/pannaf/artemis/assets/18562964/3ec5b89a-8634-492f-8077-b636466de285) [NeMo Curator] Building an Exercise Dataset
 To construct meaningful workouts, V needed to be able to draw from a solid exercise list.
 
-### [NeMo Curator] Generating an Exercise List
+### ![image](https://github.com/pannaf/artemis/assets/18562964/3ec5b89a-8634-492f-8077-b636466de285) [NeMo Curator] Generating an Exercise List
 I used NeMo Curator to generate an exercise list through a data curation pipeline that gathers, cleans, and processes data scraped from various web sources.
 
 #### Pipeline Overview
