@@ -4,8 +4,9 @@ TODO system diagram
 
 ## Tech Used
 - [x] NeMo Curator - build a dataset of exercises 💪
-- [x] LangGraph
-- [x] LangSmith
+- [x] LangGraph - V as an agent
+- [x] LangSmith - prompt evaluation
+- [ ] NeMo Guardrails - ensure V doesn't venture into a medical domain space
 
 ## [NeMo Curator] Building a Dataset of Exercises
 To construct meaningful workouts, V needed to be able to draw from an exercise list. I used [NeMo Curator](https://github.com/NVIDIA/NeMo-Curator) to generate said exercise list, pulled from scraping a couple exercise database sites. This made it easy to build a pipeline where I could pull from these sites and auto-filter down to an exercise list through a sequence of `modify_document` calls via `Sequential([Modify(...), Modify(...),])`. Refer to TODO link for the full code.
