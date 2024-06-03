@@ -1,5 +1,7 @@
 # V : AI Personal Trainer
 
+TODO system diagram
+
 ## Tech Used
 - [x] NeMo Curator - build a dataset of exercises 💪
 - [x] LangGraph
