@@ -16,6 +16,7 @@ To construct meaningful workouts, V needed a solid exercise list. I used NeMo Cu
 
 #### Pipeline Overview
 > Refer to [src/datasets/nemo_exercise_downloader.py](src/datasets/nemo_exercise_downloader.py) for the full code implementation
+
 Following the NeMo Curator tutorial [here](https://developer.nvidia.com/blog/curating-custom-datasets-for-llm-training-with-nvidia-nemo-curator/), my pipeline included the following high-level steps:
 
 1. Download and Extract Data:
