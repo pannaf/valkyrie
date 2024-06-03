@@ -15,7 +15,6 @@ To construct meaningful workouts, V needed to be able to draw from a solid exerc
 I used NeMo Curator to generate an exercise list through a data curation pipeline that gathers, cleans, and processes data scraped from various web sources.
 
 #### Pipeline Overview
-> Refer to [src/datasets/nemo_exercise_downloader.py](src/datasets/nemo_exercise_downloader.py) for the full code implementation
 
 Following the NeMo Curator tutorial [here](https://developer.nvidia.com/blog/curating-custom-datasets-for-llm-training-with-nvidia-nemo-curator/), my pipeline includes the following steps:
 
@@ -38,6 +37,9 @@ Following the NeMo Curator tutorial [here](https://developer.nvidia.com/blog/cur
 5. Output the Results:
 - Saves the final dataset in JSONL format.
 
+#### Code
+Refer to [src/datasets/nemo_exercise_downloader.py](src/datasets/nemo_exercise_downloader.py) for the full implementation.
+
 #### A few notes
 ##### Installation
 Installation on a Mac was painful 😅. I did see in the GitHub Issues [here](https://github.com/NVIDIA/NeMo-Curator/issues/76#issuecomment-2135907968) that it's really meant for Linux machines. But.. this didn't stop me from trying to install on my Mac laptop anyway 🙃. After some trial and error, I did land on something that ultimately worked. A key ingredient was using `conda` with a Python 3.10.X version. Later versions of Python, such as 3.11 and 3.12, didn't work for me. I'm not normally a fan of how bloated `conda` can be, but in this case it was recommended in the README of the NeMo text processing repo [here](https://github.com/NVIDIA/NeMo-text-processing) for the `pyini` install that `nemo_text_processing` needs. 
@@ -53,9 +55,10 @@ NeMo-Curator git:(main) ➜ brew install opencc
 NeMo-Curator git:(main) ➜ export DYLD_LIBRARY_PATH=/opt/homebrew/Cellar/opencc/1.1.7/lib:$DYLD_LIBRARY_PATH
 ```
 ##### NeMo Magic Sauce
-I didn't get a chance to take full advantage of what I think probably makes the magic sauce for NeMo Curator. Namely... Next time!
+I didn't get a chance to take full advantage of what I think is a key ingredient in the magic sauce for NeMo Curator. Namely the GPU acceleration that makes it possible to more efficiently process massive amounts of data. My exercise dataset doesn't really fall into that "massive amounts" category, so it wasn't super necessary to use in my case. But.. I think it would have been super fun to explore their multi-node, multi-GPU classifier inference for distributed data classification (example [here](https://github.com/NVIDIA/NeMo-Curator/blob/main/docs/user-guide/DistributedDataClassification.rst)). Next time!
+
 ##### Experiments that didn't make the cut
-I experimented with some other aspects of NeMo Curator that I ultimately didn't use in my final system:
-- Wikipedia pull
-- Common data crawler
+I explored a couple aspects of NeMo Curator that I ultimately didn't use in my final system:
+- Wikipedia data pull - one thing I found here is that I needed to set `dump_date=None` in `download_wikpedia()` from `nemo_curator.download` in order to get this working
+- Common data crawler - no insights to report.. [this example](https://github.com/NVIDIA/NeMo-Curator/blob/main/examples/download_common_crawl.py) worked pretty well for me, just requires you to specify a reasonable directory
 
