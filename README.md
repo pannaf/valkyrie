@@ -3,7 +3,7 @@
 TODO system diagram
 
 ## Tech Used
-- [x] <img src="https://github.com/pannaf/artemis/assets/18562964/3ec5b89a-8634-492f-8077-b636466de285" alt="image" width="20"/> NeMo Curator - build a dataset of exercises 💪
+- [x] <img src="https://github.com/pannaf/artemis/assets/18562964/3ec5b89a-8634-492f-8077-b636466de285" alt="image" width="15"/> NeMo Curator - build a dataset of exercises 💪
 - [x] LangGraph - V as an agent
 - [x] LangSmith - prompt evaluation
 - [ ] ![image](https://github.com/pannaf/artemis/assets/18562964/3ec5b89a-8634-492f-8077-b636466de285) NeMo Guardrails - ensure V doesn't venture into a medical domain space
