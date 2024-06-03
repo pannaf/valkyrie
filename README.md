@@ -1,7 +1,7 @@
 # V : AI Personal Trainer
 
 ## Tech Used
-- [x] NeMo Curator
+- [x] NeMo Curator - build a dataset of exercises 💪
 - [x] LangGraph
 - [x] LangSmith
 
