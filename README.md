@@ -20,8 +20,8 @@ Installation on a Mac was painful 😅. I did see in the GitHub Issues [here](ht
 - `export DYLD_LIBRARY_PATH=/opt/homebrew/Cellar/opencc/1.1.7/lib:$DYLD_LIBRARY_PATH`
 #### NeMo Magic Sauce
 I didn't get a chance to take full advantage of what I think probably makes the magic sauce for NeMo Curator. Namely... Next time!
-#### Things that didn't make the cut
-I experimented with some other aspects of NeMo Curator:
+#### Experiments that didn't make the cut
+I experimented with some other aspects of NeMo Curator that I ultimately didn't use in my final system:
 - Wikipedia pull
 - Common data crawler
 
