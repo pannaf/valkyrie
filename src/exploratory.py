@@ -38,11 +38,8 @@ from src.sandbox.db_utils import (
 load_dotenv()
 
 
-if True:
-    # llm = ChatAnthropic(model="claude-3-haiku-20240307")
-    llm = ChatAnthropic(model="claude-3-sonnet-20240229", temperature=1)
-else:
-    llm = ChatGroq(temperature=0, model_name="mixtral-8x7b-32768")
+# llm = ChatAnthropic(model="claude-3-haiku-20240307")
+llm = ChatAnthropic(model="claude-3-sonnet-20240229", temperature=1)
 
 
 def update_dialog_stack(left: list[str], right: Optional[str]) -> list[str]:
@@ -59,7 +56,6 @@ class State(TypedDict):
     messages: Annotated[list[AnyMessage], add_messages]
     user_info: dict[str, str]
     dialog_state: Annotated[list[Literal["assistant", "onboarding_wizard", "goal_wizard"]], update_dialog_stack]
-    current_goal_id: Optional[str]
 
 
 class Assistant:
@@ -182,8 +178,6 @@ goal_wizard_prompt = ChatPromptTemplate.from_messages(
             Even though you have these tools available, you can also choose to chat with the user without using them.
             - fetch_goals : Use this tool to fetch the user's current goals.
             - handle_create_goal : Use this tool to create a new, empty goal for the user. You need to call this tool before updating the goal.
-            - update_goal_state : Use this tool to update the current goal id in the state, based on the goal being discussed.
-            - clear_goal_state : Use this tool to clear the current goal id in the state. Before returning to the host assistant, you should clear the current goal id.
             - update_goal : Use this tool to update the user's goal with the information you learn about them.
             </tools available>
             <conversation structure>
@@ -196,7 +190,6 @@ goal_wizard_prompt = ChatPromptTemplate.from_messages(
             <when to return to the host assistant>
             If the user doesn't want to answer your questions, escalate to the host assistant.
             When the user has set 1-3 goals and seems done with goal setting, return to the host assistant.
-            Before returning to the host assistant, you must clear the current goal id using the tool clear_goal_state.
             </when to return to the host assistant>
             <current time>{time}</current time>
             """
@@ -360,7 +353,7 @@ def fetch_goals():
 
 
 @tool
-def handle_create_goal(state: State):
+def handle_create_goal():
     """
     Create a new goal for the user.
     Parameters:
@@ -373,44 +366,18 @@ def handle_create_goal(state: State):
         raise ValueError("User ID is not set in the configuration")
 
     goal_id = str(uuid.uuid4())
-    state["current_goal_id"] = goal_id
     create_empty_goal_db(user_id, goal_id)
     return f"Created a new goal with id {goal_id} for user {user_id}"
 
 
 @tool
-def update_goal_state(state: State, goal_id: str):
-    """
-    Update the current goal id in the state, based on the goal being discussed. To know which goal is being discussed,
-    you need to look up the goals for the user which can be done with the fetch_goals tool. The goal_id should be one of the goal_ids
-    from the goals table.
-    Parameters:
-        state: The current state of the dialog.
-        goal_id: The id of the goal being discussed.
-    """
-    state["current_goal_id"] = goal_id
-    return f"Updated current goal id to {goal_id}"
-
-
-@tool
-def clear_goal_state(state: State):
-    """
-    Clear the current goal id in the state.
-    Parameters:
-        state: The current state of the dialog.
-    """
-    state["current_goal_id"] = None
-    return "Cleared current goal id"
-
-
-@tool
-def update_goal(state: State, goal_field: str, goal_value: Union[str, int, float, list, dict]):
+def update_goal(goal_id: str, goal_field: str, goal_value: Union[str, int, float, list, dict]):
     """
     Updates a user's goal information in the goals table based on the provided field and value.
     If the field is already set to the provided value, don't use this tool.
 
     Parameters:
-    - state (State): The current state of the dialog... this is needed to know which goal to update because it has current_goal_id.
+    - goal_id (str): The id of the goal to update. In order to figure out the goal_id, you need to use the tool fetch_goals to identify which goal is being discussed that needs to be updated.
     - goal_field (str): The field in the goal to update.
         Must be one of: 'goal_type', 'description', 'target_value', 'current_value', 'unit', 'start_date', 'end_date', 'goal_status', 'notes', 'last_updated'
     - goal_value (Union[str, int, float, list, dict]): The new value to set for the specified field.
@@ -433,8 +400,6 @@ def update_goal(state: State, goal_field: str, goal_value: Union[str, int, float
     user_id = configuration.get("user_id")
     if not user_id:
         raise ValueError("User ID is not set in the configuration")
-
-    goal_id = state.get("current_goal_id")
 
     if isinstance(goal_value, dict):
         goal_value = json.dumps(goal_value)
@@ -704,16 +669,16 @@ graph = builder.compile(
 #     ],
 # )
 
-visualize_graph = False
+VISUALIZE_GRAPH = False
 
-if visualize_graph:
+if VISUALIZE_GRAPH:
     graph_path = Path("graph.png")
     image_data = io.BytesIO(graph.get_graph().draw_mermaid_png())
     image = Image.open(image_data)
     image.save(graph_path)
 
-thread_id = "1"
-config_c = {"configurable": {"user_id": "bf9d8cd5-3c89-40ef-965b-ad2ff148e52a", "thread_id": thread_id}}
+THREAD_ID = "1"
+config_c = {"configurable": {"user_id": "bf9d8cd5-3c89-40ef-965b-ad2ff148e52a", "thread_id": THREAD_ID}}
 
 _printed = set()
 
@@ -726,33 +691,33 @@ while True:
     for event in events:
         _print_event(event, _printed)
 
-    if 0:
-        snapshot = graph.get_state(config_c)
-        while snapshot.next:
-            # We have an interrupt! The agent is trying to use a tool, and the user can approve or deny it
-            # Note: This code is all outside of your graph. Typically, you would stream the output to a UI.
-            # Then, you would have the frontend trigger a new run via an API call when the user has provided input.
-            user_input = input(
-                "Do you approve of the above actions? Type 'y' to continue;" " otherwise, explain your requested changed.\n\n"
-            )
-            if user_input.strip() == "y":
-                # Just continue
-                result = graph.invoke(
-                    None,
-                    config_c,
-                )
-            else:
-                # Satisfy the tool invocation by
-                # providing instructions on the requested changes / change of mind
-                result = graph.invoke(
-                    {
-                        "messages": [
-                            ToolMessage(
-                                tool_call_id=event["messages"][-1].tool_calls[0]["id"],
-                                content=f"API call denied by user. Reasoning: '{user_input}'. Continue assisting, accounting for the user's input.",
-                            )
-                        ]
-                    },
-                    config_c,
-                )
-            snapshot = graph.get_state(config_c)
+    # if 0:
+    #     snapshot = graph.get_state(config_c)
+    #     while snapshot.next:
+    #         # We have an interrupt! The agent is trying to use a tool, and the user can approve or deny it
+    #         # Note: This code is all outside of your graph. Typically, you would stream the output to a UI.
+    #         # Then, you would have the frontend trigger a new run via an API call when the user has provided input.
+    #         user_input = input(
+    #             "Do you approve of the above actions? Type 'y' to continue;" " otherwise, explain your requested changed.\n\n"
+    #         )
+    #         if user_input.strip() == "y":
+    #             # Just continue
+    #             result = graph.invoke(
+    #                 None,
+    #                 config_c,
+    #             )
+    #         else:
+    #             # Satisfy the tool invocation by
+    #             # providing instructions on the requested changes / change of mind
+    #             result = graph.invoke(
+    #                 {
+    #                     "messages": [
+    #                         ToolMessage(
+    #                             tool_call_id=event["messages"][-1].tool_calls[0]["id"],
+    #                             content=f"API call denied by user. Reasoning: '{user_input}'. Continue assisting, accounting for the user's input.",
+    #                         )
+    #                     ]
+    #                 },
+    #                 config_c,
+    #             )
+    #         snapshot = graph.get_state(config_c)
