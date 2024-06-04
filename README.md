@@ -106,7 +106,7 @@ TODO...
 
 ## <img src="https://github.com/pannaf/artemis/assets/18562964/c579f82c-7fe8-4709-8b4c-379573843545" alt="image" width="55"/> [LangGraph] V as an Agent
 Things I wanted V to be able to do:
-- onboard a new user, and learn about them
+- [Onboarding](#onboarding): onboard a new user, and learn about them
 - help a user set goals and update their goals
 - given the user profile and their goals, plan an 8-12 week fitness program
 - help a user update their weights for a workout
@@ -114,6 +114,9 @@ Things I wanted V to be able to do:
 - reflect on a workout...
 - in-workout motivator..
 - and a one-off.. let a user snap a photo of a written workout description to upload to their completed workouts
+
+### Onboarding
+TODO
 
 ## <img src="https://github.com/pannaf/artemis/assets/18562964/c579f82c-7fe8-4709-8b4c-379573843545" alt="image" width="55"/> [LangSmith] Prompt Evaluation
 TODO
