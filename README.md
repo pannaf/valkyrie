@@ -97,6 +97,6 @@ Exactly what I wanted 🙃
 To get the final list of exercises that V could use in workout planning, I took a few additional Human-in-the-loop steps:
 
 1. Collaborated with ChatGPT to fill out an initial pass at annotating each of the ~1400 exercises with the following attributes: `"Exercise Name","Exercise Type","Target Muscle Groups","Movement Pattern","Exercise Difficulty/Intensity","Equipment Required","Exercise Form and Technique","Duration and Repetitions","Exercise Modifications and Variations","Safety Considerations","Primary Goals","Exercise Dynamics","Rest Periods","Exercise Sequence"`
-2. Collaborated with a NASM-certified exercise domain expert to correct any mistakes from ChatGPTs initial attributes.
+2. Collaborated with a NASM-certified exercise domain expert to correct any mistakes from ChatGPT's initial attributes.
    
 The attributes are needed to provide the sufficient context needed for V to select appropriate exercises for a user, based on their fitness level and preferences.
