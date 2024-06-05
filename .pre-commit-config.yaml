@@ -10,8 +10,9 @@ repos:
 
       - id: remove-traces
         name: Remove pdb/ipdb trace statements and run Black
-        entry: python remove_traces.py
-        language: python
+        entry: bash -c 'FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E ".py$" | grep -v "remove_traces.py"); if [ -n "$FILES" ]; then grep -Hn "pdb.set_trace\|ipdb.set_trace" $FILES && echo "Debugger statement found!" && exit 1; fi; exit 0'
+        language: system
+        types: [python]
         files: \.py$
 
       - id: check-for-debugger
