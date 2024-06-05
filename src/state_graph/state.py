@@ -7,7 +7,7 @@ from src.assistants.assistant_type import AssistantType
 
 
 def update_dialog_stack(left: list[str], right: Optional[str]) -> list[str]:
-    """Push or pop the dialog state"""
+    """Push or pop the dialog state."""
     if right is None:
         return left
 
