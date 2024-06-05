@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/psf/black
-    rev: 24.4.2  # Use the specific version tag
+    rev: 24.4.2 
     hooks:
       - id: black
         name: black
@@ -21,7 +21,8 @@ repos:
 
       - id: check-for-debugger
         name: Check for pdb.set_trace and ipdb.set_trace
-        entry: bash -c 'grep -E "pdb.set_trace\(\)|ipdb.set_trace\(\)" "$@" && echo "Debugger statement found!" && exit 1 || exit 0'
+        entry: bash -c 'for file in "$@"; do if grep -qE "pdb.set_trace\(\)|ipdb.set_trace\(\)" "$file"; then echo "Debugger statement found in $file!"; exit 1; fi; done;'
         language: system
         types: [python]
+        files: \.py$
 
