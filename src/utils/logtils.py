@@ -98,6 +98,7 @@ class LoggingContextManager:
     def __exit__(self, exc_type, exc_val, exc_tb):
         context_vars.get("user_id").reset(self.token)
 
+
 ###-----------------###
 # Usage example
 ###-----------------###
@@ -130,7 +131,7 @@ def main(cfg: DictConfig):
                 g()
         finally:
             logger_context.info(f"Completed execution for user {user_id}")
-            print(f"{context_vars.get("user_id").get()=}")
+            print(f"{context_vars.get('user_id').get()=}")
 
 
 if __name__ == "__main__":

@@ -7,7 +7,7 @@ from psycopg2.extras import RealDictCursor
 load_dotenv()
 
 # Get the PostgreSQL connection URL from the environment variable
-DATABASE_URL = os.getenv('DATABASE_URL')
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 # Establish the connection
 conn = psycopg2.connect(DATABASE_URL)
