@@ -1,4 +1,4 @@
-from typing import Annotated, Literal, Optional, Callable, Union
+from typing import Literal, Callable, Union
 from datetime import datetime, date
 import json
 import textwrap
@@ -8,9 +8,6 @@ import uuid
 from pathlib import Path
 from PIL import Image
 
-from typing_extensions import TypedDict
-
-from langgraph.graph.message import AnyMessage, add_messages
 from langgraph.checkpoint.sqlite import SqliteSaver
 from langgraph.graph import END, StateGraph
 from langgraph.prebuilt import tools_condition, ToolNode
@@ -33,28 +30,13 @@ from src.sandbox.db_utils import (
     update_goal_db,
     create_empty_goal_db,
 )
+from src.state_graph.state import State
 
 load_dotenv()
 
 
 # llm = ChatAnthropic(model="claude-3-haiku-20240307")
 llm = ChatAnthropic(model="claude-3-sonnet-20240229", temperature=1)
-
-
-def update_dialog_stack(left: list[str], right: Optional[str]) -> list[str]:
-    """Push or pop the state"""
-    print(f"update_dialog_stack: {left=} {right=}")
-    if right is None:
-        return left
-    if right == "pop":
-        return left[:-1]
-    return left + [right]
-
-
-class State(TypedDict):
-    messages: Annotated[list[AnyMessage], add_messages]
-    user_info: dict[str, str]
-    dialog_state: Annotated[list[Literal["assistant", "onboarding_wizard", "goal_wizard"]], update_dialog_stack]
 
 
 class Assistant:
@@ -225,9 +207,6 @@ primary_assistant_prompt = ChatPromptTemplate.from_messages(
 def handle_tool_error(state) -> dict:
     error = state.get("error")
     tool_calls = state["messages"][-1].tool_calls
-    import ipdb
-
-    ipdb.set_trace()
     return {
         "messages": [
             ToolMessage(
@@ -660,14 +639,7 @@ memory = SqliteSaver.from_conn_string(":memory:")
 graph = builder.compile(
     checkpointer=memory,
 )
-# graph = builder.compile(
-#     checkpointer=memory,
-#     # Let the user approve or deny the use of sensitive tools
-#     interrupt_before=[
-#         "onboarding_wizard_sensitive_tools",
-#         "goal_wizard_sensitive_tools",
-#     ],
-# )
+
 
 VISUALIZE_GRAPH = False
 
@@ -690,34 +662,3 @@ while True:
     events = graph.stream({"messages": [("user", user_input)]}, config_c, stream_mode="values")
     for event in events:
         _print_event(event, _printed)
-
-    # if 0:
-    #     snapshot = graph.get_state(config_c)
-    #     while snapshot.next:
-    #         # We have an interrupt! The agent is trying to use a tool, and the user can approve or deny it
-    #         # Note: This code is all outside of your graph. Typically, you would stream the output to a UI.
-    #         # Then, you would have the frontend trigger a new run via an API call when the user has provided input.
-    #         user_input = input(
-    #             "Do you approve of the above actions? Type 'y' to continue;" " otherwise, explain your requested changed.\n\n"
-    #         )
-    #         if user_input.strip() == "y":
-    #             # Just continue
-    #             result = graph.invoke(
-    #                 None,
-    #                 config_c,
-    #             )
-    #         else:
-    #             # Satisfy the tool invocation by
-    #             # providing instructions on the requested changes / change of mind
-    #             result = graph.invoke(
-    #                 {
-    #                     "messages": [
-    #                         ToolMessage(
-    #                             tool_call_id=event["messages"][-1].tool_calls[0]["id"],
-    #                             content=f"API call denied by user. Reasoning: '{user_input}'. Continue assisting, accounting for the user's input.",
-    #                         )
-    #                     ]
-    #                 },
-    #                 config_c,
-    #             )
-    #         snapshot = graph.get_state(config_c)
