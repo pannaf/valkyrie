@@ -227,6 +227,7 @@ def _print_event(event: dict, _printed: set, max_length=1500):
     if current_state:
         print(f"Currently in: ", current_state[-1])
     message = event.get("messages")
+
     if message:
         if isinstance(message, list):
             message = message[-1]
