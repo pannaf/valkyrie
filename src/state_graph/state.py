@@ -12,10 +12,12 @@ def update_dialog_stack(left: list[str], right: Optional[str]) -> list[str]:
         return left
     if right == "pop":
         return left[:-1]
-    return left + [right]
+    if right in AssistantType:  # only append valid AssistantType values
+        return left + [right]
+    return left  # otherwise ignore unexpected values
 
 
-# Generate a Literal type with all enum values dynamically
+# valid dialog states stored in AssistantType Enum
 AssistantTypeLiteral = Literal[tuple(item.value for item in AssistantType)]  # type: ignore for Pylance
 
 
