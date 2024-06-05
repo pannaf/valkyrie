@@ -16,7 +16,6 @@ from langgraph.graph import END, StateGraph
 from langgraph.prebuilt import tools_condition, ToolNode
 
 from langchain_anthropic import ChatAnthropic
-from langchain_groq import ChatGroq
 
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.pydantic_v1 import BaseModel, Field
@@ -208,7 +207,8 @@ primary_assistant_prompt = ChatPromptTemplate.from_messages(
         (
             "system",
             "You are a helpful personal trainer. "
-            "Transfer to the Goal Wizard first and immediately! "
+            "Transfer to the Onboarding Wizard first and immediately! "
+            "Then transfer to the Goal Wizard after! "
             "The user is not aware of the different specialized assistants, so do not mention them; just quietly delegate through function calls. "
             "Provide detailed information to the user, and always double-check the database before concluding that information is unavailable. "
             "\n\nInfo about the user you're currently chatting with:\n<User>{user_info}</User>"
