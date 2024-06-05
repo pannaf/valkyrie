@@ -9,6 +9,9 @@ def remove_trace_statements(file_path):
     with open(file_path, "r") as file:
         lines = file.readlines()
 
+    if not lines:
+        return False  # No modifications needed for empty files
+
     modified = False
     with open(file_path, "w") as file:
         for line in lines:
