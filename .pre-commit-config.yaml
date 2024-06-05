@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/psf/black
-    rev: 24.4.2
+    rev: 24.4.2  # Use the specific version tag
     hooks:
       - id: black
         name: black
@@ -8,6 +8,7 @@ repos:
         language: python
         types: [python]
         args: ["--check"]
+        additional_dependencies: ["black"]
 
   - repo: local
     hooks:
@@ -17,3 +18,10 @@ repos:
         language: system
         types: [python]
         pass_filenames: false
+
+      - id: check-for-debugger
+        name: Check for pdb.set_trace and ipdb.set_trace
+        entry: bash -c 'grep -E "pdb.set_trace\(\)|ipdb.set_trace\(\)" "$@" && echo "Debugger statement found!" && exit 1 || exit 0'
+        language: system
+        types: [python]
+

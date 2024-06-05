@@ -23,6 +23,7 @@ def main():
     import pdb
 
     pdb.set_trace()
+    print("Done.")
 
 
 if __name__ == "__main__":
