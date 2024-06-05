@@ -5,6 +5,15 @@
 *.db
 *.sqlite
 
+*.png
+*.jpg
+*.jpeg
+
+*.txt
+
 .v-arti
 .env
 .DS_Store
+.vscode
+.ipynb_checkpoints
+outputs
