@@ -21,7 +21,7 @@ repos:
 
       - id: check-for-debugger
         name: Check for pdb.set_trace and ipdb.set_trace
-        entry: zsh -c 'for file in "$@"; do if grep -Hn "pdb.set_trace\|ipdb.set_trace" "$file"; then echo "Debugger statement found in $file!"; exit 1; fi; done; exit 0' 
+        entry: bash -c 'FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E ".py$"); if [ -n "$FILES" ]; then grep -Hn "pdb.set_trace\|ipdb.set_trace" $FILES && echo "Debugger statement found!" && exit 1; fi; exit 0'
         language: system
         types: [python]
         files: \.py$

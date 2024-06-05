@@ -20,10 +20,6 @@ class AssistantType(Enum):
 def main():
     """Main entry point to demonstrate the all_values method."""
     print("All AssistantType values:", AssistantType.all_values())
-    import pdb
-
-    pdb.set_trace()
-    print("Done???")
 
 
 if __name__ == "__main__":
