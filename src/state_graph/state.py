@@ -10,15 +10,18 @@ def update_dialog_stack(left: list[str], right: Optional[str]) -> list[str]:
     """Push or pop the state"""
     if right is None:
         return left
+
     if right == "pop":
         return left[:-1]
+
     if right in AssistantType:  # only append valid AssistantType values
         return left + [right]
+
     return left  # otherwise ignore unexpected values
 
 
 # valid dialog states stored in AssistantType Enum
-AssistantTypeLiteral = Literal[tuple(item.value for item in AssistantType)]  # type: ignore for Pylance
+AssistantTypeLiteral = Literal[tuple(AssistantType.all_values())]  # type: ignore for Pylance
 
 
 class State(TypedDict):
