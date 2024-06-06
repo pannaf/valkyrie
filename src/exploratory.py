@@ -1,36 +1,36 @@
-from typing import Literal, Callable, Union
+from typing import Literal, Callable
 from datetime import datetime, date
 import json
 import textwrap
 
 import io
-import uuid
 from pathlib import Path
 from PIL import Image
 
 from langgraph.checkpoint.sqlite import SqliteSaver
 from langgraph.graph import END, StateGraph
-from langgraph.prebuilt import tools_condition, ToolNode
+from langgraph.prebuilt import tools_condition
 
 from langchain_anthropic import ChatAnthropic
 
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.pydantic_v1 import BaseModel, Field
-from langchain_core.runnables import Runnable, RunnableConfig, ensure_config, RunnableLambda
+from langchain_core.runnables import Runnable, RunnableConfig
 from langchain_core.messages import ToolMessage
-from langchain_core.tools import tool
 
 from dotenv import load_dotenv
 
-from src.sandbox.db_utils import (
-    fetch_user,
-    fetch_user_profile,
-    update_user_profile,
-    fetch_goals_db,
-    update_goal_db,
-    create_empty_goal_db,
-)
 from src.state_graph.state import State
+from src.tools import (
+    fetch_user_info,
+    fetch_user_profile_info,
+    set_user_profile_info,
+    fetch_goals,
+    handle_create_goal,
+    update_goal,
+    create_tool_node_with_fallback,
+    CompleteOrEscalate,
+)
 
 load_dotenv()
 
@@ -53,30 +53,6 @@ class Assistant:
             else:
                 break
         return {"messages": result}
-
-
-class CompleteOrEscalate(BaseModel):
-    """A tool to mark the current task as completed and/or to escalate control of the dialog to the main assistant,
-    who can re-route the dialog based on the user's needs."""
-
-    cancel: bool = True
-    reason: str
-
-    class Config:
-        schema_extra = {
-            "example": {
-                "cancel": True,
-                "reason": "User changed their mind about the current task.",
-            },
-            "example 2": {
-                "cancel": True,
-                "reason": "I have fully completed the task.",
-            },
-            "example 3": {
-                "cancel": False,
-                "reason": "I need to search the user's emails or calendar for more information.",
-            },
-        }
 
 
 ## PROMPTS
@@ -204,24 +180,6 @@ primary_assistant_prompt = ChatPromptTemplate.from_messages(
 ## TOOLS
 
 
-def handle_tool_error(state) -> dict:
-    error = state.get("error")
-    tool_calls = state["messages"][-1].tool_calls
-    return {
-        "messages": [
-            ToolMessage(
-                content=f"Error: {repr(error)}\n please fix your mistakes.",
-                tool_call_id=tc["id"],
-            )
-            for tc in tool_calls
-        ]
-    }
-
-
-def create_tool_node_with_fallback(tools: list) -> dict:
-    return ToolNode(tools).with_fallbacks([RunnableLambda(handle_tool_error)], exception_key="error")
-
-
 def _print_event(event: dict, _printed: set, max_length=1500):
     current_state = event.get("dialog_state")
     if current_state:
@@ -237,156 +195,6 @@ def _print_event(event: dict, _printed: set, max_length=1500):
                 msg_repr = msg_repr[:max_length] + " ... (truncated)"
             print(msg_repr)
             _printed.add(message.id)
-
-
-@tool
-def fetch_user_info():
-    """
-    Fetch all known immutable information about the user: id, name, email, height, date of birth
-
-    Returns:
-        The user's information, as described above.
-    """
-    cfg = ensure_config()
-    configuration = cfg.get("configurable", {})
-    user_id = configuration.get("user_id")
-    if not user_id:
-        raise ValueError("User ID is not set in the configuration")
-
-    user_profile = fetch_user(user_id)
-    return user_profile
-
-
-@tool
-def fetch_user_profile_info():
-    """
-    Fetch all known mutable information about the user: activity preferences, workout location, workout frequency, workout duration, workout constraints,
-         fitness level, weight, goal weight
-
-    Returns:
-        The user's profile information, as described above.
-    """
-    print("Fetching user profile info.......")
-    cfg = ensure_config()
-    configuration = cfg.get("configurable", {})
-    user_id = configuration.get("user_id")
-    if not user_id:
-        raise ValueError("User ID is not set in the configuration")
-
-    user_profile = fetch_user_profile(user_id)
-    print(f"Fetched user profile for user_id {user_id}: {user_profile}")
-    return user_profile
-
-
-@tool
-def set_user_profile_info(user_profile_field: str, user_profile_value: Union[str, int, float, list, dict]):
-    """
-    Updates a user's profile information in the user_profiles table based on the provided field and value.
-    If the field is already set to the provided value, don't use this tool.
-
-    Parameters:
-    - user_profile_field (str): The field in the user profile to update.
-        Must be one of: 'activity_preferences', 'workout_location', 'workout_frequency', 'workout_duration', 'workout_constraints',
-         'fitness_level', 'weight', 'goal_weight'
-    - user_profile_value (Union[str, int, float, list, dict]): The new value to set for the specified field.
-        The type of this value should match the type of the field in the database schema.
-
-    The schema for the user_profiles table is as follows:
-     - activity_preferences TEXT
-     - workout_location TEXT
-     - workout_frequency TEXT
-     - workout_duration TEXT
-     - workout_constraints TEXT
-     - fitness_level TEXT
-     - weight REAL
-     - goal_weight REAL
-    """
-
-    cfg = ensure_config()
-    configuration = cfg.get("configurable", {})
-    user_id = configuration.get("user_id")
-    if not user_id:
-        raise ValueError("User ID is not set in the configuration")
-
-    if isinstance(user_profile_value, dict):
-        user_profile_value = json.dumps(user_profile_value)
-
-    update_user_profile(user_id, user_profile_field, user_profile_value)
-
-    return f"Successfully updated {user_profile_field} to {user_profile_value} for user {user_id}"
-
-
-@tool
-def fetch_goals():
-    """
-    Fetch all known goals for the user.
-    """
-
-    cfg = ensure_config()
-    configuration = cfg.get("configurable", {})
-    user_id = configuration.get("user_id")
-    if not user_id:
-        raise ValueError("User ID is not set in the configuration")
-
-    goals = fetch_goals_db(user_id)
-    return goals
-
-
-@tool
-def handle_create_goal():
-    """
-    Create a new goal for the user.
-    Parameters:
-        state: The current state of the dialog.
-    """
-    cfg = ensure_config()
-    configuration = cfg.get("configurable", {})
-    user_id = configuration.get("user_id")
-    if not user_id:
-        raise ValueError("User ID is not set in the configuration")
-
-    goal_id = str(uuid.uuid4())
-    create_empty_goal_db(user_id, goal_id)
-    return f"Created a new goal with id {goal_id} for user {user_id}"
-
-
-@tool
-def update_goal(goal_id: str, goal_field: str, goal_value: Union[str, int, float, list, dict]):
-    """
-    Updates a user's goal information in the goals table based on the provided field and value.
-    If the field is already set to the provided value, don't use this tool.
-
-    Parameters:
-    - goal_id (str): The id of the goal to update. In order to figure out the goal_id, you need to use the tool fetch_goals to identify which goal is being discussed that needs to be updated.
-    - goal_field (str): The field in the goal to update.
-        Must be one of: 'goal_type', 'description', 'target_value', 'current_value', 'unit', 'start_date', 'end_date', 'goal_status', 'notes', 'last_updated'
-    - goal_value (Union[str, int, float, list, dict]): The new value to set for the specified field.
-        The type of this value should match the type of the field in the database schema.
-
-    The schema for the goals table is as follows:
-     - goal_type TEXT
-     - description TEXT
-     - target_value TEXT
-     - current_value TEXT
-     - unit TEXT
-     - start_date DATE
-     - end_date DATE
-     - goal_status TEXT
-     - notes TEXT
-    """
-
-    cfg = ensure_config()
-    configuration = cfg.get("configurable", {})
-    user_id = configuration.get("user_id")
-    if not user_id:
-        raise ValueError("User ID is not set in the configuration")
-
-    if isinstance(goal_value, dict):
-        goal_value = json.dumps(goal_value)
-
-    update_goal_db(user_id, goal_id, goal_field, goal_value)
-
-    return f"Successfully updated {goal_field} to {goal_value} for user {user_id}"
 
 
 ## PRIMARY ASSISTANT
