@@ -1,4 +1,0 @@
-print("hi!")
-
-
-print("bye")
