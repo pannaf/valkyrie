@@ -56,4 +56,4 @@ if __name__ == "__main__":
         subprocess.run(["git", "add"] + modified_files)
 
     # Exit with a success code if files were modified and re-staged
-    sys.exit(0 if modified_files else 1)
+    sys.exit(0)
