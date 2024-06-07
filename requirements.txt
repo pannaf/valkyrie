@@ -3,6 +3,7 @@ langgraph
 langchain-community
 langchain-anthropic
 langchain-groq
+langchainhub
 langsmith
 loguru
 pandas
