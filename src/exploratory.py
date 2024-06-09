@@ -12,8 +12,6 @@ from langgraph.prebuilt import tools_condition
 
 from langchain_anthropic import ChatAnthropic
 
-from langchain_core.pydantic_v1 import BaseModel, Field
-from langchain_core.runnables import Runnable, RunnableConfig
 from langchain_core.messages import ToolMessage
 
 from dotenv import load_dotenv
@@ -28,8 +26,13 @@ from src.tools import (
     handle_create_goal,
     update_goal,
     create_tool_node_with_fallback,
+    ToOnboardingWizard,
+    ToGoalWizard,
     CompleteOrEscalate,
 )
+from src.assistants.assistant import Assistant
+from src.assistants.onboarding_wizard import OnboardingWizard
+from src.assistants.goal_wizard import GoalWizard
 
 load_dotenv()
 
@@ -38,81 +41,20 @@ load_dotenv()
 llm = ChatAnthropic(model="claude-3-sonnet-20240229", temperature=1)
 
 
-class Assistant:
-    def __init__(self, runnable: Runnable):
-        self.runnable = runnable
-
-    def __call__(self, state: State, config: RunnableConfig):
-        while True:
-            result = self.runnable.invoke(state)
-
-            if not result.tool_calls and (not result.content or isinstance(result.content, list) and not result.content[0].get("text")):
-                messages = state["messages"] + [("user", "Respond with a real output.")]
-                state = {**state, "messages": messages}
-            else:
-                break
-        return {"messages": result}
-
-
-## PROMPTS
+## PROMPT LOADER
 
 prompt_loader = YamlPromptLoader("src/prompts/prompts.yaml")
 
-onboarding_wizard_prompt = prompt_loader.get_prompt("onboarding_wizard")
-goal_wizard_prompt = prompt_loader.get_prompt("goal_wizard")
-primary_assistant_prompt = prompt_loader.get_prompt("gandalf")
-
-
-def _print_event(event: dict, _printed: set, max_length=1500):
-    current_state = event.get("dialog_state")
-    if current_state:
-        print(f"Currently in: ", current_state[-1])
-    message = event.get("messages")
-
-    if message:
-        if isinstance(message, list):
-            message = message[-1]
-        if message.id not in _printed:
-            msg_repr = message.pretty_repr(html=True)
-            if len(msg_repr) > max_length:
-                msg_repr = msg_repr[:max_length] + " ... (truncated)"
-            print(msg_repr)
-            _printed.add(message.id)
-
-
-## PRIMARY ASSISTANT
-class ToOnboardingWizard(BaseModel):
-    """Transfers work to a specialized assistant to handle tasks associated with setting user profile info, including what activities
-    the user prefers, where they workout, how often they workout, how long they typically workout for, any constraints they have, what
-    their fitness level is, how much they weight and what their goal weight is.
-    """
-
-    request: str = Field(description="Any necessary follup questions the onboarding wizard should clarify before proceeding.")
-
-
-class ToGoalWizard(BaseModel):
-    """Transfers work to a specialized assistant to handle goal-setting tasks, except the onboarding wizard handles marking the user's goal weight."""
-
-    request: str = Field(description="Any necessary follup questions the goal wizard should clarify before proceeding.")
-
-
 ## RUNNABLES
 
-# TODO: provide tools
+onboarding_wizard = OnboardingWizard(llm, prompt_loader, "onboarding_wizard")
+onboarding_wizard_runnable = onboarding_wizard.get_runnable()
 
-onboarding_wizard_safe_tools = [
-    fetch_user_profile_info,
-]
-onboarding_wizard_sensitive_tools = [set_user_profile_info]
-onboarding_wizard_tools = onboarding_wizard_safe_tools + onboarding_wizard_sensitive_tools
-onboarding_wizard_runnable = onboarding_wizard_prompt | llm.bind_tools(onboarding_wizard_tools + [CompleteOrEscalate])
-
-goal_wizard_safe_tools = [fetch_goals]
-goal_wizard_sensitive_tools = [handle_create_goal, update_goal]
-goal_wizard_tools = goal_wizard_safe_tools + goal_wizard_sensitive_tools
-goal_wizard_runnable = goal_wizard_prompt | llm.bind_tools(goal_wizard_tools + [CompleteOrEscalate])
+goal_wizard = GoalWizard(llm, prompt_loader, "goal_wizard")
+goal_wizard_runnable = goal_wizard.get_runnable()
 
 primary_assistant_tools = []
+primary_assistant_prompt = prompt_loader.get_prompt("gandalf")
 assistant_runnable = primary_assistant_prompt | llm.bind_tools(primary_assistant_tools + [ToOnboardingWizard, ToGoalWizard])
 
 
@@ -139,16 +81,15 @@ def create_entry_node(assistant_name: str, new_dialog_state: str) -> Callable:
 builder = StateGraph(State)
 
 
-def serialize_realdictrow(row):
-    def convert_value(value):
-        if isinstance(value, date):
-            return value.isoformat()  # Convert date to ISO format string
-        return value
-
-    return {key: convert_value(value) for key, value in row.items()}
-
-
 def user_info(state: State):
+    def serialize_realdictrow(row):
+        def convert_value(value):
+            if isinstance(value, date):
+                return value.isoformat()  # Convert date to ISO format string
+            return value
+
+        return {key: convert_value(value) for key, value in row.items()}
+
     _user_info = serialize_realdictrow(fetch_user_info.invoke({}))
     _user_info = json.dumps(_user_info, indent=4)
 
@@ -167,11 +108,11 @@ builder.add_node("onboarding_wizard", Assistant(onboarding_wizard_runnable))
 builder.add_edge("enter_onboarding_wizard", "onboarding_wizard")
 builder.add_node(
     "onboarding_wizard_sensitive_tools",
-    create_tool_node_with_fallback(onboarding_wizard_sensitive_tools),
+    create_tool_node_with_fallback(onboarding_wizard.sensitive_tools),
 )
 builder.add_node(
     "onboarding_wizard_safe_tools",
-    create_tool_node_with_fallback(onboarding_wizard_safe_tools),
+    create_tool_node_with_fallback(onboarding_wizard.safe_tools),
 )
 
 
@@ -190,7 +131,7 @@ def route_onboarding_wizard(
     did_cancel = any(tc["name"] == CompleteOrEscalate.__name__ for tc in tool_calls)
     if did_cancel:
         return "leave_skill"
-    safe_toolnames = [t.name for t in onboarding_wizard_safe_tools]
+    safe_toolnames = [t.name for t in onboarding_wizard.safe_tools]
     if all(tc["name"] in safe_toolnames for tc in tool_calls):
         return "onboarding_wizard_safe_tools"
     return "onboarding_wizard_sensitive_tools"
@@ -209,11 +150,11 @@ builder.add_node("goal_wizard", Assistant(goal_wizard_runnable))
 builder.add_edge("enter_goal_wizard", "goal_wizard")
 builder.add_node(
     "goal_wizard_safe_tools",
-    create_tool_node_with_fallback(goal_wizard_safe_tools),
+    create_tool_node_with_fallback(goal_wizard.safe_tools),
 )
 builder.add_node(
     "goal_wizard_sensitive_tools",
-    create_tool_node_with_fallback(goal_wizard_sensitive_tools),
+    create_tool_node_with_fallback(goal_wizard.sensitive_tools),
 )
 
 
@@ -232,7 +173,7 @@ def route_goal_wizard(
     did_cancel = any(tc["name"] == CompleteOrEscalate.__name__ for tc in tool_calls)
     if did_cancel:
         return "leave_skill"
-    safe_toolnames = [t.name for t in goal_wizard_safe_tools]
+    safe_toolnames = [t.name for t in goal_wizard.safe_tools]
     if all(tc["name"] in safe_toolnames for tc in tool_calls):
         return "goal_wizard_safe_tools"
     return "goal_wizard_sensitive_tools"
@@ -340,6 +281,24 @@ if VISUALIZE_GRAPH:
     image_data = io.BytesIO(graph.get_graph().draw_mermaid_png())
     image = Image.open(image_data)
     image.save(graph_path)
+
+
+def _print_event(event: dict, _printed: set, max_length=1500):
+    current_state = event.get("dialog_state")
+    if current_state:
+        print(f"Currently in: ", current_state[-1])
+    message = event.get("messages")
+
+    if message:
+        if isinstance(message, list):
+            message = message[-1]
+        if message.id not in _printed:
+            msg_repr = message.pretty_repr(html=True)
+            if len(msg_repr) > max_length:
+                msg_repr = msg_repr[:max_length] + " ... (truncated)"
+            print(msg_repr)
+            _printed.add(message.id)
+
 
 THREAD_ID = "1"
 config_c = {"configurable": {"user_id": "bf9d8cd5-3c89-40ef-965b-ad2ff148e52a", "thread_id": THREAD_ID}}
