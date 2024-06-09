@@ -38,6 +38,8 @@ from src.assistants.base_wizard import BaseWizard
 from src.tools import CompleteOrEscalate, create_tool_node_with_fallback
 from src.assistants.assistant import Assistant
 
+load_dotenv()
+
 THREAD_ID = "1"
 config_c = {"configurable": {"user_id": "bf9d8cd5-3c89-40ef-965b-ad2ff148e52a", "thread_id": THREAD_ID}}
 _printed = set()
@@ -45,7 +47,6 @@ _printed = set()
 
 class AssistantSystem:
     def __init__(self):
-        load_dotenv()
         self.llm = ChatAnthropic(model="claude-3-sonnet-20240229", temperature=1)
         self.prompt_loader = YamlPromptLoader("src/prompts/prompts.yaml")
 
