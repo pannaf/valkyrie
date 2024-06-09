@@ -274,10 +274,10 @@ graph = builder.compile(
 )
 
 
-VISUALIZE_GRAPH = False
+VISUALIZE_GRAPH = True
 
 if VISUALIZE_GRAPH:
-    graph_path = Path("graph.png")
+    graph_path = Path("graph_v2.png")
     image_data = io.BytesIO(graph.get_graph().draw_mermaid_png())
     image = Image.open(image_data)
     image.save(graph_path)

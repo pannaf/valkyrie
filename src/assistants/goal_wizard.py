@@ -13,3 +13,7 @@ class GoalWizard(BaseWizard):
         from src.tools import handle_create_goal, update_goal
 
         return [handle_create_goal, update_goal]
+
+    @property
+    def name(self):
+        return "goal_wizard"

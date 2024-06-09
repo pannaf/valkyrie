@@ -20,6 +20,10 @@ class BaseWizard:
     def sensitive_tools(self):
         raise NotImplementedError("Subclasses must define sensitive_tools")
 
+    @property
+    def name(self):
+        raise NotImplementedError("Subclasses must define name")
+
     def get_runnable(self):
         return self.runnable
 

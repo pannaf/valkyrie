@@ -13,3 +13,7 @@ class OnboardingWizard(BaseWizard):
         from src.tools import set_user_profile_info
 
         return [set_user_profile_info]
+
+    @property
+    def name(self):
+        return "onboarding_wizard"
