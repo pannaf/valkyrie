@@ -125,6 +125,32 @@ TODO
 [back to top](#tech-used)
 
 ## <img src="https://github.com/pannaf/artemis/assets/18562964/3ec5b89a-8634-492f-8077-b636466de285" alt="image" width="25"/> [NeMo Guardrails] Ensuring V Stays out of the Medical Domain
-TODO
+I used NeMo Guardrails to apply checks on the user input message, as a way of ensuring V doesn't engage meaningfully with a user on topics that land in the medical domain where only a licensed medical professional has the requisite expertise.
+
+### LangChain Integration
+I attempted to follow [this NVIDIA NeMo Guardrails tutorial](https://docs.nvidia.com/nemo/guardrails/user_guides/langchain/langchain-integration.html) to integrate with my LangGraph agent with the `RunnableRails` class as:
+
+```python
+from nemoguardrails import RailsConfig
+from nemoguardrails.integrations.langchain.runnable_rails import RunnableRails
+
+# ... initialize `some_chain`
+
+config = RailsConfig.from_path("path/to/config")
+
+# Using LCEL, you first create a RunnableRails instance, and "apply" it using the "|" operator
+guardrails = RunnableRails(config)
+chain_with_guardrails = guardrails | some_chain
+
+# Alternatively, you can specify the Runnable to wrap
+# when creating the RunnableRails instance.
+chain_with_guardrails = RunnableRails(config, runnable=some_chain)
+```
+
+With my chain including a model with `.bind_tools()` I wasn't able to get this working in my time box.
+
+### Standard `rails.generate()` in a LangGraph Node
+
+What ended up working for me was to add a node at the top of my graph that does a check on the user messages, following the [Input Rails guide](https://docs.nvidia.com/nemo/guardrails/getting_started/4_input_rails/README.html) and the [Topical Rails guide](https://docs.nvidia.com/nemo/guardrails/getting_started/6_topical_rails/README.html).
 
 [back to top](#tech-used)
