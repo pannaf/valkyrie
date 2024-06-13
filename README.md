@@ -128,6 +128,8 @@ TODO
 I used NeMo Guardrails to apply checks on the user input message, as a way of ensuring V doesn't engage meaningfully with a user on topics that land in the medical domain where only a licensed medical professional has the requisite expertise.
 
 ### LangChain Integration
+> Didn't work for me with LangGraph.
+
 I attempted to follow [this NVIDIA NeMo Guardrails tutorial](https://docs.nvidia.com/nemo/guardrails/user_guides/langchain/langchain-integration.html) to integrate with my LangGraph agent with the `RunnableRails` class as:
 
 ```python
@@ -151,6 +153,6 @@ With my chain including a model with `.bind_tools()` I wasn't able to get this w
 
 ### Standard `rails.generate()` in a LangGraph Node
 
-What ended up working for me was to add a node at the top of my graph that does a check on the user messages, following the [Input Rails guide](https://docs.nvidia.com/nemo/guardrails/getting_started/4_input_rails/README.html) and the [Topical Rails guide](https://docs.nvidia.com/nemo/guardrails/getting_started/6_topical_rails/README.html).
+What ended up working for me was to add a node at the top of my graph that does a check on the user messages, following the [Input Rails guide](https://docs.nvidia.com/nemo/guardrails/getting_started/4_input_rails/README.html) and the [Topical Rails guide](https://docs.nvidia.com/nemo/guardrails/getting_started/6_topical_rails/README.html). The node simply updates a `valid_input` field in the state, which is checked when determining which workflow to route to. When `valid_input` is `False`, V outputs the guardrails message and jumps to `END` to allow for user input.
 
 [back to top](#tech-used)
