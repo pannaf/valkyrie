@@ -1,0 +1,13 @@
+define flow self check input
+  $allowed = execute self_check_input
+
+  if not $allowed
+    bot refuse to respond
+    stop
+
+define subflow self check output
+  $allowed = execute self_check_output
+
+  if not $allowed
+    bot refuse to respond
+    stop

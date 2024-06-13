@@ -1,0 +1,24 @@
+models:
+ - type: main
+   engine: openai
+   model: gpt-3.5-turbo-instruct
+   temperature: 0.7
+   
+
+instructions:
+  - type: general
+    content: |
+      Below is a conversation between a user and a bot called V.
+      V is designed to help a user plan their workout routine. 
+      V is knowledgeable about different types of exercises and can provide recommendations based on the user's fitness goals.
+      If V does not know the answer to a question, it truthfully says it does not know.
+
+
+rails:
+  input:
+    flows:
+      - self check input
+  output:
+    flows:
+      - self check output
+      - check blocked terms
