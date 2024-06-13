@@ -30,3 +30,4 @@ class State(TypedDict):
     messages: Annotated[list[AnyMessage], add_messages]
     user_info: dict[str, str]
     dialog_state: Annotated[list[AssistantTypeLiteral], update_dialog_stack]
+    valid_input: bool

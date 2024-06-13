@@ -1,6 +1,9 @@
 from src.tools import CompleteOrEscalate, create_tool_node_with_fallback
 from src.assistants.assistant import Assistant
 
+# from nemoguardrails import RailsConfig
+# from nemoguardrails.integrations.langchain.runnable_rails import RunnableRails
+
 
 class BaseWizard:
     def __init__(self, llm, prompt_loader, prompt_name):
@@ -8,8 +11,8 @@ class BaseWizard:
         self.prompt_loader = prompt_loader
         self.prompt_name = prompt_name
         self.tools = self.safe_tools + self.sensitive_tools
-        prompt = self.prompt_loader.get_prompt(self.prompt_name)
-        self.runnable = prompt | self.llm.bind_tools(self.tools + [CompleteOrEscalate])
+        self.prompt = self.prompt_loader.get_prompt(self.prompt_name)
+        self.runnable = self.prompt | self.llm.bind_tools(self.tools + [CompleteOrEscalate])
         self.assistant = Assistant(self.runnable)
 
     @property

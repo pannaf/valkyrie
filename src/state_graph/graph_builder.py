@@ -14,6 +14,8 @@ from src.tools import ToOnboardingWizard, ToGoalWizard, CompleteOrEscalate
 from src.assistants.base_wizard import BaseWizard
 from langgraph.prebuilt import tools_condition
 
+from langchain_core.messages import AIMessage
+
 from datetime import date
 
 
@@ -53,6 +55,36 @@ class GraphBuilder:
         _user_info = serialize_realdictrow(fetch_user_info.invoke({}))
         _user_info = json.dumps(_user_info, indent=4)
         return {"user_info": _user_info}
+
+    def guardrails_input_handler(self, state: State):
+        """Handles guardrails on the user input.
+        Args:
+        - user_input: str the user input to be checked by guardrails
+        """
+
+        from nemoguardrails import RailsConfig, LLMRails
+        import nest_asyncio
+
+        nest_asyncio.apply()
+
+        rails_config = RailsConfig.from_path("./config")
+        rails = LLMRails(rails_config)
+
+        response = rails.generate(
+            messages=[
+                {
+                    "role": "user",
+                    "content": state["messages"][-1].content,
+                }
+            ]
+        )
+
+        info = rails.explain()
+
+        if "bot refuse" in info.colang_history:
+            return {"valid_input": False, "messages": [AIMessage(content=response.get("content"))]}
+        else:
+            return {"valid_input": True}
 
     def _pop_dialog_state(self, state: State) -> dict:
         messages = []
@@ -104,6 +136,8 @@ class GraphBuilder:
         "onboarding_wizard",
         "goal_wizard",
     ]:
+        if not state.get("valid_input"):
+            return END
         dialog_state = state.get("dialog_state")
         if not dialog_state:
             return "primary_assistant"
@@ -112,6 +146,9 @@ class GraphBuilder:
     def build(self):
         self.builder.add_node("fetch_user_info", self._fetch_user_info)
         self.builder.set_entry_point("fetch_user_info")
+
+        # Add guardrails_input_handler node
+        self.builder.add_node("guardrails_input_handler", self.guardrails_input_handler)
 
         # Adding wizards to the graph
         for wizard_name, wizard in self.wizards.items():
@@ -151,7 +188,18 @@ class GraphBuilder:
         self.builder.add_edge("primary_assistant_tools", "primary_assistant")
 
         # Workflow routing
-        self.builder.add_conditional_edges("fetch_user_info", self._route_to_workflow)
+        # Add edge from fetch_user_info to guardrails_input_handler
+        self.builder.add_edge("fetch_user_info", "guardrails_input_handler")
+        self.builder.add_conditional_edges(
+            "guardrails_input_handler",
+            self._route_to_workflow,
+            {
+                "onboarding_wizard": "onboarding_wizard",
+                "goal_wizard": "goal_wizard",
+                "primary_assistant": "primary_assistant",
+                END: END,
+            },
+        )
 
         return self.builder
 
