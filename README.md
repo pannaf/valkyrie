@@ -149,7 +149,7 @@ chain_with_guardrails = guardrails | some_chain
 chain_with_guardrails = RunnableRails(config, runnable=some_chain)
 ```
 
-With my chain including a model with `.bind_tools()` I wasn't able to get this working in my time box.
+With my LangGraph chain including a model with `.bind_tools()` I wasn't able to get this working in my time box.
 
 ### Standard `rails.generate()` in a LangGraph Node
 
