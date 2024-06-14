@@ -1,5 +1,6 @@
 import streamlit as st
 import hmac
+import re
 from dotenv import load_dotenv
 from langchain_anthropic import ChatAnthropic
 from src.prompts.yaml_prompt_loader import YamlPromptLoader
@@ -75,34 +76,90 @@ st.set_page_config(
     },
 )
 
-st.info("Join the waitlist!")
+# Initialize session state variables if they don't exist
+if "submitted" not in st.session_state:
+    st.session_state["submitted"] = False
+if "password_correct" not in st.session_state:
+    st.session_state["password_correct"] = None  # Use None to signify no attempt yet
+if "valid_user_info" not in st.session_state:
+    st.session_state["valid_user_info"] = False
 
 
-def check_password():
-    """Returns `True` if the user had the correct password."""
-
-    def password_entered():
-        """Checks whether a password entered by the user is correct."""
-        if hmac.compare_digest(st.session_state["password"], st.secrets["password"]):
-            st.session_state["password_correct"] = True
-            del st.session_state["password"]  # Don't store the password.
-        else:
-            st.session_state["password_correct"] = False
-
-    # Return True if the password is validated.
-    if st.session_state.get("password_correct", False):
-        return True
-
-    # Show input for password.
-    st.text_input("Password", type="password", on_change=password_entered, key="password")
-    if "password_correct" in st.session_state:
-        st.error("😕 Password incorrect")
-    return False
+def check_password(password):
+    """Checks whether a password entered by the user is correct."""
+    return hmac.compare_digest(password, st.secrets["password"])
 
 
-if not check_password():
+def is_valid_email(email):
+    """Validates the email format."""
+    email_regex = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+    return re.match(email_regex, email) is not None
+
+
+def is_valid_user_info(first_name, last_name, email):
+    """Validates the user information."""
+    return first_name and last_name and is_valid_email(email)
+
+
+if not st.session_state["password_correct"]:
+
+    tab1, tab2 = st.tabs(["Login", "Join Waitlist"])
+
+    with tab1:
+        st.markdown("### Login to access V")
+        if not st.session_state["password_correct"]:
+            with st.form("login_form"):
+                first_name = st.text_input("First Name")
+                last_name = st.text_input("Last Name")
+                email = st.text_input("Email")
+                dob = st.date_input("Date of Birth")
+                password = st.text_input("Access Code", type="password")
+                submit_login = st.form_submit_button("Login")
+
+                if submit_login:
+                    if is_valid_user_info(first_name, last_name, email):
+                        st.session_state["valid_user_info"] = True
+                        if check_password(password):
+                            st.session_state["password_correct"] = True
+                            # Store user information if needed
+                            st.session_state["user_info"] = {
+                                "first_name": first_name,
+                                "last_name": last_name,
+                                "email": email,
+                                "dob": dob,
+                            }
+                        else:
+                            st.session_state["password_correct"] = False
+                            st.error(
+                                "😕 Oops! Wrong access code.\nIf you don't have an access code, head on over to the 'Join Waitlist' tab to sign up for updates."
+                            )
+                    else:
+                        st.session_state["valid_user_info"] = False
+                        st.error("😕 Please fill in all the fields correctly.")
+
+        if st.session_state["password_correct"]:
+            st.success("Access granted. Welcome to the app!")
+            st.rerun()  # Rerun to refresh the state
+            # Main app code goes here
+
+    with tab2:
+        st.markdown("### Join the waitlist to be notified when V is available")
+        if not st.session_state["submitted"]:
+            with st.form("waitlist_form", clear_on_submit=True):
+                first_name = st.text_input("First Name")
+                last_name = st.text_input("Last Name")
+                email = st.text_input("Email")
+                submit_waitlist = st.form_submit_button("Join")
+                if submit_waitlist:
+                    st.session_state["submitted"] = True
+                    # Add to waitlist logic here
+                    st.success("Thank you for joining the waitlist! 🎉")
+                    st.rerun()  # Rerun to refresh the state
+
+        if st.session_state["submitted"]:
+            st.success("Thank you for joining the waitlist! 🎉")
+
     st.stop()  # Do not continue if check_password is not True.
-
 
 st.title("V : AI Personal Trainer :muscle: :woman-lifting-weights: :superhero:")
 
