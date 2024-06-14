@@ -80,7 +80,7 @@ st.set_page_config(
 if "submitted" not in st.session_state:
     st.session_state["submitted"] = False
 if "password_correct" not in st.session_state:
-    st.session_state["password_correct"] = None  # Use None to signify no attempt yet
+    st.session_state["password_correct"] = None  # Using None to signify no attempt yet
 if "valid_user_info" not in st.session_state:
     st.session_state["valid_user_info"] = False
 
@@ -131,7 +131,7 @@ if not st.session_state["password_correct"]:
                         else:
                             st.session_state["password_correct"] = False
                             st.error(
-                                "😕 Oops! Wrong access code.\nIf you don't have an access code, head on over to the 'Join Waitlist' tab to sign up for updates."
+                                "😕 Oops! Wrong access code. If you don't have an access code, head on over to the 'Join Waitlist' tab to sign up for updates."
                             )
                     else:
                         st.session_state["valid_user_info"] = False
