@@ -17,3 +17,5 @@
 .vscode
 .ipynb_checkpoints
 outputs
+
+.streamlit
