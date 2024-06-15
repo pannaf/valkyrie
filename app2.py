@@ -1,11 +1,15 @@
 import streamlit as st
 import hmac
 import re
+import boto3
+import datetime
+from botocore.exceptions import NoCredentialsError, PartialCredentialsError
 from dotenv import load_dotenv
 from langchain_anthropic import ChatAnthropic
 from src.prompts.yaml_prompt_loader import YamlPromptLoader
 from src.state_graph.graph_builder import GraphBuilder
 from src.tools import ToOnboardingWizard, ToGoalWizard
+from src.sandbox.db_utils import insert_user
 
 THREAD_ID = "1"
 config_c = {"configurable": {"user_id": "bf9d8cd5-3c89-40ef-965b-ad2ff148e52a", "thread_id": THREAD_ID}}
@@ -101,6 +105,20 @@ def is_valid_user_info(first_name, last_name, email):
     return first_name and last_name and is_valid_email(email)
 
 
+dynamodb = boto3.resource("dynamodb", region_name="us-east-2")
+table = dynamodb.Table("v-waitlist")
+
+
+def add_to_waitlist(first_name, last_name, email):
+    try:
+        table.put_item(
+            Item={"email": email, "first_name": first_name, "last_name": last_name, "timestamp": datetime.datetime.now().isoformat()}
+        )
+    except (NoCredentialsError, PartialCredentialsError):
+        st.error("😕 Oops! There was an error adding you to the waitlist. Please try again later.")
+        return False
+
+
 if not st.session_state["password_correct"]:
 
     tab1, tab2 = st.tabs(["Login", "Join Waitlist"])
@@ -112,7 +130,18 @@ if not st.session_state["password_correct"]:
                 first_name = st.text_input("First Name")
                 last_name = st.text_input("Last Name")
                 email = st.text_input("Email")
-                dob = st.date_input("Date of Birth")
+
+                # Capture height in feet and inches
+                height_feet = st.number_input("Height (feet)", min_value=0, max_value=8, step=1)
+                height_inches = st.number_input("Height (inches)", min_value=0.0, max_value=11.75, step=0.25)
+
+                # Convert height to inches and then to centimeters
+                total_height_inches = height_feet * 12 + height_inches
+                height_cm = total_height_inches * 2.54
+
+                dob = st.date_input(
+                    "Date of Birth", value=None, max_value=datetime.date(2011, 12, 31), min_value=datetime.date(1900, 1, 1)
+                )
                 password = st.text_input("Access Code", type="password")
                 submit_login = st.form_submit_button("Login")
 
@@ -127,7 +156,10 @@ if not st.session_state["password_correct"]:
                                 "last_name": last_name,
                                 "email": email,
                                 "dob": dob,
+                                "height": height_cm,
                             }
+                            # add user to users table
+                            user_id = insert_user(first_name, last_name, email, dob, height_cm)
                         else:
                             st.session_state["password_correct"] = False
                             st.error(
@@ -151,13 +183,17 @@ if not st.session_state["password_correct"]:
                 email = st.text_input("Email")
                 submit_waitlist = st.form_submit_button("Join")
                 if submit_waitlist:
-                    st.session_state["submitted"] = True
-                    # Add to waitlist logic here
-                    st.success("Thank you for joining the waitlist! 🎉")
-                    st.rerun()  # Rerun to refresh the state
+                    if is_valid_user_info(first_name, last_name, email):
+                        add_to_waitlist(first_name, last_name, email)
+                        st.session_state["submitted"] = True
+                        # Add to waitlist logic here
+                        st.success("Successfully joined the waitlist! 🎉")
+                        st.rerun()  # Rerun to refresh the state
+                    else:
+                        st.error("😕 Please fill in all the fields correctly.")
 
         if st.session_state["submitted"]:
-            st.success("Thank you for joining the waitlist! 🎉")
+            st.success("Successfully joined the waitlist! 🎉")
 
     st.stop()  # Do not continue if check_password is not True.
 

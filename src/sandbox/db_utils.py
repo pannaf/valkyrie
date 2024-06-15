@@ -77,3 +77,36 @@ def create_empty_goal_db(user_id, goal_id):
             )
             conn.commit()
     return goal_id
+
+
+def insert_user(first_name, last_name, email, date_of_birth, height_cm):
+    with get_db_connection() as conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            # Check if the email already exists
+            cur.execute("SELECT user_id FROM users WHERE email = %s", (email,))
+            existing_user = cur.fetchone()
+            if existing_user:
+                return existing_user["user_id"]
+
+            # Insert the new user
+            cur.execute(
+                """
+                INSERT INTO users (first_name, last_name, email, date_of_birth, height)
+                VALUES (%s, %s, %s, %s, %s)
+                RETURNING user_id
+                """,
+                (first_name, last_name, email, date_of_birth, height_cm),
+            )
+            user_id = cur.fetchone()["user_id"]
+
+            # Insert into user_profiles
+            cur.execute(
+                """
+                INSERT INTO user_profiles (user_id, last_updated)
+                VALUES (%s, NOW())
+                """,
+                (user_id,),
+            )
+
+            conn.commit()
+    return user_id
