@@ -8,29 +8,31 @@ from dotenv import load_dotenv
 from langchain_anthropic import ChatAnthropic
 from src.prompts.yaml_prompt_loader import YamlPromptLoader
 from src.state_graph.graph_builder import GraphBuilder
-from src.tools import ToOnboardingWizard, ToGoalWizard
+from src.tools import ToOnboardingWizard, ToGoalWizard, ToProgrammingWizard
 from src.sandbox.db_utils import insert_user
-
-THREAD_ID = "1"
-config_c = {"configurable": {"user_id": "bf9d8cd5-3c89-40ef-965b-ad2ff148e52a", "thread_id": THREAD_ID}}
 
 
 class AssistantSystem:
-    def __init__(self):
+    def __init__(self, cfg):
         load_dotenv()
         self.llm = ChatAnthropic(model="claude-3-sonnet-20240229", temperature=1)
         self.prompt_loader = YamlPromptLoader("src/prompts/prompts.yaml")
+        self.cfg = cfg
 
         from src.assistants.goal_wizard import GoalWizard
         from src.assistants.onboarding_wizard import OnboardingWizard
+        from src.assistants.programming_wizard import ProgrammingWizard
 
         self.wizards = {
             "onboarding_wizard": OnboardingWizard(self.llm, self.prompt_loader, "onboarding_wizard"),
             "goal_wizard": GoalWizard(self.llm, self.prompt_loader, "goal_wizard"),
+            "programming_wizard": ProgrammingWizard(self.llm, self.prompt_loader, "programming_wizard"),
         }
 
         self.primary_assistant_prompt = self.prompt_loader.get_prompt("gandalf")
-        self.primary_assistant_runnable = self.primary_assistant_prompt | self.llm.bind_tools([ToOnboardingWizard, ToGoalWizard])
+        self.primary_assistant_runnable = self.primary_assistant_prompt | self.llm.bind_tools(
+            [ToOnboardingWizard, ToGoalWizard, ToProgrammingWizard]
+        )
 
         self.graph_builder = GraphBuilder(self.wizards, self.primary_assistant_runnable)
         self.graph = self.graph_builder.get_graph()
@@ -53,7 +55,7 @@ class AssistantSystem:
                     st.sidebar.markdown(msg_repr, unsafe_allow_html=True)
                     _printed.add(message.id)
 
-        events = self.graph.stream({"messages": [("user", user_input)]}, config_c, stream_mode="values")
+        events = self.graph.stream({"messages": [("user", user_input)]}, self.cfg, stream_mode="values")
         for event in events:
             _print_event(event, _printed)
 
@@ -87,6 +89,8 @@ if "password_correct" not in st.session_state:
     st.session_state["password_correct"] = None  # Using None to signify no attempt yet
 if "valid_user_info" not in st.session_state:
     st.session_state["valid_user_info"] = False
+if "config" not in st.session_state:
+    st.session_state["config"] = {"configurable": {"user_id": None, "thread_id": None}}
 
 
 def check_password(password):
@@ -160,6 +164,8 @@ if not st.session_state["password_correct"]:
                             }
                             # add user to users table
                             user_id = insert_user(first_name, last_name, email, dob, height_cm)
+                            st.session_state["config"]["configurable"]["user_id"] = user_id
+                            st.session_state["config"]["configurable"]["thread_id"] = user_id
                         else:
                             st.session_state["password_correct"] = False
                             st.error(
@@ -201,7 +207,7 @@ st.title("V : AI Personal Trainer :muscle: :woman-lifting-weights: :superhero:")
 
 # Initialize the assistant system
 if "assistant_system" not in st.session_state:
-    st.session_state.assistant_system = AssistantSystem()
+    st.session_state.assistant_system = AssistantSystem(st.session_state["config"])
 
 # Handle user input and display the assistant's responses
 if "messages" not in st.session_state:

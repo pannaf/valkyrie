@@ -1,6 +1,4 @@
 from langchain_core.pydantic_v1 import BaseModel, Field
-from langchain_core.tools import tool
-from langchain_core.messages import AIMessage
 
 
 class ToOnboardingWizard(BaseModel):
@@ -16,3 +14,9 @@ class ToGoalWizard(BaseModel):
     """Transfers work to a specialized assistant to handle goal-setting tasks, except the onboarding wizard handles marking the user's goal weight."""
 
     request: str = Field(description="Any necessary follup questions the goal wizard should clarify before proceeding.")
+
+
+class ToProgrammingWizard(BaseModel):
+    """Transfers work to a specialized assistant to handle programming tasks, including setting up a workout plan and tracking progress."""
+
+    request: str = Field(description="Any necessary follup questions the programming wizard should clarify before proceeding.")

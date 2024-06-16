@@ -10,7 +10,7 @@ from src.state_graph.state import State
 from src.tools import fetch_user_info, create_tool_node_with_fallback
 from src.assistants.assistant import Assistant
 from langchain_core.messages import ToolMessage
-from src.tools import ToOnboardingWizard, ToGoalWizard, CompleteOrEscalate
+from src.tools import ToOnboardingWizard, ToGoalWizard, ToProgrammingWizard, CompleteOrEscalate
 from src.assistants.base_wizard import BaseWizard
 from langgraph.prebuilt import tools_condition
 
@@ -118,7 +118,7 @@ class GraphBuilder:
 
     def _route_primary_assistant(
         self, state: State
-    ) -> Literal["primary_assistant_tools", "enter_onboarding_wizard", "enter_goal_wizard", "__end__"]:
+    ) -> Literal["primary_assistant_tools", "enter_onboarding_wizard", "enter_goal_wizard", "enter_programming_wizard", "__end__"]:
         route = tools_condition(state)
         if route == END:
             return END
@@ -128,6 +128,8 @@ class GraphBuilder:
                 return "enter_onboarding_wizard"
             if tool_calls[0]["name"] == ToGoalWizard.__name__:
                 return "enter_goal_wizard"
+            if tool_calls[0]["name"] == ToProgrammingWizard.__name__:
+                return "enter_programming_wizard"
             return "primary_assistant_tools"
         raise ValueError("Invalid route")
 
@@ -135,10 +137,12 @@ class GraphBuilder:
         "primary_assistant",
         "onboarding_wizard",
         "goal_wizard",
+        "programming_wizard",
     ]:
         if not state.get("valid_input"):
             return END
         dialog_state = state.get("dialog_state")
+        print(f"{dialog_state=}")
         if not dialog_state:
             return "primary_assistant"
         return dialog_state[-1]
@@ -181,6 +185,7 @@ class GraphBuilder:
             {
                 "enter_onboarding_wizard": "enter_onboarding_wizard",
                 "enter_goal_wizard": "enter_goal_wizard",
+                "enter_programming_wizard": "enter_programming_wizard",
                 "primary_assistant_tools": "primary_assistant_tools",
                 END: END,
             },
@@ -196,6 +201,7 @@ class GraphBuilder:
             {
                 "onboarding_wizard": "onboarding_wizard",
                 "goal_wizard": "goal_wizard",
+                "programming_wizard": "programming_wizard",
                 "primary_assistant": "primary_assistant",
                 END: END,
             },
