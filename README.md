@@ -109,7 +109,7 @@ TODO...
 ## <img src="https://github.com/pannaf/artemis/assets/18562964/c579f82c-7fe8-4709-8b4c-379573843545" alt="image" width="55"/> [LangGraph] V as an Agent
 TODO Agent block diagram...
 
-Things I wanted V to be able to do:
+Things V can do:
 - [Onboarding](#onboarding): onboard a new user, and learn about them
 - [Goal Setting](#goal-setting): help a user set goals and update their goals
 - [Workout Programming](#workout-programming): given the user profile and their goals, plan a 1 week workout program
