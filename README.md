@@ -110,12 +110,22 @@ TODO...
 TODO Agent block diagram...
 
 Things V can do:
-- [Onboarding](#onboarding): onboard a new user, and learn about them
+- [Onboarding](#onboarding): onboard a new user and learn about them
 - [Goal Setting](#goal-setting): help a user set goals and update their goals
 - [Workout Programming](#workout-programming): given the user profile and their goals, plan a 1 week workout program
+- [Answer About V Questions](#answer-about-v-questions): share a little personality and answer some basic design questions
 
 ### Onboarding
 TODO
+
+### Goal Setting
+TODO
+
+### Workout Programming
+TODO
+
+### Answer About V Questions
+I wanted to mix a little personality and fun into V with this little easter egg. Asking about V should invoke the "V Wizard" workflow that has a prompt that can provide some basic info about V 🙃
 
 [back to top](#tech-used)
 
