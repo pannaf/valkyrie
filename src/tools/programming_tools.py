@@ -9,7 +9,7 @@ def fetch_exercises(target_muscle_group: str):
 
     Parameters:
     - target_muscle_group (str): The muscle group for which exercises should be fetched. can be one of:
-      'Lower Back', 'Glutes', 'Legs', 'Calves', 'Hamstrings', 'Hip Flexors', 'Quadriceps', 'Hips', 'Quads', 'Feet', 'Inner Thighs',
+      'Lower Back', 'Glutes', 'Legs', 'Calves', 'Hamstrings', 'Hip Flexors', 'Hips', 'Quads', 'Feet', 'Inner Thighs',
       'Adductors', 'Knees', 'Abductors', 'Shoulders', 'Arms', 'Back', 'Chest', 'Forearms', 'Upper body', 'Triceps', 'Neck', 'Biceps',
       'Traps', 'Elbows', 'Wrists', 'Core', 'Full Body', 'Abs', 'Obliques'
     """

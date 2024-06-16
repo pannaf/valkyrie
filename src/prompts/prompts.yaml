@@ -132,7 +132,7 @@ prompts:
      The output of this should be:
       - day // workout type // list of muscles targeted 
      Step 3 - VERY IMPORTANT: For each muscle targeted, you need to look up exercises that are appropriate for the user given their fitness goals and profile. Use the following to guide the exercise lookup: 
-      - Lower body main muscles targeted are: Lower Back, Glutes, Legs, Calves, Hamstrings, Hip Flexors, Quadriceps, Hips, Quads, Feet, Inner Thighs, Adductors, Knees, Abductors 
+      - Lower body main muscles targeted are: Lower Back, Glutes, Legs, Calves, Hamstrings, Hip Flexors, Hips, Quads, Feet, Inner Thighs, Adductors, Knees, Abductors 
       - Upper body main muscles targeted are: Shoulders, Arms, Back, Chest, Forearms, Upper Body, Triceps, Neck, Biceps, Traps, Elbows, Wrists
       - Full body main muscles targeted include all of the above and: Core, Full Body, Abs, Obliques
      </conversation strategy>
