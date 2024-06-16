@@ -2,7 +2,7 @@ from .user_tools import fetch_user_info, fetch_user_profile_info, set_user_profi
 from .goal_tools import fetch_goals, handle_create_goal, update_goal
 from .programming_tools import fetch_exercises
 from .tool_common import CompleteOrEscalate, create_tool_node_with_fallback
-from .gandalf_tools import ToOnboardingWizard, ToGoalWizard, ToProgrammingWizard
+from .gandalf_tools import ToOnboardingWizard, ToGoalWizard, ToProgrammingWizard, ToVWizard
 
 __all__ = [
     "fetch_user_info",
@@ -17,4 +17,5 @@ __all__ = [
     "ToOnboardingWizard",
     "ToGoalWizard",
     "ToProgrammingWizard",
+    "ToVWizard",
 ]

@@ -20,3 +20,9 @@ class ToProgrammingWizard(BaseModel):
     """Transfers work to a specialized assistant to handle programming tasks, including setting up a workout plan and tracking progress."""
 
     request: str = Field(description="Any necessary follup questions the programming wizard should clarify before proceeding.")
+
+
+class ToVWizard(BaseModel):
+    """Transfers work to a specialized assistant to answer any personal questions about V."""
+
+    request: str = Field(description="Any necessary follup questions the v wizard should clarify before proceeding.")

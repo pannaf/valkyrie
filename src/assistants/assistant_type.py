@@ -12,6 +12,7 @@ class AssistantType(Enum):
     ONBOARDING_WIZARD = "onboarding_wizard"
     GOAL_WIZARD = "goal_wizard"
     PROGRAMMING_WIZARD = "programming_wizard"
+    V_WIZARD = "v_wizard"
 
     @classmethod
     def all_values(cls):

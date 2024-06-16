@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 from langchain_anthropic import ChatAnthropic
 from src.prompts.yaml_prompt_loader import YamlPromptLoader
 from src.state_graph.graph_builder import GraphBuilder
-from src.tools import ToOnboardingWizard, ToGoalWizard, ToProgrammingWizard
+from src.tools import ToOnboardingWizard, ToGoalWizard, ToProgrammingWizard, ToVWizard
 
 
 class AssistantSystem:
@@ -14,16 +14,18 @@ class AssistantSystem:
         from src.assistants.goal_wizard import GoalWizard
         from src.assistants.onboarding_wizard import OnboardingWizard
         from src.assistants.programming_wizard import ProgrammingWizard
+        from src.assistants.v_wizard import VWizard
 
         self.wizards = {
             "onboarding_wizard": OnboardingWizard(self.llm, self.prompt_loader, "onboarding_wizard"),
             "goal_wizard": GoalWizard(self.llm, self.prompt_loader, "goal_wizard"),
             "programming_wizard": ProgrammingWizard(self.llm, self.prompt_loader, "programming_wizard"),
+            "v_wizard": VWizard(self.llm, self.prompt_loader, "v_wizard"),
         }
 
         self.primary_assistant_prompt = self.prompt_loader.get_prompt("gandalf")
         self.primary_assistant_runnable = self.primary_assistant_prompt | self.llm.bind_tools(
-            [ToOnboardingWizard, ToGoalWizard, ToProgrammingWizard]
+            [ToOnboardingWizard, ToGoalWizard, ToProgrammingWizard, ToVWizard]
         )
 
         self.graph_builder = GraphBuilder(self.wizards, self.primary_assistant_runnable)
