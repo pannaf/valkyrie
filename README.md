@@ -130,7 +130,12 @@ I wanted to mix a little personality and fun into V with this little easter egg.
 [back to top](#tech-used)
 
 ## <img src="https://github.com/pannaf/artemis/assets/18562964/c579f82c-7fe8-4709-8b4c-379573843545" alt="image" width="55"/> [LangSmith] Prompt Evaluation and Iteration
-TODO
+Initially, I found it extremely helpful to look at the traces in LangSmith to verify that V was actually persistently staying in the correct wizard workflow. I used it to help identify a bug in my state where I wasn't correctly passing around the `dialog_state`.
+
+Correct version:
+![Screenshot 2024-06-15 at 7 53 20 PM](https://github.com/pannaf/artemis/assets/18562964/8c2059ac-4a96-4932-8503-11d17f5c6358)
+
+
 
 [back to top](#tech-used)
 
