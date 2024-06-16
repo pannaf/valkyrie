@@ -112,7 +112,7 @@ TODO Agent block diagram...
 Things I wanted V to be able to do:
 - [Onboarding](#onboarding): onboard a new user, and learn about them
 - [Goal Setting](#goal-setting): help a user set goals and update their goals
-- [Workout Programming](#workout-programming): given the user profile and their goals, plan an 8-12 week fitness program
+- [Workout Programming](#workout-programming): given the user profile and their goals, plan a 1 week workout program
 
 ### Onboarding
 TODO
