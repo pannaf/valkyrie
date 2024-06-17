@@ -34,7 +34,25 @@ brew services start postgresql
 Verify PostgreSQL is running via `brew services list`
 
 ### Demo
-1. Setup `.env` file
+1. Create `.env` file in your code root directory
+```bash
+# POSTGRES
+DATABASE_URL=...
+
+# Anthropic
+ANTHROPIC_API_KEY=...
+
+# OPENAI
+OPENAI_API_KEY=...
+
+# Langsmith
+LANGSMITH_API_KEY=...
+LANGCHAIN_TRACING_V2="true"
+LANGCHAIN_PROJECT=...
+
+# NVIDIA API KEY
+NVIDIA_API_KEY=...
+```   
 2. Run `bootstrap.py` script to setup needed tables
 3. Run `python -m src.assistant_system` 
 
