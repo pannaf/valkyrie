@@ -2,21 +2,20 @@ import json
 from typing import Literal, Callable
 import io
 from pathlib import Path
+from datetime import date
 from PIL import Image
 
 from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.sqlite import SqliteSaver
-from src.state_graph.state import State
-from src.tools import fetch_user_info, create_tool_node_with_fallback
-from src.assistants.assistant import Assistant
-from langchain_core.messages import ToolMessage
-from src.tools import ToOnboardingWizard, ToGoalWizard, ToProgrammingWizard, ToVWizard, CompleteOrEscalate
-from src.assistants.base_wizard import BaseWizard
 from langgraph.prebuilt import tools_condition
+from langchain_core.messages import AIMessage, ToolMessage
 
-from langchain_core.messages import AIMessage
-
-from datetime import date
+from src.tools import ToOnboardingWizard, ToGoalWizard, ToProgrammingWizard, ToVWizard, CompleteOrEscalate
+from src.tools import fetch_user_info, create_tool_node_with_fallback
+from src.state_graph.state import State
+from src.assistants.assistant import Assistant
+from src.assistants.base_wizard import BaseWizard
+from src.utils.logtils import get_bound_logger, logger_wraps
 
 
 class GraphBuilder:
@@ -24,6 +23,7 @@ class GraphBuilder:
         self.wizards = wizards
         self.primary_assistant_runnable = primary_assistant_runnable
         self.builder = StateGraph(State)
+        self.logger = get_bound_logger()
 
     def _create_entry_node(self, wizard_name: str) -> Callable:
         def entry_node(state: State) -> dict:
@@ -56,6 +56,7 @@ class GraphBuilder:
         _user_info = json.dumps(_user_info, indent=4)
         return {"user_info": _user_info}
 
+    @logger_wraps(entry=False)
     def guardrails_input_handler(self, state: State):
         """Handles guardrails on the user input.
         Args:
@@ -70,6 +71,8 @@ class GraphBuilder:
         rails_config = RailsConfig.from_path("./config")
         rails = LLMRails(rails_config)
 
+        self.logger.info("Checking guardrails on user input")
+
         response = rails.generate(
             messages=[
                 {
@@ -82,8 +85,10 @@ class GraphBuilder:
         info = rails.explain()
 
         if "bot refuse" in info.colang_history:
+            self.logger.info(f"Guardrails refused the input. Colang history:\n{info.colang_history}")
             return {"valid_input": False, "messages": [AIMessage(content=response.get("content"))]}
         else:
+            self.logger.info(f"Guardrails accepted the input.")
             return {"valid_input": True}
 
     def _pop_dialog_state(self, state: State) -> dict:
@@ -150,11 +155,11 @@ class GraphBuilder:
         if not state.get("valid_input"):
             return END
         dialog_state = state.get("dialog_state")
-        print(f"{dialog_state=}")
         if not dialog_state:
             return "primary_assistant"
         return dialog_state[-1]
 
+    @logger_wraps()
     def build(self):
         self.builder.add_node("fetch_user_info", self._fetch_user_info)
         self.builder.set_entry_point("fetch_user_info")
@@ -219,16 +224,22 @@ class GraphBuilder:
 
         return self.builder
 
+    @logger_wraps(exit=False)
     def compile(self, builder):
         memory = SqliteSaver.from_conn_string(":memory:")
         return builder.compile(checkpointer=memory)
 
+    @logger_wraps(exit=False)
     def get_graph(self):
         builder = self.build()
-        return self.compile(builder)
+        graph = self.compile(builder)
+        self.logger.success("Graph built and compiled.")
+        self.logger.info(f"Graph structure:\n{graph.get_graph().draw_mermaid()}")
+        return graph
 
     def visualize_graph(self, graph, path: str):
         graph_path = Path(path)
         image_data = io.BytesIO(graph.get_graph().draw_mermaid_png())
         image = Image.open(image_data)
         image.save(graph_path)
+        self.logger.success(f"Graph saved to {graph_path}")
