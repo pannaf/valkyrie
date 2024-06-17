@@ -39,7 +39,7 @@ But.. things ran fine for me with this setup, so I didn't spend time looking int
 
 #### Environment Variables
 To avoid seeing the following warnings, set the `TOKENIZERS_PARALLELISM` environment variable to `false`:
-```bash
+```text
 huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
 To disable this warning, you can either:
         - Avoid using `tokenizers` before the fork if possible
