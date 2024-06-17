@@ -17,6 +17,11 @@ This repo has the code for my entry in the [Generative AI Agents Developer Conte
 - Python 3.10.14, for NeMo Curator (see [notes](#a-few-notes) below)
 
 ### Installation
+Clone the repo and `cd` into the code directory
+```bash
+➜  git clone https://github.com/pannaf/valkyrie.git
+➜  cd valkyrie
+```
 #### MacOS Setup with venv
 ```bash
 python3 -m venv .venv
@@ -45,11 +50,6 @@ postgresql@14 started panna ~/Library/LaunchAgents/homebrew.mxcl.postgresql@14.p
 ```
 
 ### Demo
-0. Clone the repo and `cd` into the code directory
-```bash
-➜  git clone https://github.com/pannaf/valkyrie.git
-➜  cd valkyrie
-```
 1. Create `.env` file in your code root directory
 ```bash
 # POSTGRES
