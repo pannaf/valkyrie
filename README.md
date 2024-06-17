@@ -52,17 +52,17 @@ To disable this warning, you can either:
 ```
 Use this command to set the environment variable:
 ```bash
-export TOKENIZERS_PARALLELISM=False
+(.venv) ➜  valkyrie git:(main) ✗ export TOKENIZERS_PARALLELISM=False
 ```
 
 #### Postgres Install with brew
 ```bash
-brew install postgresql
-brew services start postgresql
+(.venv) ➜  valkyrie git:(main) ✗ brew install postgresql
+(.venv) ➜  valkyrie git:(main) ✗ brew services start postgresql
 ```
 Verify PostgreSQL is running via `brew services list`. On my machine, I see the following:
 ```bash
-➜  ~ brew services list
+(.venv) ➜  valkyrie git:(main) ✗ brew services list
 Name          Status  User  File
 postgresql@14 started panna ~/Library/LaunchAgents/homebrew.mxcl.postgresql@14.plist
 ```
