@@ -125,7 +125,6 @@ mypy-extensions==1.0.0
 nbclient==0.10.0
 nbconvert==7.16.4
 nbformat==5.10.4
-nemoguardrails==0.9.0
 nest-asyncio==1.6.0
 nodeenv==1.9.1
 notebook_shim==0.2.4
