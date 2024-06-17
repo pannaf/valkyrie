@@ -347,7 +347,7 @@ TODO
 TODO
 
 #### Answer Questions about V
-I wanted to mix a little personality and fun into V with this little easter egg. Asking about V should invoke the "V Wizard" workflow that has a prompt that can provide some basic info about V 🙃
+I wanted to mix a little personality and fun into V with this little easter egg. Asking about V should invoke the `v_wizard` workflow that can provide some very basic info about V 🙃
 
 [back to top](#tech-used)
 
