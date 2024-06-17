@@ -395,6 +395,8 @@ With my LangGraph chain including a model with `.bind_tools()` I wasn't able to 
 
 ### Standard `rails.generate()` in a LangGraph Node
 
-What ended up working for me was to add a node at the top of my graph that does a check on the user messages, following the [Input Rails guide](https://docs.nvidia.com/nemo/guardrails/getting_started/4_input_rails/README.html) and the [Topical Rails guide](https://docs.nvidia.com/nemo/guardrails/getting_started/6_topical_rails/README.html). The node simply updates a `valid_input` field in the state, which is checked when determining which workflow to route to. When `valid_input` is `False`, V outputs the guardrails message and jumps to `END` to allow for user input.
+What ended up working for me was to add a node at the top of my graph that does a check on the user messages, following the [Input Rails guide](https://docs.nvidia.com/nemo/guardrails/getting_started/4_input_rails/README.html) and the [Topical Rails guide](https://docs.nvidia.com/nemo/guardrails/getting_started/6_topical_rails/README.html). The node simply updates a `valid_input` field in the state, which is checked when determining which workflow to route to. When `valid_input` is `False`, V outputs the guardrails message and jumps to `END` to allow for user input. You can find my implementation in [src/state_graph/graph_builder.py](https://github.com/pannaf/valkyrie/blob/main/src/state_graph/graph_builder.py#L60).
+
+I tried to use various models from the NVIDIA API, including `mistralai/mixtral-8x22b-instruct-v0.1` and didn't have success with my guardrails. I'm not as experienced with prompting open source LLMs, so I didn't pursue this beyond my time box, given that `openai/gpt-3.5-turbo-instruct` worked reasonably well.
 
 [back to top](#tech-used)
