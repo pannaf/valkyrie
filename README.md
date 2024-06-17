@@ -374,7 +374,7 @@ One objective:
 1. Plan a one week workout routine for the user that aligns with their fitness goals, workout frequency, fitness level, etc.
 
 Tools available:
-- `fetch_exercises` : Used to identify different exercises for a target muscle group. Helps ensure excercise variety, keeping a user engaged.
+- `fetch_exercises` : Used to identify different exercises for a target muscle group. Helps ensure excercise variety, keeping a user engaged. V doesn't consistently engage this tool yet. Depending on the conversation, V did use this tool really well but given how much LLMs already know about exercises.. I ran out of time to force V to use this tool when planning workouts.
 
 I envisioned updating a database table with the planned workouts, and eventually pulling previously planned workouts for a user to determine the next batch of workouts for them. But alas! Didn't quite get there in the competition timeframe. 
 
