@@ -4,19 +4,12 @@ import re
 import boto3
 import datetime
 from botocore.exceptions import NoCredentialsError, PartialCredentialsError
-from dotenv import load_dotenv
-from langchain_anthropic import ChatAnthropic
-from src.prompts.yaml_prompt_loader import YamlPromptLoader
-from src.state_graph.graph_builder import GraphBuilder
-from src.tools import ToOnboardingWizard, ToGoalWizard, ToProgrammingWizard, ToVWizard
 from src.db.db_utils import insert_user
 
 from src.assistant_system import AssistantSystem
 
 import hydra
-from hydra.core.config_store import ConfigStore
 from hydra.core.global_hydra import GlobalHydra
-from omegaconf import DictConfig, OmegaConf
 
 
 GlobalHydra.instance().clear()
@@ -30,58 +23,6 @@ def load_config():
 
 config = load_config()
 config["user"] = {"user_id": None, "thread_id": None}
-
-
-# class AssistantSystem:
-#     def __init__(self, cfg):
-#         load_dotenv()
-#         self.llm = ChatAnthropic(model="claude-3-sonnet-20240229", temperature=1)
-#         self.prompt_loader = YamlPromptLoader("src/prompts/prompts.yaml")
-#         self.cfg = cfg
-
-#         from src.assistants.goal_wizard import GoalWizard
-#         from src.assistants.onboarding_wizard import OnboardingWizard
-#         from src.assistants.programming_wizard import ProgrammingWizard
-#         from src.assistants.v_wizard import VWizard
-
-#         self.wizards = {
-#             "onboarding_wizard": OnboardingWizard(self.llm, self.prompt_loader, "onboarding_wizard"),
-#             "goal_wizard": GoalWizard(self.llm, self.prompt_loader, "goal_wizard"),
-#             "programming_wizard": ProgrammingWizard(self.llm, self.prompt_loader, "programming_wizard"),
-#             "v_wizard": VWizard(self.llm, self.prompt_loader, "v_wizard"),
-#         }
-
-#         self.primary_assistant_prompt = self.prompt_loader.get_prompt("gandalf")
-#         self.primary_assistant_runnable = self.primary_assistant_prompt | self.llm.bind_tools(
-#             [ToOnboardingWizard, ToGoalWizard, ToProgrammingWizard, ToVWizard]
-#         )
-
-#         self.graph_builder = GraphBuilder(self.wizards, self.primary_assistant_runnable)
-#         self.graph = self.graph_builder.get_graph()
-
-#     def handle_event(self, user_input: str):
-#         _printed = set()
-
-#         def _print_event(event: dict, _printed: set, max_length=1500):
-#             current_state = event.get("dialog_state")
-#             if current_state:
-#                 st.sidebar.write(f"Currently in: {current_state[-1]}")
-#             message = event.get("messages")
-#             if message:
-#                 if isinstance(message, list):
-#                     message = message[-1]
-#                 if message.id not in _printed:
-#                     msg_repr = message.pretty_repr(html=True)
-#                     if len(msg_repr) > max_length:
-#                         msg_repr = msg_repr[:max_length] + " ... (truncated)"
-#                     st.sidebar.markdown(msg_repr, unsafe_allow_html=True)
-#                     _printed.add(message.id)
-
-#         events = self.graph.stream({"messages": [("user", user_input)]}, self.cfg, stream_mode="values")
-#         for event in events:
-#             _print_event(event, _printed)
-
-#         return event.get("messages", [])[-1].content
 
 
 ##-------- Streamlit app
@@ -199,8 +140,8 @@ if not st.session_state["password_correct"]:
 
         if st.session_state["password_correct"]:
             st.success("Access granted. Welcome to the app!")
-            st.rerun()  # Rerun to refresh the state
-            # Main app code goes here
+            st.rerun()  # Rerun is needed to refresh the state
+            # Main app code could go here
 
     with tab2:
         st.markdown("### Join the waitlist to be notified when V is available")
