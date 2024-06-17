@@ -321,16 +321,16 @@ I refer to each of V's assistants, except for the primary assistant as a "wizard
 `onboarding_wizard`
 
 Two primary objectives:
-1. Getting to know a new user
-2. Updating the user's profile information
+1. Get to know a new user.
+2. Update the user's profile information.
 
 Tools available:
 - `fetch_user_profile_info` : Used for retrieving the user's profile information, so that V can know what info is filled and what info still needs to be filled.
 - `set_user_profile_info` : Used to update the user's profile information, as V learns more about the user.  
 
 This is used to update the `user_profiles` table, which has the following keys:
-- `user_profile_id` (uuid) - this is just the uuid primary key
-- `user_id` (uuid) - this is a foreign key to match the primary key of the `users` table
+- `user_profile_id` (uuid) - This is just the uuid primary key.
+- `user_id` (uuid) - This is a foreign key to match the primary key of the `users` table.
 - `last_updated` (date)
 - `activity_preferences` (text) - I'd like to add more structure to this. Currently the LLM has a lot of wiggle room to decide what to drop in here. For example, if I have a single activity then this may just be a string like `"swimming"` but if I like many things, then this could be a list like `['swimming', 'weightlifting', 'water polo']`.
 - `workout_location` (text) - This has a similar issue to the one above, except it's a bit more nuanced. For multi-activity things, sometimes I see a list like `['YMCA for swimming', '24 Hour Fitness for weightlifting', 'Community college pool for water polo']` and other times I see a dict like `{'swimming': 'YMCA', 'weightlifting': '24 Hour Fitness', 'water polo': 'Community college pool']`
@@ -341,13 +341,46 @@ This is used to update the `user_profiles` table, which has the following keys:
 - `goal_weight` (double precision) - Given how common it is for folks to have weight-related goals, it seemed more convenient in the user experience flow to chat about the goal weight here, instead of during goal setting.
 
 #### Goal Setting
-TODO
+`goal_wizard`
+
+Two objectives:
+1. Help the user set their fitness goals.
+2. Update the goals table in the database with the user's goal information.
+
+Tools available:
+- `fetch_goals` : Used to retrieve the user's current goals.
+- `handle_create_goal` : Used to create a new, empty goal for the user. This gets called before a goal gets updated.
+- `update_goal` : Used to update an existing goal with the fields described below.
+
+This is used to update the `goals` table, which has the following keys:
+- `goal_id` (text) - This is just the primary key. I found some weirdness with Python's `uuid` generator and my table accepting that value. Wasn't able to solve it in my time box for it, but I found that setting this to type `text` worked just fine for now. It is a Pythong-generated `uuid` though.
+- `user_id` (uuid) - This is a foreign key to match the primary key of the `users` table.
+- `goal_type` (text) - Tons of wiggle room for the LLM here. I'm not yet entirely sure what valid values I want to have here, so I left it up to the LLM for the moment. I've seen things like `"strength"` or `"endurance"` or `"process"` for these.
+- `description` (text) - Should just be a string describing what the goal entails. For example, this might be: `"Be able to do a 50 lb weighted pull-up"`.
+- `target_value` (text) - Assuming most goals have some type of metric we can track. This is the value we're aiming for. In the pull-up example, this would be `50`.
+- `current_value` (text) - Assuming most goals have some type of metric we can track. This is the starting point. In the pull-up example, this might be `31.25`.
+- `unit` (text) - Keeping track of the units on the goal metric. In the pull-up example, this would be `"lbs"`.
+- `start_date` (date) - This currently just gets set to today's date.
+- `end_date` (date) - When the user is aiming to reach the goal 🙃
+- `goal_status` (text) - I haven't done much with this. I envisioned that in later conversations with V, such as during a workout, it would sometimes be relevant to check-in on how this goal is doing. Currently they all just get set to `"Pending"` upon adding the goal to the DB.
+- `notes` (text) - I envisioned this as a field for noting things like how challenging a goal is for a user or whether one goal supports another.
+- `last_updated` (date)
 
 #### Workout Programming
-TODO
+`programming_wizard`
+
+One objective:
+1. Plan a one week workout routine for the user that aligns with their fitness goals, workout frequency, fitness level, etc.
+
+Tools available:
+- `fetch_exercises` : Used to identify different exercises for a target muscle group. Helps ensure excercise variety, keeping a user engaged.
+
+I envisioned updating a database table with the planned workouts, and eventually pulling previously planned workouts for a user to determine the next batch of workouts for them. But alas! Didn't quite get there in the competition timeframe. 
 
 #### Answer Questions about V
-I wanted to mix a little personality and fun into V with this little easter egg. Asking about V should invoke the `v_wizard` workflow that can provide some very basic info about V 🙃
+`v_wizard`
+
+I wanted to mix a little personality and fun into V with this little easter egg. Provides some very basic info about V 🙃
 
 [back to top](#tech-used)
 
@@ -397,6 +430,6 @@ With my LangGraph chain including a model with `.bind_tools()` I wasn't able to 
 
 What ended up working for me was to add a node at the top of my graph that does a check on the user messages, following the [Input Rails guide](https://docs.nvidia.com/nemo/guardrails/getting_started/4_input_rails/README.html) and the [Topical Rails guide](https://docs.nvidia.com/nemo/guardrails/getting_started/6_topical_rails/README.html). The node simply updates a `valid_input` field in the state, which is checked when determining which workflow to route to. When `valid_input` is `False`, V outputs the guardrails message and jumps to `END` to allow for user input. You can find my implementation in [src/state_graph/graph_builder.py](https://github.com/pannaf/valkyrie/blob/main/src/state_graph/graph_builder.py#L60).
 
-I tried to use various models from the NVIDIA API, including `mistralai/mixtral-8x22b-instruct-v0.1` and didn't have success with my guardrails. I'm not as experienced with prompting open source LLMs, so I didn't pursue this beyond my time box, given that `openai/gpt-3.5-turbo-instruct` worked reasonably well.
+I tried to use various models from the NVIDIA API, including `mistralai/mixtral-8x22b-instruct-v0.1`, and didn't have success with my guardrails. I'm not as experienced with prompting open source LLMs, so I didn't pursue this beyond my time box, given that `openai/gpt-3.5-turbo-instruct` worked reasonably well.
 
 [back to top](#tech-used)
