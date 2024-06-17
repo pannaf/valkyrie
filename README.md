@@ -92,7 +92,7 @@ NVIDIA_API_KEY=...
 (.venv) ➜  valkyrie git:(main) ✗ python bootstrap.py
 ```
 This should look something like:
-```bash
+```text
 (.venv) ➜  valkyrie git:(main) ✗ python bootstrap.py
 DATABASE_URL='postgresql://<username>:<password>@localhost:5432/<db name>'
 Tables created successfully.
