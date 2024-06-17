@@ -19,5 +19,7 @@
 .vscode
 .ipynb_checkpoints
 outputs
+graveyard
+logs
 
 .streamlit
