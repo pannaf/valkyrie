@@ -37,13 +37,18 @@ But.. things ran fine for me with this setup, so I didn't spend time looking int
 brew install postgresql
 brew services start postgresql
 ```
-Verify PostgreSQL is running via `brew services list`
+Verify PostgreSQL is running via `brew services list`. On my machine, I see the following:
+```bash
+➜  ~ brew services list
+Name          Status  User  File
+postgresql@14 started panna ~/Library/LaunchAgents/homebrew.mxcl.postgresql@14.plist
+```
 
 ### Demo
 0. Clone the repo and `cd` into the code directory
 ```bash
-➜  git clone https://github.com/pannaf/artemis.git
-➜  cd artemis
+➜  git clone https://github.com/pannaf/valkyrie.git
+➜  cd valkyrie
 ```
 1. Create `.env` file in your code root directory
 ```bash
@@ -66,11 +71,11 @@ NVIDIA_API_KEY=...
 ```   
 2. Run `bootstrap.py` script to setup needed tables
 ```bash
-➜  artemis git:(main) ✗ python bootstrap.py
+➜  valkyrie git:(main) ✗ python bootstrap.py
 ```   
 3. Run V
 ```bash
-➜  artemis git:(main) ✗ python -m src.assistant_system
+➜  valkyrie git:(main) ✗ python -m src.assistant_system
 ``` 
 
 ## <img src="https://github.com/pannaf/valkyrie/assets/18562964/3ec5b89a-8634-492f-8077-b636466de285" alt="image" width="25"/> [NeMo Curator] Building an Exercise Dataset
