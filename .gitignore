@@ -9,8 +9,6 @@
 *.jpg
 *.jpeg
 
-*.txt
-
 .v-arti
 .venv
 .venv-test-env
