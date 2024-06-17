@@ -9,7 +9,7 @@ from langchain_anthropic import ChatAnthropic
 from src.prompts.yaml_prompt_loader import YamlPromptLoader
 from src.state_graph.graph_builder import GraphBuilder
 from src.tools import ToOnboardingWizard, ToGoalWizard, ToProgrammingWizard, ToVWizard
-from src.sandbox.db_utils import insert_user
+from src.db.db_utils import insert_user
 
 
 class AssistantSystem:
