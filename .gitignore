@@ -12,6 +12,8 @@
 *.txt
 
 .v-arti
+.venv
+.venv-test-env
 .env
 .DS_Store
 .vscode
