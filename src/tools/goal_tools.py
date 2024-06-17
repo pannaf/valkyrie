@@ -5,7 +5,7 @@ from typing import Union
 from langchain_core.runnables import ensure_config
 from langchain_core.tools import tool
 
-from src.sandbox.db_utils import create_empty_goal_db, fetch_goals_db, update_goal_db
+from src.db.db_utils import create_empty_goal_db, fetch_goals_db, update_goal_db
 
 
 @tool

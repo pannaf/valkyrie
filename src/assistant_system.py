@@ -2,9 +2,6 @@ from dotenv import load_dotenv
 from omegaconf import DictConfig
 import hydra
 
-from langchain_anthropic import ChatAnthropic
-
-from src.prompts.yaml_prompt_loader import YamlPromptLoader
 from src.state_graph.graph_builder import GraphBuilder
 from src.tools import ToOnboardingWizard, ToGoalWizard, ToProgrammingWizard, ToVWizard
 from src.utils.logtils import configure_logging, LoggingContextManager, get_bound_logger
@@ -13,9 +10,9 @@ from src.utils.logtils import configure_logging, LoggingContextManager, get_boun
 class AssistantSystem:
     def __init__(self, cfg):
         load_dotenv()
-        self.llm = ChatAnthropic(model="claude-3-sonnet-20240229", temperature=1)
-        self.prompt_loader = YamlPromptLoader("src/prompts/prompts.yaml")
-        self.cfg = cfg
+        self.llm = hydra.utils.instantiate(cfg.llm)
+        self.prompt_loader = hydra.utils.instantiate(cfg.prompt_loader)
+        self.cfg = {"configurable": cfg.user}
         self.logger = get_bound_logger()
 
         from src.assistants.goal_wizard import GoalWizard
@@ -70,19 +67,15 @@ class AssistantSystem:
 
 @hydra.main(config_path="../configs", config_name="base", version_base="1.3")
 def main(cfg: DictConfig):
-    user_id = "bf9d8cd5-3c89-40ef-965b-ad2ff148e52a"
-    thread_id = "10"
-    v_cfg = {"configurable": {"user_id": user_id, "thread_id": thread_id}}
-
     configure_logging(cfg)
-    logger_context_manager = LoggingContextManager(user_id)
+    logger_context_manager = LoggingContextManager(cfg.user.user_id)
 
     with logger_context_manager as log:
         try:
             with log.catch(reraise=False):
                 log.info("Starting V")
 
-                assistant_system = AssistantSystem(v_cfg)
+                assistant_system = AssistantSystem(cfg)
 
                 v_graph_savefile = "v_graph.png"
                 log.info(f"Saving graph visualization to {v_graph_savefile}")

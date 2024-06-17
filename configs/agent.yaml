@@ -1,37 +1,18 @@
-# config.yaml
 defaults:
   - _self_
 
 llm:
+  _target_: "langchain_anthropic.ChatAnthropic"
   model: "claude-3-sonnet-20240229"
   temperature: 1
 
 prompts:
   path: "src/prompts/prompts.yaml"
 
+prompt_loader:
+  _target_: "src.prompts.yaml_prompt_loader.YamlPromptLoader"
+  yaml_path: "${prompts.path}"
+
 user:
-  id: "bf9d8cd5-3c89-40ef-965b-ad2ff148e52a"
-  thread_id: "1"
-
-assistants:
-  onboarding_wizard:
-    prompt_name: "onboarding_wizard"
-    safe_tools: ["fetch_user_profile_info"]
-    sensitive_tools: ["set_user_profile_info"]
-  goal_wizard:
-    prompt_name: "goal_wizard"
-    safe_tools: ["fetch_goals"]
-    sensitive_tools: ["handle_create_goal", "update_goal"]
-  primary_assistant:
-    prompt_name: "gandalf"
-    tools: ["ToOnboardingWizard", "ToGoalWizard"]
-
-tools:
-  fetch_user_info: fetch_user_info
-  fetch_user_profile_info: fetch_user_profile_info
-  set_user_profile_info: set_user_profile_info
-  fetch_goals: fetch_goals
-  handle_create_goal: handle_create_goal
-  update_goal: update_goal
-  ToOnboardingWizard: ToOnboardingWizard
-  ToGoalWizard: ToGoalWizard
+  user_id: "bf9d8cd5-3c89-40ef-965b-ad2ff148e52a"
+  thread_id: "${user.user_id}"

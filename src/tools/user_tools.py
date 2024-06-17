@@ -4,7 +4,7 @@ from typing import Union
 from langchain_core.tools import tool
 from langchain_core.runnables import ensure_config
 
-from src.sandbox.db_utils import fetch_user, fetch_user_profile, update_user_profile
+from src.db.db_utils import fetch_user, fetch_user_profile, update_user_profile
 
 
 @tool
