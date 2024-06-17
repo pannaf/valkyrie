@@ -292,24 +292,53 @@ To get the final list of exercises that V could use in workout planning, I took 
    
 The attributes provide the sufficient context needed for V to select appropriate exercises for a user, based on their fitness level and preferences.
 
-### Workout Plans
-TODO...
-
 [back to top](#tech-used)
 
 ## <img src="https://github.com/pannaf/valkyrie/assets/18562964/c579f82c-7fe8-4709-8b4c-379573843545" alt="image" width="55"/> [LangGraph] V as an Agent
+To create V, I followed the LangGraph Customer Support Bot tutorial [here](https://langchain-ai.github.io/langgraph/tutorials/customer-support/customer-support/). Finding the ipynb with the code [here](https://github.com/langchain-ai/langgraph/blob/main/examples/customer-support/customer-support.ipynb) was clutch. As in the tutorial, I separated the sensitive tools (ones that update the DB) from the safe tools. Refer to [Section 2: Add Confirmation](https://langchain-ai.github.io/langgraph/tutorials/customer-support/customer-support/#part-2-add-confirmation) in the tutorial. But, I didn't like the user experience where an AI message didn't follow the human-in-the-loop approval when invoking a sensitive tool because it felt like the user needed to do more to drive the conversation than what I had in mind with V. For example:
+```bash
+Do you approve of the above actions? Type 'y' to continue; otherwise, explain your requested changed.
+
+ y
+================================ Human Message =================================
+
+<requires human message after approval>
+```
+While I do see error modes with V where the database doesn't get updated in the ways that I had in mind, it wasn't sufficiently prohibitive to warrant exceeding my time box on investigating alternatives with including the user confirmation on sensitive tools. I do plan to circle back to this eventually though because it seems important for robustifying V. 
 
 ### V's LangGraph Structure
 ![v_graph](https://github.com/pannaf/valkyrie/assets/18562964/b9d18dc5-0fee-4a6f-889b-77fda728023d)
 
+I refer to each of V's assistants, except for the primary assistant as a "wizard" that V can invoke. 
+
 ### Things V can do
-- [Onboarding](#onboarding): onboard a new user and learn about them
+- [Onboard a New User](#onboard-a-new-user): gather basic info about a user
 - [Goal Setting](#goal-setting): help a user set goals and update their goals
 - [Workout Programming](#workout-programming): given the user profile and their goals, plan a 1 week workout program
 - [Answer Questions about V](#answer-questions-about-v): share a little personality and answer some basic design questions
 
-#### Onboarding
-TODO
+#### Onboard a New User
+`onboarding_wizard`
+
+Two primary objectives:
+1. Getting to know a new user
+2. Updating the user's profile information
+
+Tools available:
+- `fetch_user_profile_info` : Used for retrieving the user's profile information, so that V can know what info is filled and what info still needs to be filled.
+- `set_user_profile_info` : Used to update the user's profile information, as V learns more about the user.  
+
+This is used to update the `user_profiles` table, which has the following keys:
+- `user_profile_id` (uuid) - this is just the uuid primary key
+- `user_id` (uuid) - this is a foreign key to match the primary key of the `users` table
+- `last_updated` (date)
+- `activity_preferences` (text) - I'd like to add more structure to this. Currently the LLM has a lot of wiggle room to decide what to drop in here. For example, if I have a single activity then this may just be a string like `"swimming"` but if I like many things, then this could be a list like `['swimming', 'weightlifting', 'water polo']`.
+- `workout_location` (text) - This has a similar issue to the one above, except it's a bit more nuanced. For multi-activity things, sometimes I see a list like `['YMCA for swimming', '24 Hour Fitness for weightlifting', 'Community college pool for water polo']` and other times I see a dict like `{'swimming': 'YMCA', 'weightlifting': '24 Hour Fitness', 'water polo': 'Community college pool']`
+- `workout_frequency` (text) - Similar to the two above, this can end up being a dict like `{'weightlifting': 4, 'swimming': 5, 'water polo': 1}`
+- `workout_duration` (text) - Like the one above, this can end up being a dict like `{'weightlifting': 60, 'swimming': 60, 'water polo': 90}`
+- `fitness_level` (text) - This one is all over the place and could also benefit from more guidance on what structure I'd like to see 🙃 I've seen it offer `"beginner", "intermediate", or "advanced"` and I've seen it ask for fitness level on a scale of 1-5.
+- `weight` (double precision) - The user's current weight. I opted for this to go in the `user_profiles` table instead of `users` table because it's a bit more dynamic. Many folks who workout have goals around their weight.. losing weight, bulking, adding muscle, etc.
+- `goal_weight` (double precision) - Given how common it is for folks to have weight-related goals, it seemed more convenient in the user experience flow to chat about the goal weight here, instead of during goal setting.
 
 #### Goal Setting
 TODO
