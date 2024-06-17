@@ -68,6 +68,7 @@ postgresql@14 started panna ~/Library/LaunchAgents/homebrew.mxcl.postgresql@14.p
 ```
 
 ### Demo
+Check out a full walkthrough of using V from onboarding to goal setting to workout planning in [this loom](https://www.loom.com/share/9ab12783ef204f6daf834d149b17906a?sid=19b5cfab-7156-42a3-b2b7-301088cfb9bd).
 1. Create `.env` file in your code root directory
 ```bash
 # POSTGRES
