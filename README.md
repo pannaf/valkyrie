@@ -34,7 +34,11 @@ brew services start postgresql
 Verify PostgreSQL is running via `brew services list`
 
 ### Demo
-0. You should be in the root directory of the code
+0. Clone the repo and `cd` into the code directory
+```bash
+➜  git clone https://github.com/pannaf/artemis.git
+➜  cd artemis
+```
 1. Create `.env` file in your code root directory
 ```bash
 # POSTGRES
@@ -56,11 +60,11 @@ NVIDIA_API_KEY=...
 ```   
 2. Run `bootstrap.py` script to setup needed tables
 ```bash
-python bootstrap.py
+➜  artemis git:(main) ✗ python bootstrap.py
 ```   
 3. Run V
 ```bash
-python -m src.assistant_system
+➜  artemis git:(main) ✗ python -m src.assistant_system
 ``` 
 
 ## <img src="https://github.com/pannaf/artemis/assets/18562964/3ec5b89a-8634-492f-8077-b636466de285" alt="image" width="25"/> [NeMo Curator] Building an Exercise Dataset
