@@ -110,7 +110,95 @@ Updated configs/agent.yaml with user_id: <uuid that was created>
 ``` 
 You should see something along the lines of:
 ```bash
+(.venv-test-env) ➜  valkyrie git:(main) ✗ python -m src.assistant_system 
+2024-06-17 10:57:36.160 | INFO     | __main__:main:76 - Starting V | f7877a93-30e4-43ff-9969-1ec6b1e03b9b
+2024-06-17 10:57:36.273 | INFO     | __main__:__init__:35 - Building graph | f7877a93-30e4-43ff-9969-1ec6b1e03b9b
+2024-06-17 10:57:36.274 | DEBUG    | __main__:__init__:38 - Entering 'get_graph' (args=(<src.state_graph.graph_builder.GraphBuilder object at 0x14e2e57f0>,), kwargs={}) | f7877a93-30e4-43ff-9969-1ec6b1e03b9b
+2024-06-17 10:57:36.274 | DEBUG    | src.state_graph.graph_builder:get_graph:234 - Entering 'build' (args=(<src.state_graph.graph_builder.GraphBuilder object at 0x14e2e57f0>,), kwargs={}) | f7877a93-30e4-43ff-9969-1ec6b1e03b9b
+2024-06-17 10:57:36.274 | DEBUG    | src.state_graph.graph_builder:get_graph:234 - Function 'build' executed in 0.0004767079371958971s | f7877a93-30e4-43ff-9969-1ec6b1e03b9b
+2024-06-17 10:57:36.274 | DEBUG    | src.state_graph.graph_builder:get_graph:234 - Exiting 'build' (result=<langgraph.graph.state.StateGraph object at 0x14e2e5550>) | f7877a93-30e4-43ff-9969-1ec6b1e03b9b
+2024-06-17 10:57:36.274 | DEBUG    | src.state_graph.graph_builder:get_graph:235 - Entering 'compile' (args=(<src.state_graph.graph_builder.GraphBuilder object at 0x14e2e57f0>, <langgraph.graph.state.StateGraph object at 0x14e2e5550>), kwargs={}) | f7877a93-30e4-43ff-9969-1ec6b1e03b9b
+2024-06-17 10:57:36.276 | DEBUG    | src.state_graph.graph_builder:get_graph:235 - Function 'compile' executed in 0.0014505410799756646s | f7877a93-30e4-43ff-9969-1ec6b1e03b9b
+2024-06-17 10:57:36.276 | SUCCESS  | src.state_graph.graph_builder:get_graph:236 - Graph built and compiled. | f7877a93-30e4-43ff-9969-1ec6b1e03b9b
+2024-06-17 10:57:36.277 | INFO     | src.state_graph.graph_builder:get_graph:237 - Graph structure:
+%%{init: {'flowchart': {'curve': 'linear'}}}%%
+graph TD;
+        __start__[__start__]:::startclass;
+        __end__[__end__]:::endclass;
+        fetch_user_info([fetch_user_info]):::otherclass;
+        guardrails_input_handler([guardrails_input_handler]):::otherclass;
+        enter_onboarding_wizard([enter_onboarding_wizard]):::otherclass;
+        onboarding_wizard([onboarding_wizard]):::otherclass;
+        onboarding_wizard_safe_tools([onboarding_wizard_safe_tools]):::otherclass;
+        onboarding_wizard_sensitive_tools([onboarding_wizard_sensitive_tools]):::otherclass;
+        enter_goal_wizard([enter_goal_wizard]):::otherclass;
+        goal_wizard([goal_wizard]):::otherclass;
+        goal_wizard_safe_tools([goal_wizard_safe_tools]):::otherclass;
+        goal_wizard_sensitive_tools([goal_wizard_sensitive_tools]):::otherclass;
+        enter_programming_wizard([enter_programming_wizard]):::otherclass;
+        programming_wizard([programming_wizard]):::otherclass;
+        programming_wizard_safe_tools([programming_wizard_safe_tools]):::otherclass;
+        programming_wizard_sensitive_tools([programming_wizard_sensitive_tools]):::otherclass;
+        enter_v_wizard([enter_v_wizard]):::otherclass;
+        v_wizard([v_wizard]):::otherclass;
+        v_wizard_safe_tools([v_wizard_safe_tools]):::otherclass;
+        v_wizard_sensitive_tools([v_wizard_sensitive_tools]):::otherclass;
+        leave_skill([leave_skill]):::otherclass;
+        primary_assistant([primary_assistant]):::otherclass;
+        primary_assistant_tools([primary_assistant_tools]):::otherclass;
+        __start__ --> fetch_user_info;
+        enter_goal_wizard --> goal_wizard;
+        enter_onboarding_wizard --> onboarding_wizard;
+        enter_programming_wizard --> programming_wizard;
+        enter_v_wizard --> v_wizard;
+        fetch_user_info --> guardrails_input_handler;
+        goal_wizard_safe_tools --> goal_wizard;
+        goal_wizard_sensitive_tools --> goal_wizard;
+        leave_skill --> primary_assistant;
+        onboarding_wizard_safe_tools --> onboarding_wizard;
+        onboarding_wizard_sensitive_tools --> onboarding_wizard;
+        primary_assistant_tools --> primary_assistant;
+        programming_wizard_safe_tools --> programming_wizard;
+        programming_wizard_sensitive_tools --> programming_wizard;
+        v_wizard_safe_tools --> v_wizard;
+        v_wizard_sensitive_tools --> v_wizard;
+        onboarding_wizard -.-> onboarding_wizard_safe_tools;
+        onboarding_wizard -.-> onboarding_wizard_sensitive_tools;
+        onboarding_wizard -.-> leave_skill;
+        onboarding_wizard -.-> __end__;
+        goal_wizard -.-> goal_wizard_safe_tools;
+        goal_wizard -.-> goal_wizard_sensitive_tools;
+        goal_wizard -.-> leave_skill;
+        goal_wizard -.-> __end__;
+        programming_wizard -.-> programming_wizard_safe_tools;
+        programming_wizard -.-> programming_wizard_sensitive_tools;
+        programming_wizard -.-> leave_skill;
+        programming_wizard -.-> __end__;
+        v_wizard -.-> v_wizard_safe_tools;
+        v_wizard -.-> v_wizard_sensitive_tools;
+        v_wizard -.-> leave_skill;
+        v_wizard -.-> __end__;
+        primary_assistant -.-> enter_onboarding_wizard;
+        primary_assistant -.-> enter_goal_wizard;
+        primary_assistant -.-> enter_programming_wizard;
+        primary_assistant -.-> enter_v_wizard;
+        primary_assistant -.-> primary_assistant_tools;
+        primary_assistant -.-> __end__;
+        guardrails_input_handler -.-> onboarding_wizard;
+        guardrails_input_handler -.-> goal_wizard;
+        guardrails_input_handler -.-> programming_wizard;
+        guardrails_input_handler -.-> primary_assistant;
+        guardrails_input_handler -.-> v_wizard;
+        guardrails_input_handler -.-> __end__;
+        classDef startclass fill:#ffdfba;
+        classDef endclass fill:#baffc9;
+        classDef otherclass fill:#fad7de;
+ | f7877a93-30e4-43ff-9969-1ec6b1e03b9b
+2024-06-17 10:57:36.278 | DEBUG    | __main__:__init__:38 - Function 'get_graph' executed in 0.0039283750811591744s | f7877a93-30e4-43ff-9969-1ec6b1e03b9b
+2024-06-17 10:57:36.278 | INFO     | __main__:main:81 - Saving graph visualization to v_graph.png | f7877a93-30e4-43ff-9969-1ec6b1e03b9b
+2024-06-17 10:57:36.474 | SUCCESS  | src.state_graph.graph_builder:visualize_graph:245 - Graph saved to v_graph.png | f7877a93-30e4-43ff-9969-1ec6b1e03b9b
 
+---------------- User Message ----------------
 ```
 
 ## <img src="https://github.com/pannaf/valkyrie/assets/18562964/3ec5b89a-8634-492f-8077-b636466de285" alt="image" width="25"/> [NeMo Curator] Building an Exercise Dataset
