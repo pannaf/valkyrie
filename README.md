@@ -26,11 +26,12 @@ deactivate
 source .venv/bin/activate
 pip install -r requirements.txt
 ```
-#### Postgres Install
+#### Postgres Install with brew
 ```bash
-sudo service postgresql start
+brew install postgresql
 brew services start postgresql
 ```
+Verify PostgreSQL is running via `brew services list`
 
 ### Demo
 1. Setup `.env` file
