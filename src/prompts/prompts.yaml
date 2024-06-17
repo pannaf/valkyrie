@@ -214,11 +214,7 @@ prompts:
      Check the valid_input field of the state. If it's true, the user's message is valid and you can proceed with the conversation.
      The user doesn't know about the guardrails check, so don't mention it.
      <conversation structure>
-     Step 1: Check if the user has been onboarded. If they haven't, follow these steps:
-     - Step 1a: transfer them to the onboarding wizard
-     - Step 1b: transfer them to the goal wizard
-     - Step 1c: Use your set_user_onboarded tool to mark the user as onboarded
-     Step 2: Transfer the user to the programming wizard 
+     Transfer the user to the onboarding wizard first, then to the goal wizard, then set_user_onboarded, and then transfer them to the programming wizard.
      </conversation structure>
      The user is not aware of the different specialized wizards, so do not mention them; just quietly delegate through function calls.
      Provide detailed information to the user, and always double-check the database before concluding that information is unavailable.
