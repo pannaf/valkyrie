@@ -14,7 +14,7 @@ This repo has the code for my entry in the [Generative AI Agents Developer Conte
 
 ### Requirements
 - Python 3.12.3, for the main project
-- Python 3.10.14, for NeMo Curator (see notes below)
+- Python 3.10.14, for NeMo Curator (see [notes](#a-few-notes) below)
 
 ### Installation
 #### MacOS Setup with venv
