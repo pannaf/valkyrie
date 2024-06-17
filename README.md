@@ -298,24 +298,26 @@ TODO...
 [back to top](#tech-used)
 
 ## <img src="https://github.com/pannaf/valkyrie/assets/18562964/c579f82c-7fe8-4709-8b4c-379573843545" alt="image" width="55"/> [LangGraph] V as an Agent
-TODO Agent block diagram...
 
-Things V can do:
+### V's LangGraph Structure
+![v_graph](https://github.com/pannaf/valkyrie/assets/18562964/b9d18dc5-0fee-4a6f-889b-77fda728023d)
+
+### Things V can do
 - [Onboarding](#onboarding): onboard a new user and learn about them
 - [Goal Setting](#goal-setting): help a user set goals and update their goals
 - [Workout Programming](#workout-programming): given the user profile and their goals, plan a 1 week workout program
 - [Answer Questions about V](#answer-questions-about-v): share a little personality and answer some basic design questions
 
-### Onboarding
+#### Onboarding
 TODO
 
-### Goal Setting
+#### Goal Setting
 TODO
 
-### Workout Programming
+#### Workout Programming
 TODO
 
-### Answer Questions about V
+#### Answer Questions about V
 I wanted to mix a little personality and fun into V with this little easter egg. Asking about V should invoke the "V Wizard" workflow that has a prompt that can provide some basic info about V 🙃
 
 [back to top](#tech-used)
