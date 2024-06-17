@@ -34,6 +34,7 @@ brew services start postgresql
 Verify PostgreSQL is running via `brew services list`
 
 ### Demo
+0. You should be in the root directory of the code
 1. Create `.env` file in your code root directory
 ```bash
 # POSTGRES
