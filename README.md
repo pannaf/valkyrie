@@ -7,6 +7,7 @@ This repo has the code for my entry in the [Generative AI Agents Developer Conte
 ### Links
 - Check out a full walkthrough of using V from onboarding to goal setting to workout planning in [this loom](https://www.loom.com/share/9ab12783ef204f6daf834d149b17906a?sid=19b5cfab-7156-42a3-b2b7-301088cfb9bd).
 - Live-hosted Streamlit dashboard available [here](https://v-ai-personal-trainer.onrender.com/). Password was provided in my contest submission form. For other folks- feel free to join the waitlist and I'll keep you updated on when V is more broadly available!
+- Contact me at [mailto:panna@berkeley.edu](mailto:panna@berkeley.edu) for any comments, questions, thoughts, etc!
 
 ## Main Tech
 - [x] <img src="https://github.com/pannaf/valkyrie/assets/18562964/3ec5b89a-8634-492f-8077-b636466de285" alt="image" width="15"/> [NeMo Curator](#-nemo-curator-building-an-exercise-dataset) - build a dataset of exercises that V can draw from when planning workouts 💪
