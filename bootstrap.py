@@ -2,11 +2,11 @@ import os
 import psycopg2
 from dotenv import load_dotenv
 
-# Load environment variables from the .env file
+from src.db.db_utils import insert_user
+
 load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
-
 print(f"{DATABASE_URL=}")
 
 # SQL statements to create tables
@@ -61,14 +61,10 @@ def create_tables():
     """Create tables in the PostgreSQL database."""
     conn = None
     try:
-        # Connect to the PostgreSQL server
         conn = psycopg2.connect(DATABASE_URL)
         cur = conn.cursor()
-        # Create tables
         cur.execute(CREATE_TABLES_SQL)
-        # Commit the changes
         conn.commit()
-        # Close communication with the PostgreSQL database server
         cur.close()
         print("Tables created successfully.")
     except (Exception, psycopg2.DatabaseError) as error:
@@ -80,3 +76,27 @@ def create_tables():
 
 if __name__ == "__main__":
     create_tables()
+
+    # Insert a new user
+    first_name = input("Enter your first name: ")
+    last_name = input("Enter your last name: ")
+    email = input("Enter your email: ")
+    date_of_birth = input("Enter your date of birth (YYYY-MM-DD): ")
+    height_cm = float(input("Enter your height in centimeters: "))
+
+    user_id = insert_user(first_name=first_name, last_name=last_name, email=email, date_of_birth=date_of_birth, height_cm=height_cm)
+
+    print(f"User created with ID: {user_id}")
+
+    # Update the user_id in the agent.yaml file
+
+    import yaml
+
+    yaml_file = "configs/agent.yaml"
+    with open(yaml_file, "r") as file:
+        data = yaml.safe_load(file)
+    data["user"]["user_id"] = user_id
+    with open(yaml_file, "w") as file:
+        yaml.dump(data, file)
+
+    print(f"Updated {yaml_file} with user_id: {user_id}")
