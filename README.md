@@ -87,16 +87,30 @@ LANGCHAIN_PROJECT=...
 # NVIDIA API KEY
 NVIDIA_API_KEY=...
 ```   
-2. Run `bootstrap.py` script to setup needed tables
+2. Run `bootstrap.py` script to setup needed tables and create an initial user.
 ```bash
-➜  valkyrie git:(main) ✗ python bootstrap.py
-```   
+(.venv) ➜  valkyrie git:(main) ✗ python bootstrap.py
+```
+This should look something like:
+```bash
+(.venv) ➜  valkyrie git:(main) ✗ python bootstrap.py
+DATABASE_URL='postgresql://<username>:<password>@localhost:5432/<db name>'
+Tables created successfully.
+Enter your first name: <your name>
+Enter your last name: <your name>
+Enter your email: <your email>
+Enter your date of birth (YYYY-MM-DD): <your date of birth>
+Enter your height in centimeters: <your height>
+User created with ID: <uuid that was created>
+Updated configs/agent.yaml with user_id: <uuid that was created>
+```
 3. Run V
 ```bash
 ➜  valkyrie git:(main) ✗ python -m src.assistant_system
 ``` 
 You should see something along the lines of:
 ```bash
+
 ```
 
 ## <img src="https://github.com/pannaf/valkyrie/assets/18562964/3ec5b89a-8634-492f-8077-b636466de285" alt="image" width="25"/> [NeMo Curator] Building an Exercise Dataset
