@@ -21,11 +21,17 @@ This repo has the code for my entry in the [Generative AI Agents Developer Conte
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -U pip
-deactivate
-source .venv/bin/activate
+pip install nemoguardrails==0.9.0
 pip install -r requirements.txt
 ```
+There's a small dependency conflict with the LangChain version for `nemoguardrails` that I did a small workaround for by installing `nemoguardrails` first. I still wind up with this warning:
+```bash
+ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+nemoguardrails 0.9.0 requires langchain!=0.1.9,<0.2.0,>=0.1.0, but you have langchain 0.2.3 which is incompatible.
+nemoguardrails 0.9.0 requires langchain-community<0.1.0,>=0.0.16, but you have langchain-community 0.2.4 which is incompatible.
+```
+But.. things ran fine for me with this setup, so I didn't spend time looking into resolving this further.  
+
 #### Postgres Install with brew
 ```bash
 brew install postgresql
