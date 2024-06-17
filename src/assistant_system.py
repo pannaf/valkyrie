@@ -3,7 +3,7 @@ from omegaconf import DictConfig
 import hydra
 
 from src.state_graph.graph_builder import GraphBuilder
-from src.tools import ToOnboardingWizard, ToGoalWizard, ToProgrammingWizard, ToVWizard
+from src.tools import ToOnboardingWizard, ToGoalWizard, ToProgrammingWizard, ToVWizard, set_user_onboarded
 from src.utils.logtils import configure_logging, LoggingContextManager, get_bound_logger
 
 
@@ -29,7 +29,7 @@ class AssistantSystem:
 
         self.primary_assistant_prompt = self.prompt_loader.get_prompt("gandalf")
         self.primary_assistant_runnable = self.primary_assistant_prompt | self.llm.bind_tools(
-            [ToOnboardingWizard, ToGoalWizard, ToProgrammingWizard, ToVWizard]
+            [set_user_onboarded] + [ToOnboardingWizard, ToGoalWizard, ToProgrammingWizard, ToVWizard]
         )
 
         self.logger.info("Building graph")

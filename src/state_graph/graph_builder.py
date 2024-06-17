@@ -10,7 +10,7 @@ from langgraph.checkpoint.sqlite import SqliteSaver
 from langgraph.prebuilt import tools_condition
 from langchain_core.messages import AIMessage, ToolMessage
 
-from src.tools import ToOnboardingWizard, ToGoalWizard, ToProgrammingWizard, ToVWizard, CompleteOrEscalate
+from src.tools import ToOnboardingWizard, ToGoalWizard, ToProgrammingWizard, ToVWizard, CompleteOrEscalate, set_user_onboarded
 from src.tools import fetch_user_info, create_tool_node_with_fallback
 from src.state_graph.state import State
 from src.assistants.assistant import Assistant
@@ -191,7 +191,7 @@ class GraphBuilder:
         self.builder.add_node("leave_skill", self._pop_dialog_state)
         self.builder.add_edge("leave_skill", "primary_assistant")
         self.builder.add_node("primary_assistant", Assistant(self.primary_assistant_runnable))
-        self.builder.add_node("primary_assistant_tools", create_tool_node_with_fallback([]))
+        self.builder.add_node("primary_assistant_tools", create_tool_node_with_fallback([set_user_onboarded]))
         self.builder.add_conditional_edges(
             "primary_assistant",
             self._route_primary_assistant,

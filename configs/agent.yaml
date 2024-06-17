@@ -11,4 +11,4 @@ prompts:
   path: src/prompts/prompts.yaml
 user:
   thread_id: ${user.user_id}
-  user_id: f7877a93-30e4-43ff-9969-1ec6b1e03b9b
+  user_id: 5c37d5ca-b80c-407a-8310-982ca5c06c8f
