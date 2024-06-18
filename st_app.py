@@ -16,7 +16,7 @@ GlobalHydra.instance().clear()
 
 
 def load_config():
-    with hydra.initialize(config_path="configs"):
+    with hydra.initialize(config_path="configs", version_base="1.3"):
         cfg = hydra.compose(config_name="base")
     return cfg
 
