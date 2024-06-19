@@ -5,6 +5,7 @@ Meet V! Your new virtual personal trainer! 🙃
 This repo has the code for my entry in the [Generative AI Agents Developer Contest by NVIDIA and LangChain](https://www.nvidia.com/en-us/ai-data-science/generative-ai/developer-contest-with-langchain/).
 
 ### Links
+- Short demo video in [this loom](https://www.loom.com/share/5b524d1f99bd445f9c0eb443ec54759f?sid=0615442c-2f9d-4c84-97e3-ff8a3dd51067)
 - Check out a full walkthrough of using V from onboarding to goal setting to workout planning in [this loom](https://www.loom.com/share/9ab12783ef204f6daf834d149b17906a?sid=19b5cfab-7156-42a3-b2b7-301088cfb9bd).
 - Live-hosted Streamlit dashboard available [here](https://v-ai-personal-trainer.onrender.com/). Password was provided in my contest submission form. For other folks- feel free to join the waitlist and I'll keep you updated on when V is more broadly available!
 - Contact me at [panna(at)berkeley(dot)edu](mailto:panna@berkeley.edu) for any comments, questions, thoughts, etc!
