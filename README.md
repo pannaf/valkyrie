@@ -582,6 +582,6 @@ Fetching 5 files: 100%|███████████████████
 2024-06-21 19:36:37.732 | DEBUG    | langgraph.utils:invoke:95 - Exiting 'guardrails_input_handler' (result={'valid_input': True}) | 2670468f-e089-4986-87f9-e02af6a9dc13
 ```
 
-I also modified the wording of the final bit of the prompt to be a little less strict as: `"- should not contain garbled language, but slang or shorthand is acceptable if it is not offensive"`.
+Ultimately, I also modified the wording of the final bit of the prompt to be a little less strict as: `"- should not contain garbled language, but slang or shorthand is acceptable if it is not offensive"`.
 
 [back to top](#tech-used)
