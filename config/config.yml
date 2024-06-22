@@ -1,7 +1,7 @@
 models:
  - type: main
-   engine: openai
-   model: gpt-3.5-turbo-instruct
+   engine: nvidia_ai_endpoints
+   model: meta/llama3-70b-instruct   
    temperature: 0.7
    
 

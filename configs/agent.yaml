@@ -2,7 +2,7 @@ defaults:
 - _self_
 llm:
   _target_: langchain_anthropic.ChatAnthropic
-  model: claude-3-sonnet-20240229
+  model: claude-3-5-sonnet-20240620 
   temperature: 1
 prompt_loader:
   _target_: src.prompts.yaml_prompt_loader.YamlPromptLoader
@@ -11,4 +11,4 @@ prompts:
   path: src/prompts/prompts.yaml
 user:
   thread_id: ${user.user_id}
-  user_id: 5c37d5ca-b80c-407a-8310-982ca5c06c8f
+  user_id: 2670468f-e089-4986-87f9-e02af6a9dc13 

@@ -6,11 +6,16 @@ from src.state_graph.graph_builder import GraphBuilder
 from src.tools import ToOnboardingWizard, ToGoalWizard, ToProgrammingWizard, ToVWizard, set_user_onboarded
 from src.utils.logtils import configure_logging, LoggingContextManager, get_bound_logger
 
+from temp import LiteLLMFunctions
+
 
 class AssistantSystem:
     def __init__(self, cfg):
         load_dotenv()
-        self.llm = hydra.utils.instantiate(cfg.llm)
+        if 0:
+            self.llm = hydra.utils.instantiate(cfg.llm)
+        else:
+            self.llm = LiteLLMFunctions(model="meta/llama3-70b-instruct")
         self.prompt_loader = hydra.utils.instantiate(cfg.prompt_loader)
         self.cfg = {"configurable": cfg.user}
         self.logger = get_bound_logger()
