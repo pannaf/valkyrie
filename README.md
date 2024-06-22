@@ -267,7 +267,7 @@ I explored a couple aspects of NeMo Curator that I ultimately didn't get to use 
 - Wikipedia data pull - one thing I found here is that I needed to set `dump_date=None` in `download_wikipedia()` in order to get [this example](https://github.com/NVIDIA/NeMo-Curator/blob/main/examples/download_wikipedia.py) working
 - Common data crawler - no insights to report.. [this example](https://github.com/NVIDIA/NeMo-Curator/blob/main/examples/download_common_crawl.py) worked pretty well for me, just requires you to specify a reasonable directory
 
-### Cleaning the `.jsonl` format a little
+## Cleaning the `.jsonl` format a little
 Normally I wouldn't include this type of detail, but I thought this was pretty neat and worth a quick share! My `.jsonl` files output from my NeMo Curator pipeline end up with this type of format:
 
 ```json
