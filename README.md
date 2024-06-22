@@ -288,7 +288,7 @@ My `.jsonl` files output from my NeMo Curator pipeline ended up with this type o
 I wanted to transform this into a simple text file that has just the text fields extracted. There's lotsa ways I could have done this in Python and some things I think I could have done differently with NeMo Curator to help achieve this, but there's also this pretty sweet command line JSON processor `jq` for these types of things. 
 
 > [!TIP]
-> Head over [here](https://formulae.brew.sh/formula/jq) if you haven't heard of `jq` before.
+> `jq` is a command line JSON processor. Head over [here](https://jqlang.github.io/jq/) if you haven't heard of `jq` before. On a Mac, `brew install jq`.
 
 Here's the command:
 
