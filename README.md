@@ -21,7 +21,7 @@ This repo has the code for my entry in the [Generative AI Agents Developer Conte
 TODO
 
 # Setup
-| **TL;DR** |  Installation and environment setup, favoring MacOS distributions. |
+| **TL;DR** |  Installation and environment setup, favoring MacOS and Linux distributions. |
 | --|-- |
 
 <details>
@@ -83,7 +83,8 @@ Use this command to set the environment variable:
 (.venv) ➜  valkyrie git:(main) ✗ export TOKENIZERS_PARALLELISM=False
 ```
 
-## PostgreSQL Install with brew
+## PostgreSQL Install and Table Setup
+Using brew on a Mac, PostgreSQL can be installed as:
 ```bash
 (.venv) ➜  valkyrie git:(main) ✗ brew install postgresql
 (.venv) ➜  valkyrie git:(main) ✗ brew services start postgresql
@@ -94,6 +95,33 @@ Verify PostgreSQL is running via `brew services list`. On my machine, I see the 
 Name          Status  User  File
 postgresql@14 started panna ~/Library/LaunchAgents/homebrew.mxcl.postgresql@14.plist
 ```
+<details><summary>Ubuntu Install Instructions</summary>
+```bash
+# Update the package lists
+sudo apt update
+
+# Install PostgreSQL and its contrib package
+sudo apt install postgresql postgresql-contrib
+
+# Start the PostgreSQL service
+sudo systemctl start postgresql
+
+# Enable PostgreSQL to start on boot
+sudo systemctl enable postgresql
+
+# Verify the installation
+sudo systemctl status postgresql
+
+# Switch to the postgres user
+sudo -i -u postgres
+
+# Access the PostgreSQL prompt
+psql
+
+# Exit the PostgreSQL prompt
+\q
+```
+</details>
 ### Setup PostgreSQL Tables
 Run `bootstrap.py` script to setup needed tables and create an initial user.
 ```bash
