@@ -304,7 +304,7 @@ The attributes provide the sufficient context needed for V to select appropriate
 
 [back to top](#main-tech)
 
-### <img src="https://github.com/pannaf/valkyrie/assets/18562964/3ec5b89a-8634-492f-8077-b636466de285" alt="image" width="20"/> [NVIDIA AI Foundation Endpoints] Giving V a Voice
+## <img src="https://github.com/pannaf/valkyrie/assets/18562964/3ec5b89a-8634-492f-8077-b636466de285" alt="image" width="20"/> [NVIDIA AI Foundation Endpoints] Giving V a Voice
 TODO
 
 [back to top](#main-tech)
