@@ -195,7 +195,7 @@ graph TD;
 ---------------- User Message ----------------
 User: 
 ```
-From there, you can start chatting with V. Notice that the uuid attached to each log message should match the uuid that was created during bootstrap for the user you created.
+From there, you can start chatting with V. Notice that the uuid attached to each log message should match the uuid that was created during bootstrap for the user you created. In the example above, the uuid is `f7877a93-30e4-43ff-9969-1ec6b1e03b9b`.
 
 [back to top](#main-tech)
 
