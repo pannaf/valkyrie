@@ -53,6 +53,7 @@ nemoguardrails 0.9.0 requires langchain-community<0.1.0,>=0.0.16, but you have l
 But.. things ran fine for me with this setup, so I didn't spend time looking into resolving this further.  
 
 ## Environment Variables
+### `.env` File Template
 Create `.env` file in your code root directory:
 ```bash
 # NVIDIA API KEY
@@ -66,6 +67,7 @@ LANGSMITH_API_KEY=...
 LANGCHAIN_TRACING_V2="true"
 LANGCHAIN_PROJECT=...
 ```
+### Handling `TOKENIZERS_PARALLELISM` Env Variable
 To avoid seeing the following warnings, set the `TOKENIZERS_PARALLELISM` environment variable to `false`:
 ```text
 huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
