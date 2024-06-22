@@ -95,7 +95,7 @@ Verify PostgreSQL is running via `brew services list`. On my machine, I see the 
 Name          Status  User  File
 postgresql@14 started panna ~/Library/LaunchAgents/homebrew.mxcl.postgresql@14.plist
 ```
-<details><summary>Ubuntu Install Instructions</summary>
+### Ubuntu Install Instructions
 ```bash
 # Update the package lists
 sudo apt update
@@ -121,7 +121,6 @@ psql
 # Exit the PostgreSQL prompt
 \q
 ```
-</details>
 ### Setup PostgreSQL Tables
 Run `bootstrap.py` script to setup needed tables and create an initial user.
 ```bash
