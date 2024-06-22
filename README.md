@@ -318,7 +318,7 @@ This works *really* well for models where the `bind_tools()` method is implement
 
 <img width="1370" alt="Screenshot 2024-06-21 at 8 53 45 PM" src="https://github.com/pannaf/valkyrie/assets/18562964/d353b73a-49c2-4bb2-a95b-8438274348ff">
 
-After scanning through the official LangChain repo issues and pull requests, I found something relevant with [PR23193 experimental: Mixin to allow tool calling features for non tool calling chat models](https://github.com/langchain-ai/langchain/pull/23193). Because the PR was unmerged, what ultimately worked for me was to just copy `libs/experimental/langchain_experimental/llms/tool_calling_llm.py` over to my codebase in `src/external/tool_calling_llm.py` and use it via:
+After scanning through the official LangChain repo issues and pull requests, I found something relevant with [PR23193 experimental: Mixin to allow tool calling features for non tool calling chat models](https://github.com/langchain-ai/langchain/pull/23193). Because the PR was unmerged at the time when I found it, what ultimately worked for me was to just copy `libs/experimental/langchain_experimental/llms/tool_calling_llm.py` over to my codebase in `src/external/tool_calling_llm.py` and use it via:
 
 ```python
 self.llm = LiteLLMFunctions(model="meta/llama3-70b-instruct")
