@@ -300,12 +300,12 @@ To get the final list of exercises that V could use in workout planning, I took 
    
 The attributes provide the sufficient context needed for V to select appropriate exercises for a user, based on their fitness level and preferences.
 
-[back to top](#tech-used)
+[back to top](#main-tech)
 
 ### <img src="https://github.com/pannaf/valkyrie/assets/18562964/3ec5b89a-8634-492f-8077-b636466de285" alt="image" width="20"/> [NVIDIA AI Foundation Endpoints] Giving V a Voice
 TODO
 
-[back to top](#tech-used)
+[back to top](#main-tech)
 
 ## <img src="https://github.com/pannaf/valkyrie/assets/18562964/c579f82c-7fe8-4709-8b4c-379573843545" alt="image" width="55"/> [LangGraph] V as an Agent
 To create V, I followed the LangGraph Customer Support Bot tutorial [here](https://langchain-ai.github.io/langgraph/tutorials/customer-support/customer-support/). Finding the ipynb with the code [here](https://github.com/langchain-ai/langgraph/blob/main/examples/customer-support/customer-support.ipynb) was clutch. As in the tutorial, I separated the sensitive tools (ones that update the DB) from the safe tools. Refer to [Section 2: Add Confirmation](https://langchain-ai.github.io/langgraph/tutorials/customer-support/customer-support/#part-2-add-confirmation) in the tutorial. But, I didn't like the user experience where an AI message didn't follow the human-in-the-loop approval when invoking a sensitive tool because it felt like the user needed to do more to drive the conversation than what I had in mind with V. For example:
@@ -395,7 +395,7 @@ I envisioned updating a database table with the planned workouts, and eventually
 
 I wanted to mix a little personality and fun into V with this little easter egg. Provides some very basic info about V 🙃
 
-[back to top](#tech-used)
+[back to top](#main-tech)
 
 ## <img src="https://github.com/pannaf/valkyrie/assets/18562964/c579f82c-7fe8-4709-8b4c-379573843545" alt="image" width="55"/> [LangSmith] LangGraph Tracing
 Initially, I found it extremely helpful to look at the traces in LangSmith to verify that V was actually persistently staying in the correct wizard workflow. I used it to help identify a bug in my state where I wasn't correctly passing around the `dialog_state`.
@@ -410,7 +410,7 @@ Correct version:
 
 <img width="720" alt="langgraph-correct-trace" src="https://github.com/pannaf/valkyrie/assets/18562964/b638db69-c980-4ddf-89a2-39deb0047761">
 
-[back to top](#tech-used)
+[back to top](#main-tech)
 
 ## <img src="https://github.com/pannaf/valkyrie/assets/18562964/3ec5b89a-8634-492f-8077-b636466de285" alt="image" width="25"/> [NeMo Guardrails] Ensuring V Stays out of the Medical Domain
 I used NeMo Guardrails to apply checks on the user input message, as a way of ensuring V doesn't engage meaningfully with a user on topics that land in the medical domain where only a licensed medical professional has the requisite expertise.
@@ -591,4 +591,4 @@ Fetching 5 files: 100%|███████████████████
 
 Ultimately, I also modified the wording of the final bit of the prompt to be a little less strict as: `"- should not contain garbled language, but slang or shorthand is acceptable if it is not offensive"`.
 
-[back to top](#tech-used)
+[back to top](#main-tech)
