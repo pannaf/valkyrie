@@ -231,7 +231,6 @@ Following the NeMo Curator tutorial [here](https://developer.nvidia.com/blog/cur
 ### Code
 Refer to [src/datasets/nemo_exercise_downloader.py](src/datasets/nemo_exercise_downloader.py) for the full implementation.
 
-## A few notes
 ### Legality of Web Scraping for this Use Case
 Given that I'm only scraping the names of exercises, this does not violate copyright laws according to [this article](https://www.mintz.com/insights-center/viewpoints/2012-06-26-one-less-copyright-issue-worry-about-gym) that discusses the implications of the U.S. Copyright Office's June 18, 2012 [Statement of Policy](https://www.govinfo.gov/content/pkg/FR-2012-06-22/html/2012-15235.htm). In particular, this direct quote makes clear that pulling the list of exercises alone does violate copyright laws:
 
