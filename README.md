@@ -232,15 +232,7 @@ compilation of such poses or exercises. However, under the policy
 stated herein, a claim in a compilation of exercises or the selection 
 and arrangement of yoga poses will be refused registration. Exercise is 
 not a category of authorship in section 102 and thus a compilation of 
-exercises would not be copyrightable subject matter. The Copyright 
-Office would entertain a claim in the selection, coordination or 
-arrangement of, for instance, photographs or drawings of exercises, but 
-such compilation authorship would not extend to the selection, 
-coordination or arrangement of the exercises themselves that are 
-depicted in the photographs or drawings. Rather such a claim would be 
-limited to selection, coordination, or arrangement of the photographs 
-or drawings that fall within the congressionally-recognized category of 
-authorship of pictorial, graphic and sculptural works.
+exercises would not be copyrightable subject matter.
 
 #### Pipeline Overview
 
