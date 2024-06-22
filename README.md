@@ -450,10 +450,9 @@ Given that LangGraph systems have LLMs with the `bind_tools()` method applied, I
 ## Some Observations from Using NeMo Guardrails
 
 ### Accurate Colang History
-**TL;DR**
-- I don't think these Colang History observations would apply in situations where the guardrails wraps the entire runnable. With my guardrails running in a LangGraph node, the output from the rails isn't automatically piped to the user, so I needed a mechanism that recognizes when the rails were applied. I used a simple check for whether the `"bot refuse[d]"` to respond.
-- For open source models, I needed the 70b model instead of 7b models
-- GPT3.5-Turbo also worked well
+> [!TIP]
+> I don't think these Colang History observations would apply in situations where the guardrails wraps the entire runnable. With my guardrails running in a LangGraph node, the output from the rails isn't automatically piped to the user, so I needed a mechanism that recognizes when the rails were applied. I used a simple check for whether the `"bot refuse[d]"` to respond.
+> For open source models: the 70b llama model worked, but the 7b models did not work. GPT3.5-Turbo also worked well.
 
 I rely on the Colang history to signal whether the bot refused to respond to something:
 
