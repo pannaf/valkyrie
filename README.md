@@ -285,7 +285,12 @@ My `.jsonl` files output from my NeMo Curator pipeline ended up with this type o
 {"filename":"exercises-0.jsonl","id":"doc_id-07500","text":"Curtsy Lunge","word_count":2}
 ```
 
-I wanted to transform this into a simple text file that has just the text fields extracted. There's lotsa ways I could have done this in Python and some things I think I could have done differently with NeMo Curator to help achieve this, but there's also this pretty sweet command line JSON processor `jq` for these types of things. Head over [here](https://formulae.brew.sh/formula/jq) if you haven't heard of `jq` before. Here's the command:
+I wanted to transform this into a simple text file that has just the text fields extracted. There's lotsa ways I could have done this in Python and some things I think I could have done differently with NeMo Curator to help achieve this, but there's also this pretty sweet command line JSON processor `jq` for these types of things. 
+
+> [!TIP]
+> Head over [here](https://formulae.brew.sh/formula/jq) if you haven't heard of `jq` before.
+
+Here's the command:
 
 ```zsh
 for file in exercises-*.jsonl; do
