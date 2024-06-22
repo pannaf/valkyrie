@@ -4,37 +4,37 @@ Meet V! Your new virtual personal trainer! 🙃
 
 This repo has the code for my entry in the [Generative AI Agents Developer Contest by NVIDIA and LangChain](https://www.nvidia.com/en-us/ai-data-science/generative-ai/developer-contest-with-langchain/).
 
-### Links
+## Links
 - Short demo video in [this loom](https://www.loom.com/share/5b524d1f99bd445f9c0eb443ec54759f?sid=0615442c-2f9d-4c84-97e3-ff8a3dd51067)
 - Check out a full walkthrough of using V from onboarding to goal setting to workout planning in [this loom](https://www.loom.com/share/9ab12783ef204f6daf834d149b17906a?sid=19b5cfab-7156-42a3-b2b7-301088cfb9bd).
 - Live-hosted Streamlit dashboard available [here](https://v-ai-personal-trainer.onrender.com/). Password was provided in my contest submission form. For other folks- feel free to join the waitlist and I'll keep you updated on when V is more broadly available!
 - Contact me at [panna(at)berkeley(dot)edu](mailto:panna@berkeley.edu) for any comments, questions, thoughts, etc!
 
-## Main Tech
+# Main Tech
 - [x] <img src="https://github.com/pannaf/valkyrie/assets/18562964/3ec5b89a-8634-492f-8077-b636466de285" alt="image" width="15"/> [NeMo Curator](#-nemo-curator-building-an-exercise-dataset) - build a dataset of exercises that V can draw from when planning workouts 💪
 - [x] <img src="https://github.com/pannaf/valkyrie/assets/18562964/3ec5b89a-8634-492f-8077-b636466de285" alt="image" width="15"/> [NVIDIA AI Foundation Endpoints](#-nvidia-ai-foundation-endpoints-giving-v-a-voice) - giving V a voice
 - [x] <img src="https://github.com/pannaf/valkyrie/assets/18562964/c579f82c-7fe8-4709-8b4c-379573843545" alt="image" width="35"/> [LangGraph](#-langgraph-v-as-an-agent) - V as an agent
 - [x] <img src="https://github.com/pannaf/valkyrie/assets/18562964/c579f82c-7fe8-4709-8b4c-379573843545" alt="image" width="35"/> [LangSmith](#-langsmith-langgraph-tracing) - LangGraph tracing
 - [x] <img src="https://github.com/pannaf/valkyrie/assets/18562964/3ec5b89a-8634-492f-8077-b636466de285" alt="image" width="15"/> [NeMo Guardrails](#-nemo-guardrails-ensuring-v-stays-out-of-the-medical-domain) - ensure V doesn't venture into a medical domain space
 
-## Setup
-| **TL;DR** |  Installation and environment setup, favoring MacOS and Linux distributions. |
+# Setup
+| **TL;DR** |  Installation and environment setup, favoring MacOS distributions. |
 | --|-- |
 
 <details>
 <summary>Setup details</summary>
 
-### Requirements
+## Requirements
 - Python 3.12.3, for the main project
 - Python 3.10.14, for NeMo Curator (see [notes](#a-few-notes) below)
 
-### Installation
+## Installation
 Clone the repo and `cd` into the code directory
 ```bash
 ➜  git clone https://github.com/pannaf/valkyrie.git
 ➜  cd valkyrie
 ```
-#### MacOS Setup with venv
+### MacOS Setup with venv
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
@@ -49,7 +49,20 @@ nemoguardrails 0.9.0 requires langchain-community<0.1.0,>=0.0.16, but you have l
 ```
 But.. things ran fine for me with this setup, so I didn't spend time looking into resolving this further.  
 
-#### Environment Variables
+## Environment Variables
+Create `.env` file in your code root directory:
+```bash
+# NVIDIA API KEY
+NVIDIA_API_KEY=...
+
+# POSTGRES
+DATABASE_URL=...
+
+# Langsmith
+LANGSMITH_API_KEY=...
+LANGCHAIN_TRACING_V2="true"
+LANGCHAIN_PROJECT=...
+```
 To avoid seeing the following warnings, set the `TOKENIZERS_PARALLELISM` environment variable to `false`:
 ```text
 huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
@@ -67,7 +80,7 @@ Use this command to set the environment variable:
 (.venv) ➜  valkyrie git:(main) ✗ export TOKENIZERS_PARALLELISM=False
 ```
 
-#### Postgres Install with brew
+## PostgreSQL Install with brew
 ```bash
 (.venv) ➜  valkyrie git:(main) ✗ brew install postgresql
 (.venv) ➜  valkyrie git:(main) ✗ brew services start postgresql
@@ -78,33 +91,8 @@ Verify PostgreSQL is running via `brew services list`. On my machine, I see the 
 Name          Status  User  File
 postgresql@14 started panna ~/Library/LaunchAgents/homebrew.mxcl.postgresql@14.plist
 ```
-</details>
-
-### Demo
-| **TL;DR** |  Full walkthrough from onboarding to goal setting to workout planning available in the demo video. |
-| --|-- |
-
-Check out a full walkthrough of using V from onboarding to goal setting to workout planning in [this loom](https://www.loom.com/share/9ab12783ef204f6daf834d149b17906a?sid=19b5cfab-7156-42a3-b2b7-301088cfb9bd).
-1. Create `.env` file in your code root directory
-```bash
-# POSTGRES
-DATABASE_URL=...
-
-# Anthropic
-ANTHROPIC_API_KEY=...
-
-# OPENAI
-OPENAI_API_KEY=...
-
-# Langsmith
-LANGSMITH_API_KEY=...
-LANGCHAIN_TRACING_V2="true"
-LANGCHAIN_PROJECT=...
-
-# NVIDIA API KEY
-NVIDIA_API_KEY=...
-```   
-2. Run `bootstrap.py` script to setup needed tables and create an initial user.
+### Setup PostgreSQL Tables
+Run `bootstrap.py` script to setup needed tables and create an initial user.
 ```bash
 (.venv) ➜  valkyrie git:(main) ✗ python bootstrap.py
 ```
@@ -121,7 +109,15 @@ Enter your height in centimeters: <your height>
 User created with ID: <uuid that was created>
 Updated configs/agent.yaml with user_id: <uuid that was created>
 ```
-3. Run V
+</details>
+
+# Demo
+| **TL;DR** |  Full walkthrough from onboarding to goal setting to workout planning available in the demo video. |
+| --|-- |
+
+Check out a full walkthrough of using V from onboarding to goal setting to workout planning in [this loom](https://www.loom.com/share/9ab12783ef204f6daf834d149b17906a?sid=19b5cfab-7156-42a3-b2b7-301088cfb9bd).
+   
+To run V:
 ```bash
 ➜  valkyrie git:(main) ✗ python -m src.assistant_system
 ``` 
