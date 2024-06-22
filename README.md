@@ -37,7 +37,7 @@ Clone the repo and `cd` into the code directory
 ➜  git clone https://github.com/pannaf/valkyrie.git
 ➜  cd valkyrie
 ```
-### MacOS Setup with venv
+Setup virtual environment:
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
