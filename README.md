@@ -116,6 +116,9 @@ Updated configs/agent.yaml with user_id: <uuid that was created>
 | --|-- |
 
 Check out a full walkthrough of using V from onboarding to goal setting to workout planning in [this loom](https://www.loom.com/share/9ab12783ef204f6daf834d149b17906a?sid=19b5cfab-7156-42a3-b2b7-301088cfb9bd).
+
+> [!IMPORTANT]  
+> This will only be runnable after you've setup the code, your virtual environment, environment variables, and PostgreSQL tables as outlined in [Setup](#setup) above.
    
 To run V:
 ```bash
