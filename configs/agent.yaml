@@ -1,8 +1,8 @@
 defaults:
 - _self_
 llm:
-  _target_: langchain_anthropic.ChatAnthropic
-  model: claude-3-5-sonnet-20240620 
+  _target_: src.external.lite_llm_functions.LiteLLMFunctions 
+  model: meta/llama3-70b-instruct 
   temperature: 1
 prompt_loader:
   _target_: src.prompts.yaml_prompt_loader.YamlPromptLoader

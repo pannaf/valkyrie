@@ -1,3 +1,7 @@
+"""Copied from LangChain PR #23193: experimental: Mixin to allow tool calling features for non tool calling chat models
+https://github.com/langchain-ai/langchain/pull/23193
+"""
+
 import json
 import uuid
 from abc import ABC
@@ -52,6 +56,16 @@ DEFAULT_RESPONSE_FUNCTION = {
     "name": "__conversational_response",
     "description": ("Respond conversationally if no other tools should be called for a given query."),
     "parameters": {
+        "type": "object",
+        "properties": {
+            "response": {
+                "type": "string",
+                "description": "Conversational response to the user.",
+            },
+        },
+        "required": ["response"],
+    },
+    "output": {
         "type": "object",
         "properties": {
             "response": {
@@ -398,18 +412,19 @@ class ToolCallingLLM(BaseChatModel, ABC):
         if not isinstance(chat_generation_content, str):
             raise ValueError("ToolCallingLLM does not support non-string output.")
         try:
-            if "[" not in chat_generation_content and "{" not in chat_generation_content:
-                chat_generation_content = json.dumps({"response": chat_generation_content})
-            parsed_chat_result = json.loads(chat_generation_content)
+            if all(x not in chat_generation_content for x in ["[", "{", "}", "]"]):
+                parsed_chat_result = {"response": chat_generation_content}
+            else:
+                parsed_chat_result = json.loads(chat_generation_content)
         except json.JSONDecodeError:
             try:
                 parsed_chat_result = parse_json_garbage(chat_generation_content)
-            except json.JSONDecodeError:
+            except json.JSONDecodeError as inner_exc:
                 raise ValueError(
                     f"'{self.model}' did not respond with valid JSON.\n"  # type: ignore[attr-defined]
                     "Please try again.\n"
                     f"Response: {chat_generation_content}"
-                )
+                ) from inner_exc
         called_tool_name = parsed_chat_result["tool"] if "tool" in parsed_chat_result else None
         called_tool = next((fn for fn in functions if fn["name"] == called_tool_name), None)
         if called_tool is None or called_tool["name"] == DEFAULT_RESPONSE_FUNCTION["name"]:
@@ -473,13 +488,16 @@ class ToolCallingLLM(BaseChatModel, ABC):
         if not isinstance(chat_generation_content, str):
             raise ValueError("ToolCallingLLM does not support non-string output.")
         try:
-            parsed_chat_result = json.loads(chat_generation_content)
-        except json.JSONDecodeError:
+            if all(x not in chat_generation_content for x in ["[", "{", "}", "]"]):
+                parsed_chat_result = {"response": chat_generation_content}
+            else:
+                parsed_chat_result = json.loads(chat_generation_content)
+        except json.JSONDecodeError as exc:
             raise ValueError(
                 f"'{self.model}' did not respond with valid JSON.\n"  # type: ignore[attr-defined]
                 "Please try again.\n"
                 f"Response: {chat_generation_content}"
-            )
+            ) from exc
         called_tool_name = parsed_chat_result["tool"]
         called_tool_arguments = parsed_chat_result["tool_input"]
         called_tool = next((fn for fn in functions if fn["name"] == called_tool_name), None)
