@@ -205,21 +205,6 @@ To construct meaningful workouts, V needed to draw from a solid exercise list wi
 ## <img src="https://github.com/pannaf/valkyrie/assets/18562964/3ec5b89a-8634-492f-8077-b636466de285" alt="image" width="20"/> [NeMo Curator] Generating an Exercise List
 I used [NeMo Curator](https://github.com/NVIDIA/NeMo-Curator) to generate an exercise list with a pipeline that gathers, cleans, and processes web scraped data. 
 
-### Side Note on Legality of Web Scraping for this Use Case
-Given that I'm only scraping the names of exercises, this does not violate copyright laws according to [this article](https://www.mintz.com/insights-center/viewpoints/2012-06-26-one-less-copyright-issue-worry-about-gym) that discusses the implications of the U.S. Copyright Office's June 18, 2012 [Statement of Policy](https://www.govinfo.gov/content/pkg/FR-2012-06-22/html/2012-15235.htm). In particular, this direct quote makes clear that pulling the list of exercises alone does violate copyright laws:
-
-> An example that has occupied the attention of the Copyright Office 
-for quite some time involves the copyrightability of the selection and 
-arrangement of preexisting exercises, such as yoga poses. Interpreting 
-the statutory definition of ``compilation'' in isolation could lead to 
-the conclusion that a sufficiently creative selection, coordination or 
-arrangement of public domain yoga poses is copyrightable as a 
-compilation of such poses or exercises. However, under the policy 
-stated herein, a claim in a compilation of exercises or the selection 
-and arrangement of yoga poses will be refused registration. Exercise is 
-not a category of authorship in section 102 and thus a compilation of 
-exercises would not be copyrightable subject matter.
-
 ### Pipeline Overview
 
 Following the NeMo Curator tutorial [here](https://developer.nvidia.com/blog/curating-custom-datasets-for-llm-training-with-nvidia-nemo-curator/), my pipeline includes the following steps:
@@ -246,8 +231,23 @@ Following the NeMo Curator tutorial [here](https://developer.nvidia.com/blog/cur
 ### Code
 Refer to [src/datasets/nemo_exercise_downloader.py](src/datasets/nemo_exercise_downloader.py) for the full implementation.
 
-### A few notes
-#### Installation
+## A few notes
+### Legality of Web Scraping for this Use Case
+Given that I'm only scraping the names of exercises, this does not violate copyright laws according to [this article](https://www.mintz.com/insights-center/viewpoints/2012-06-26-one-less-copyright-issue-worry-about-gym) that discusses the implications of the U.S. Copyright Office's June 18, 2012 [Statement of Policy](https://www.govinfo.gov/content/pkg/FR-2012-06-22/html/2012-15235.htm). In particular, this direct quote makes clear that pulling the list of exercises alone does violate copyright laws:
+
+> An example that has occupied the attention of the Copyright Office 
+for quite some time involves the copyrightability of the selection and 
+arrangement of preexisting exercises, such as yoga poses. Interpreting 
+the statutory definition of ``compilation'' in isolation could lead to 
+the conclusion that a sufficiently creative selection, coordination or 
+arrangement of public domain yoga poses is copyrightable as a 
+compilation of such poses or exercises. However, under the policy 
+stated herein, a claim in a compilation of exercises or the selection 
+and arrangement of yoga poses will be refused registration. Exercise is 
+not a category of authorship in section 102 and thus a compilation of 
+exercises would not be copyrightable subject matter.
+
+### Installation
 Installation on my Mac laptop was painful 😅. I did see in the GitHub Issues [here](https://github.com/NVIDIA/NeMo-Curator/issues/76#issuecomment-2135907968) that it's really meant for Linux machines. But.. this didn't stop me from trying to install on my Mac anyway 🙃. After some trial and error, I landed on something that ultimately worked. `conda` with a Python 3.10.X version was clutch. Later versions of Python (3.11 & 3.12) didn't work for me. I'm not normally a fan of the `conda` bloat, but in this case the README of the NeMo text processing repo [here](https://github.com/NVIDIA/NeMo-text-processing) recommended it for the `pyini` install that `nemo_text_processing` needs. 
 
 In case others find this helpful, I've got the following in my `~/.zsh_history` as the steps just prior to getting things working:
@@ -260,15 +260,15 @@ NeMo-Curator git:(main) ➜ pip install .
 NeMo-Curator git:(main) ➜ brew install opencc
 NeMo-Curator git:(main) ➜ export DYLD_LIBRARY_PATH=/opt/homebrew/Cellar/opencc/1.1.7/lib:$DYLD_LIBRARY_PATH
 ```
-#### NeMo Magic Sauce
+### NeMo Magic Sauce
 I didn't get a chance to take full advantage of what I think is a key ingredient in the magic sauce for NeMo Curator. Namely the GPU acceleration that makes it possible to more efficiently process massive amounts of data. My exercise dataset doesn't really fall into that "massive amounts" category, so it wasn't super necessary to use in my case. But.. I think it would have been super fun to explore their multi-node, multi-GPU classifier inference for distributed data classification (example [here](https://github.com/NVIDIA/NeMo-Curator/blob/main/docs/user-guide/DistributedDataClassification.rst)). Next time!
 
-#### Experiments that didn't make the cut
+### Experiments that didn't make the cut
 I explored a couple aspects of NeMo Curator that I ultimately didn't get to use in my final system:
 - Wikipedia data pull - one thing I found here is that I needed to set `dump_date=None` in `download_wikipedia()` in order to get [this example](https://github.com/NVIDIA/NeMo-Curator/blob/main/examples/download_wikipedia.py) working
 - Common data crawler - no insights to report.. [this example](https://github.com/NVIDIA/NeMo-Curator/blob/main/examples/download_common_crawl.py) worked pretty well for me, just requires you to specify a reasonable directory
 
-## Cleaning the `.jsonl` format a little
+### Cleaning the `.jsonl` format a little
 Normally I wouldn't include this type of detail, but I thought this was pretty neat and worth a quick share! My `.jsonl` files output from my NeMo Curator pipeline end up with this type of format:
 
 ```json
