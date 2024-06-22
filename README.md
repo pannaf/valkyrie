@@ -159,8 +159,7 @@ To run V:
 ➜  valkyrie git:(main) ✗ python -m src.assistant_system
 ``` 
 You should see something along the lines of:
-```bash
-(.venv) ➜  valkyrie git:(main) ✗ python -m src.assistant_system 
+```python
 2024-06-17 10:57:36.160 | INFO     | __main__:main:76 - Starting V | f7877a93-30e4-43ff-9969-1ec6b1e03b9b
 2024-06-17 10:57:36.273 | INFO     | __main__:__init__:35 - Building graph | f7877a93-30e4-43ff-9969-1ec6b1e03b9b
 2024-06-17 10:57:36.274 | DEBUG    | __main__:__init__:38 - Entering 'get_graph' (args=(<src.state_graph.graph_builder.GraphBuilder object at 0x14e2e57f0>,), kwargs={}) | f7877a93-30e4-43ff-9969-1ec6b1e03b9b
