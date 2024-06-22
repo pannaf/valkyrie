@@ -441,10 +441,11 @@ What ended up working for me was to add a node at the top of my graph that does 
 
 #### Accurate Colang History
 tl;dr
+- I don't think these observations would apply in situations where the guardrails wraps the entire runnable. Because I run the guardrails in a node of a LangGraph, the output from the rails wouldn't automatically get piped to the user, so I needed to recognize when the rails were applied. I used a simple check for whether the `"bot refuse[d]"` to respond.
 - I found for open source models, I needed the 70b model instead of 7b models
 - I found that GPT3.5-Turbo worked well
 
-I rely on the Colang history to signal whether a medical topic was broached via:
+I rely on the Colang history to signal whether the bot refused to respond to something:
 
 ```python
 if "bot refuse" in info.colang_history:
