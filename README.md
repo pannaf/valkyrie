@@ -314,7 +314,7 @@ To create V, I followed the LangGraph Customer Support Bot tutorial [here](https
 self.primary_assistant_runnable = self.primary_assistant_prompt | self.llm.bind_tools([primary_assistant_tools])
 ```
 
-This works *really* well for models where the `bind_tools()` method is implemented. In fact, in my original implementation of V I used Claude 3 Sonnet. [This loom](https://www.loom.com/share/9ab12783ef204f6daf834d149b17906a?sid=19b5cfab-7156-42a3-b2b7-301088cfb9bd) has a walkthrough showing V with that model. However the `.bind_tools()` method isn't implemented for `ChatNVIDIA`, i.e., NVIDIA AI Foundation endpoints. But! I still really wanted to use the NVIDIA AI Foundation Endpoints, despite NVIDIA representatives confirming what I was finding..
+This works *really* well for models where the `bind_tools()` method is implemented. In fact, in my original implementation of V I used Claude 3 Sonnet. [This loom](https://www.loom.com/share/9ab12783ef204f6daf834d149b17906a?sid=19b5cfab-7156-42a3-b2b7-301088cfb9bd) has a walkthrough showing V with that model. However the `.bind_tools()` method isn't yet implemented for `ChatNVIDIA`, i.e., NVIDIA AI Foundation endpoints. But! I still really wanted to use the NVIDIA AI Foundation Endpoints in my LLM calls, despite NVIDIA representatives confirming what I was finding..
 
 <img width="1370" alt="Screenshot 2024-06-21 at 8 53 45 PM" src="https://github.com/pannaf/valkyrie/assets/18562964/d353b73a-49c2-4bb2-a95b-8438274348ff">
 
