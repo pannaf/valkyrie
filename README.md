@@ -84,7 +84,8 @@ Use this command to set the environment variable:
 ```
 
 ## PostgreSQL Install and Table Setup
-Using brew on a Mac, PostgreSQL can be installed as:
+PostgreSQL can be installed with `brew` on a Mac and `apt` on Ubuntu.
+### MacOS Install with `brew`
 ```bash
 (.venv) ➜  valkyrie git:(main) ✗ brew install postgresql
 (.venv) ➜  valkyrie git:(main) ✗ brew services start postgresql
@@ -121,6 +122,7 @@ psql
 # Exit the PostgreSQL prompt
 \q
 ```
+
 ### Setup PostgreSQL Tables
 Run `bootstrap.py` script to setup needed tables and create an initial user.
 ```bash
@@ -176,64 +178,9 @@ graph TD;
         enter_onboarding_wizard([enter_onboarding_wizard]):::otherclass;
         onboarding_wizard([onboarding_wizard]):::otherclass;
         onboarding_wizard_safe_tools([onboarding_wizard_safe_tools]):::otherclass;
-        onboarding_wizard_sensitive_tools([onboarding_wizard_sensitive_tools]):::otherclass;
-        enter_goal_wizard([enter_goal_wizard]):::otherclass;
-        goal_wizard([goal_wizard]):::otherclass;
-        goal_wizard_safe_tools([goal_wizard_safe_tools]):::otherclass;
-        goal_wizard_sensitive_tools([goal_wizard_sensitive_tools]):::otherclass;
-        enter_programming_wizard([enter_programming_wizard]):::otherclass;
-        programming_wizard([programming_wizard]):::otherclass;
-        programming_wizard_safe_tools([programming_wizard_safe_tools]):::otherclass;
-        programming_wizard_sensitive_tools([programming_wizard_sensitive_tools]):::otherclass;
-        enter_v_wizard([enter_v_wizard]):::otherclass;
-        v_wizard([v_wizard]):::otherclass;
-        v_wizard_safe_tools([v_wizard_safe_tools]):::otherclass;
-        v_wizard_sensitive_tools([v_wizard_sensitive_tools]):::otherclass;
-        leave_skill([leave_skill]):::otherclass;
-        primary_assistant([primary_assistant]):::otherclass;
-        primary_assistant_tools([primary_assistant_tools]):::otherclass;
-        __start__ --> fetch_user_info;
-        enter_goal_wizard --> goal_wizard;
-        enter_onboarding_wizard --> onboarding_wizard;
-        enter_programming_wizard --> programming_wizard;
-        enter_v_wizard --> v_wizard;
-        fetch_user_info --> guardrails_input_handler;
-        goal_wizard_safe_tools --> goal_wizard;
-        goal_wizard_sensitive_tools --> goal_wizard;
-        leave_skill --> primary_assistant;
-        onboarding_wizard_safe_tools --> onboarding_wizard;
-        onboarding_wizard_sensitive_tools --> onboarding_wizard;
-        primary_assistant_tools --> primary_assistant;
-        programming_wizard_safe_tools --> programming_wizard;
-        programming_wizard_sensitive_tools --> programming_wizard;
-        v_wizard_safe_tools --> v_wizard;
-        v_wizard_sensitive_tools --> v_wizard;
-        onboarding_wizard -.-> onboarding_wizard_safe_tools;
-        onboarding_wizard -.-> onboarding_wizard_sensitive_tools;
-        onboarding_wizard -.-> leave_skill;
-        onboarding_wizard -.-> __end__;
-        goal_wizard -.-> goal_wizard_safe_tools;
-        goal_wizard -.-> goal_wizard_sensitive_tools;
-        goal_wizard -.-> leave_skill;
-        goal_wizard -.-> __end__;
-        programming_wizard -.-> programming_wizard_safe_tools;
-        programming_wizard -.-> programming_wizard_sensitive_tools;
-        programming_wizard -.-> leave_skill;
-        programming_wizard -.-> __end__;
-        v_wizard -.-> v_wizard_safe_tools;
-        v_wizard -.-> v_wizard_sensitive_tools;
-        v_wizard -.-> leave_skill;
-        v_wizard -.-> __end__;
-        primary_assistant -.-> enter_onboarding_wizard;
-        primary_assistant -.-> enter_goal_wizard;
-        primary_assistant -.-> enter_programming_wizard;
-        primary_assistant -.-> enter_v_wizard;
-        primary_assistant -.-> primary_assistant_tools;
-        primary_assistant -.-> __end__;
-        guardrails_input_handler -.-> onboarding_wizard;
-        guardrails_input_handler -.-> goal_wizard;
-        guardrails_input_handler -.-> programming_wizard;
-        guardrails_input_handler -.-> primary_assistant;
+        ............................................................
+        ...... omitting graph lines for brevity in the README ......
+        ............................................................ 
         guardrails_input_handler -.-> v_wizard;
         guardrails_input_handler -.-> __end__;
         classDef startclass fill:#ffdfba;
