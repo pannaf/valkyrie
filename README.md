@@ -15,7 +15,7 @@ This repo has the code for my entry in the [Generative AI Agents Developer Conte
 - [x] <img src="https://github.com/pannaf/valkyrie/assets/18562964/3ec5b89a-8634-492f-8077-b636466de285" alt="image" width="15"/> [NVIDIA AI Foundation Endpoints](#-nvidia-ai-foundation-endpoints-giving-v-a-voice) - giving V a voice
 - [x] <img src="https://github.com/pannaf/valkyrie/assets/18562964/c579f82c-7fe8-4709-8b4c-379573843545" alt="image" width="35"/> [LangGraph](#-langgraph-v-as-an-agent) - V as an agent
 - [x] <img src="https://github.com/pannaf/valkyrie/assets/18562964/c579f82c-7fe8-4709-8b4c-379573843545" alt="image" width="35"/> [LangSmith](#-langsmith-langgraph-tracing) - LangGraph tracing
-- [x] <img src="https://github.com/pannaf/valkyrie/assets/18562964/3ec5b89a-8634-492f-8077-b636466de285" alt="image" width="15"/> [NeMo Guardrails](#-nemo-guardrails-ensuring-v-stays-out-of-the-medical-domain) - ensure V doesn't venture into a medical domain space
+- [x] <img src="https://github.com/pannaf/valkyrie/assets/18562964/3ec5b89a-8634-492f-8077-b636466de285" alt="image" width="15"/> [NeMo Guardrails](#-nemo-guardrails-ensuring-v-avoids-medical-topics) - ensure V doesn't respond to medical domain inquiries
 
 # Overview of How V Works
 TODO
@@ -285,7 +285,12 @@ My `.jsonl` files output from my NeMo Curator pipeline ended up with this type o
 {"filename":"exercises-0.jsonl","id":"doc_id-07500","text":"Curtsy Lunge","word_count":2}
 ```
 
-I wanted to transform this into a simple text file that has just the text fields extracted. There's lotsa ways I could have done this in Python and some things I think I could have done differently with NeMo Curator to help achieve this, but there's also this pretty sweet command line JSON processor `jq` for these types of things. Head over [here](https://formulae.brew.sh/formula/jq) if you haven't heard of `jq` before. Here's the command:
+I wanted to transform this into a simple text file that has just the text fields extracted. There's lotsa ways I could have done this in Python and some things I think I could have done differently with NeMo Curator to help achieve this, but there's also this pretty sweet command line JSON processor `jq` for these types of things. 
+
+> [!TIP]
+> `jq` is a command line JSON processor. Head over [here](https://jqlang.github.io/jq/) if you haven't heard of `jq` before. On a Mac, `brew install jq`.
+
+Here's the command:
 
 ```zsh
 for file in exercises-*.jsonl; do
@@ -440,44 +445,19 @@ Correct version:
 
 [back to top](#main-tech)
 
-# <img src="https://github.com/pannaf/valkyrie/assets/18562964/3ec5b89a-8634-492f-8077-b636466de285" alt="image" width="25"/> [NeMo Guardrails] Ensuring V Stays out of the Medical Domain
-I used NeMo Guardrails to apply checks on the user input message, as a way of ensuring V doesn't engage meaningfully with a user on topics that land in the medical domain where only a licensed medical professional has the requisite expertise.
-
-## LangChain Integration
-> Didn't work for me with LangGraph.
-
-I attempted to follow [this NVIDIA NeMo Guardrails tutorial](https://docs.nvidia.com/nemo/guardrails/user_guides/langchain/langchain-integration.html) to integrate with my LangGraph agent with the `RunnableRails` class as:
-
-```python
-from nemoguardrails import RailsConfig
-from nemoguardrails.integrations.langchain.runnable_rails import RunnableRails
-
-# ... initialize `some_chain`
-
-config = RailsConfig.from_path("path/to/config")
-
-# Using LCEL, you first create a RunnableRails instance, and "apply" it using the "|" operator
-guardrails = RunnableRails(config)
-chain_with_guardrails = guardrails | some_chain
-
-# Alternatively, you can specify the Runnable to wrap
-# when creating the RunnableRails instance.
-chain_with_guardrails = RunnableRails(config, runnable=some_chain)
-```
-
-With my LangGraph chain including a model with `.bind_tools()` I wasn't able to get this working in my time box. Instead, I added the guardrails in a LangGraph node, as described below.
+# <img src="https://github.com/pannaf/valkyrie/assets/18562964/3ec5b89a-8634-492f-8077-b636466de285" alt="image" width="25"/> [NeMo Guardrails] Ensuring V Avoids Medical Topics
+> **TL;DR** NeMo Guardrails with the NVIDIA AI Endpoint model `meta/llama3-70b-instruct` to apply checks on the user input message, as a way of ensuring V doesn't engage meaningfully with a user on medical domain topics where only a licensed medical professional has the requisite expertise.
 
 ## Standard `rails.generate()` in a LangGraph Node
 
-What ended up working for me was to add a node at the top of my graph that does a check on the user messages, following the [Input Rails guide](https://docs.nvidia.com/nemo/guardrails/getting_started/4_input_rails/README.html) and the [Topical Rails guide](https://docs.nvidia.com/nemo/guardrails/getting_started/6_topical_rails/README.html). The node simply updates a `valid_input` field in the state, which is checked when determining which workflow to route to. When `valid_input` is `False`, V outputs the guardrails message and jumps to `END` to allow for user input. You can find my implementation in [src/state_graph/graph_builder.py](https://github.com/pannaf/valkyrie/blob/main/src/state_graph/graph_builder.py#L60).
+Given that LangGraph systems have LLMs with the `bind_tools()` method applied, I wasn't able to use the methods outlined in [this NVIDIA NeMo Guardrails tutorial](https://docs.nvidia.com/nemo/guardrails/user_guides/langchain/langchain-integration.html) to integrate with my LangGraph agent with the `RunnableRails` class. What ended up working for me was to add a node at the top of my graph that does a check on the user messages, following the [Input Rails guide](https://docs.nvidia.com/nemo/guardrails/getting_started/4_input_rails/README.html) and the [Topical Rails guide](https://docs.nvidia.com/nemo/guardrails/getting_started/6_topical_rails/README.html). The node simply updates a `valid_input` field in the state, which is checked when determining which workflow to route to. When `valid_input` is `False`, V outputs the guardrails message and jumps to `END` to allow for user input. You can find my implementation in [src/state_graph/graph_builder.py](https://github.com/pannaf/valkyrie/blob/main/src/state_graph/graph_builder.py#L60).
 
 ## Some Observations from Using NeMo Guardrails
 
 ### Accurate Colang History
-tl;dr
-- I don't think these observations would apply in situations where the guardrails wraps the entire runnable. Because I run the guardrails in a node of a LangGraph, the output from the rails wouldn't automatically get piped to the user, so I needed to recognize when the rails were applied. I used a simple check for whether the `"bot refuse[d]"` to respond.
-- I found for open source models, I needed the 70b model instead of 7b models
-- I found that GPT3.5-Turbo worked well
+> [!TIP]
+> I don't think these Colang History observations would apply in situations where the guardrails wraps the entire runnable. With my guardrails running in a LangGraph node, the output from the rails isn't automatically piped to the user, so I needed a mechanism that recognizes when the rails were applied. I used a simple check for whether the `"bot refuse[d]"` to respond.
+> For open source models: the 70b llama model worked, but the 7b models did not work. GPT3.5-Turbo also worked well.
 
 I rely on the Colang history to signal whether the bot refused to respond to something:
 
@@ -491,7 +471,7 @@ else:
 ```
 
 This means that when a medical topic is mentioned, I needed it to show up in the colang history. With smaller models, such as `mistralai/mixtral-8x7b-instruct-v0.1` and `meta/llama3-7b-instruct`, I would get a Colang history like:
-```bash
+```python
 2024-06-21 20:14:07.738 | INFO     | src.state_graph.graph_builder:guardrails_input_handler:86 - Guardrails refused the input. Colang history:
 user "i tore my acl yesterday. how should i plan exercises for the recovery? what do i need to do to mend it?"
   I'm so sorry to hear that you've torn your ACL! That can be a tough injury to recover from, but with the right guidance and care, you can get back to your normal activities.
@@ -512,7 +492,7 @@ In this case, there was no entry for `"bot refuse to respond about medical condi
 
 Whereas with the `meta/llama3-70b-instruct` I observed the medical topic rails working correctly:
 
-```bash
+```python
 2024-06-21 20:15:38.884 | INFO     | src.state_graph.graph_builder:guardrails_input_handler:88 - Guardrails refused the input. Colang history:
 user "i tore my acl yesterday. help"
   ask about medical condition
@@ -523,7 +503,7 @@ bot refuse to respond about medical condition
 ### Guardrails Initially very Raily
 Using `openai/gpt-3.5-turbo-instruct`, I found the Guardrails on the input message with wording like the following was a bit strict:
 
-```bash
+```text
 Your task is to check if the user message below complies with acceptable language for talking with V.
 
 Acceptable messages:
@@ -543,10 +523,10 @@ In one funny encounter with one of my sisters:
 
 > Can I call you really quick to explain something that happened when I tried to use it?
 
-It turned out that V had said "Sorry I can't respond to that!" when all she had said was "less". Oops 🙃 
+It turned out that V had said "Sorry I can't respond to that!" when all my sister had said was "less". Oops 🙃 
 
 #### Example with "10ish"
-```bash
+```python
 ----------------- V Message -----------------
 V: It looks like you're already into swimming and weightlifting. 👍 Since you mentioned swimming regularly, I'd like to know more about your workout frequency. How many times a week do you usually work out?
 
@@ -576,7 +556,7 @@ V: I'm sorry, I can't respond to that.
 
 #### Example with "perf"
 Using `openai/gpt-3.5-turbo-instruct`:
-```bash
+```python
 ---------------- User Message ----------------
 User: perf
 2024-06-21 15:51:06.683 | INFO     | __main__:_log_event:63 - ================================ Human Message =================================
@@ -604,7 +584,7 @@ V: I'm sorry, I can't respond to that.
 ```
 
 Whereas using `meta/llama3-70b-instruct` shows no issue with the shortened version "perf" for "perfect":
-```bash
+```python
 ---------------- User Message ----------------
 User: perf
 2024-06-21 19:36:31.870 | INFO     | __main__:_log_event:63 - ================================ Human Message =================================
