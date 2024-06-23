@@ -720,6 +720,9 @@ Correct version:
 
 <img width="720" alt="langgraph-correct-trace" src="https://github.com/pannaf/valkyrie/assets/18562964/b638db69-c980-4ddf-89a2-39deb0047761">
 
+> [!WARNING]
+> As of 06.23.24, trying to view all the traces associated with a single thread can be challenging in LangSmith. In my case.. same thread id for all conversations associated with a particular user. If I click the thread id in LangSmith and try to scroll through the traces.. depending on the number of traces, I've multiple times crashed my LangSmith.
+
 [back to top](#main-tech)
 
 # <img src="https://github.com/pannaf/valkyrie/assets/18562964/3ec5b89a-8634-492f-8077-b636466de285" alt="image" width="25"/> [NeMo Guardrails] Ensuring V Avoids Medical Topics
