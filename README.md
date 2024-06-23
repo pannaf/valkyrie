@@ -355,7 +355,151 @@ self.llm = LiteLLMFunctions(model="meta/llama3-70b-instruct")
 ```
 
 > [!WARNING]
-> Using NIM, LangGraph, and NeMo Guardrails.. I blazed a trail through my NVIDIA AI Foundation Endpoints credits. In less than a day of adapting my Onboarding Wizard prompt from Claude to Llama 3, I ran out of my 1k credits.
+> Using NIM, LangGraph, and NeMo Guardrails.. I blazed a trail through my NVIDIA AI Foundation Endpoints credits. In less than a day of adapting my Onboarding Wizard prompt from Claude to Llama 3: I ran out of my 1k credits, signed up for a different account, and ran out of that 1k credits too. All without feeling satisfied in the flow.
+
+```python
+2024-06-23 15:25:53.868 | ERROR    | __main__:main:78 - An error has been caught in function 'main', process 'MainProcess' (3843), thread 'MainThread' (8655780544): | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+Traceback (most recent call last):
+
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+
+  File "/Users/panna/code/valkyrie/src/assistant_system.py", line 100, in <module>
+    main()
+    └ <function main at 0x16c8aa340>
+
+> File "/Users/panna/code/valkyrie/src/assistant_system.py", line 92, in main
+    response = assistant_system.handle_event(user_input)
+               │                │            └ 'no problem'
+               │                └ <function AssistantSystem.handle_event at 0x16c8aa200>
+               └ <__main__.AssistantSystem object at 0x16c1d6000>
+
+  File "/Users/panna/code/valkyrie/src/assistant_system.py", line 64, in handle_event
+    for event in events:
+        │        └ <generator object Pregel.stream at 0x125b57910>
+        └ {'messages': [HumanMessage(content='hey', id='7f213293-72b0-4f7e-9c2b-e2566201685e'), AIMessage(content='', id='run-7eca946e-...
+
+  File "/Users/panna/code/valkyrie/.venv/lib/python3.12/site-packages/langgraph/pregel/__init__.py", line 963, in stream
+    _panic_or_proceed(done, inflight, step)
+    │                 │     │         └ 96
+    │                 │     └ set()
+    │                 └ {<Future at 0x16ff78740 state=finished returned dict>, <Future at 0x16fdd7b90 state=finished returned dict>, <Future at 0x16f...
+    └ <function _panic_or_proceed at 0x16a7e71a0>
+  File "/Users/panna/code/valkyrie/.venv/lib/python3.12/site-packages/langgraph/pregel/__init__.py", line 1489, in _panic_or_proceed
+    raise exc
+          └ Exception("[402] Payment Required\nAccount '<redacted>': Cloud credits expired - Please cont...
+
+  File "/opt/homebrew/Cellar/python@3.12/3.12.3/Frameworks/Python.framework/Versions/3.12/lib/python3.12/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             │        │            └ None
+             │        └ None
+             └ None
+
+  File "/Users/panna/code/valkyrie/.venv/lib/python3.12/site-packages/langgraph/pregel/retry.py", line 66, in run_with_retry
+    task.proc.invoke(task.input, task.config)
+    │    │           │    │      │    └ _tuplegetter(4, 'Alias for field number 4')
+    │    │           │    │      └ PregelExecutableTask(name='onboarding_wizard', input={'messages': [HumanMessage(content='hey', id='7f213293-72b0-4f7e-9c2b-e2...
+    │    │           │    └ _tuplegetter(1, 'Alias for field number 1')
+    │    │           └ PregelExecutableTask(name='onboarding_wizard', input={'messages': [HumanMessage(content='hey', id='7f213293-72b0-4f7e-9c2b-e2...
+    │    └ _tuplegetter(2, 'Alias for field number 2')
+    └ PregelExecutableTask(name='onboarding_wizard', input={'messages': [HumanMessage(content='hey', id='7f213293-72b0-4f7e-9c2b-e2...
+  File "/Users/panna/code/valkyrie/.venv/lib/python3.12/site-packages/langchain_core/runnables/base.py", line 2502, in invoke
+    input = step.invoke(input, config, **kwargs)
+            │    │      │      │         └ {}
+            │    │      │      └ {'tags': [], 'metadata': {'thread_id': '7d2e2905-35a1-4954-abd9-d54e2a252da6', 'user_id': '7d2e2905-35a1-4954-abd9-d54e2a252d...
+            │    │      └ {'messages': [HumanMessage(content='hey', id='7f213293-72b0-4f7e-9c2b-e2566201685e'), AIMessage(content='', id='run-7eca946e-...
+            │    └ <function RunnableCallable.invoke at 0x16a7fe980>
+            └ onboarding_wizard(recurse=True)
+  File "/Users/panna/code/valkyrie/.venv/lib/python3.12/site-packages/langgraph/utils.py", line 95, in invoke
+    ret = context.run(self.func, input, **kwargs)
+          │       │   │    │     │        └ {'config': {'tags': [], 'metadata': {'thread_id': '7d2e2905-35a1-4954-abd9-d54e2a252da6', 'user_id': '7d2e2905-35a1-4954-abd9...
+          │       │   │    │     └ {'messages': [HumanMessage(content='hey', id='7f213293-72b0-4f7e-9c2b-e2566201685e'), AIMessage(content='', id='run-7eca946e-...
+          │       │   │    └ <src.assistants.assistant.Assistant object at 0x16e5ef050>
+          │       │   └ onboarding_wizard(recurse=True)
+          │       └ <method 'run' of '_contextvars.Context' objects>
+          └ <_contextvars.Context object at 0x337f3db40>
+
+  File "/Users/panna/code/valkyrie/src/assistants/assistant.py", line 10, in __call__
+    result = self.runnable.invoke(state)
+             │    │        │      └ {'messages': [HumanMessage(content='hey', id='7f213293-72b0-4f7e-9c2b-e2566201685e'), AIMessage(content='', id='run-7eca946e-...
+             │    │        └ <function RunnableSequence.invoke at 0x1074d1b20>
+             │    └ ChatPromptTemplate(input_variables=[], input_types={'messages': typing.List[typing.Union[langchain_core.messages.ai.AIMessage...
+             └ <src.assistants.assistant.Assistant object at 0x16e5ef050>
+
+  File "/Users/panna/code/valkyrie/.venv/lib/python3.12/site-packages/langchain_core/runnables/base.py", line 2504, in invoke
+    input = step.invoke(input, config)
+            │    │      │      └ {'tags': [], 'metadata': {'thread_id': '7d2e2905-35a1-4954-abd9-d54e2a252da6', 'user_id': '7d2e2905-35a1-4954-abd9-d54e2a252d...
+            │    │      └ ChatPromptValue(messages=[SystemMessage(content='As their personal trainer named V, you are getting to know a new client. In ...
+            │    └ <function RunnableBindingBase.invoke at 0x1074ea0c0>
+            └ RunnableBinding(bound=LiteLLMFunctions(model='meta/llama3-70b-instruct', temperature=1.0), kwargs={'functions': [StructuredTo...
+  File "/Users/panna/code/valkyrie/.venv/lib/python3.12/site-packages/langchain_core/runnables/base.py", line 4573, in invoke
+    return self.bound.invoke(
+           │    │     └ <function BaseChatModel.invoke at 0x107588040>
+           │    └ LiteLLMFunctions(model='meta/llama3-70b-instruct', temperature=1.0)
+           └ RunnableBinding(bound=LiteLLMFunctions(model='meta/llama3-70b-instruct', temperature=1.0), kwargs={'functions': [StructuredTo...
+  File "/Users/panna/code/valkyrie/.venv/lib/python3.12/site-packages/langchain_core/language_models/chat_models.py", line 170, in invoke
+    self.generate_prompt(
+    │    └ <function BaseChatModel.generate_prompt at 0x107588720>
+    └ LiteLLMFunctions(model='meta/llama3-70b-instruct', temperature=1.0)
+  File "/Users/panna/code/valkyrie/.venv/lib/python3.12/site-packages/langchain_core/language_models/chat_models.py", line 599, in generate_prompt
+    return self.generate(prompt_messages, stop=stop, callbacks=callbacks, **kwargs)
+           │    │        │                     │               │            └ {'tags': [], 'metadata': {'thread_id': '7d2e2905-35a1-4954-abd9-d54e2a252da6', 'user_id': '7d2e2905-35a1-4954-abd9-d54e2a252d...
+           │    │        │                     │               └ <langchain_core.callbacks.manager.CallbackManager object at 0x170659c40>
+           │    │        │                     └ None
+           │    │        └ [[SystemMessage(content='As their personal trainer named V, you are getting to know a new client. In particular, you are lear...
+           │    └ <function BaseChatModel.generate at 0x1075885e0>
+           └ LiteLLMFunctions(model='meta/llama3-70b-instruct', temperature=1.0)
+  File "/Users/panna/code/valkyrie/.venv/lib/python3.12/site-packages/langchain_core/language_models/chat_models.py", line 456, in generate
+    raise e
+  File "/Users/panna/code/valkyrie/.venv/lib/python3.12/site-packages/langchain_core/language_models/chat_models.py", line 446, in generate
+    self._generate_with_cache(
+    │    └ <function BaseChatModel._generate_with_cache at 0x107588860>
+    └ LiteLLMFunctions(model='meta/llama3-70b-instruct', temperature=1.0)
+  File "/Users/panna/code/valkyrie/.venv/lib/python3.12/site-packages/langchain_core/language_models/chat_models.py", line 671, in _generate_with_cache
+    result = self._generate(
+             │    └ <function ToolCallingLLM._generate at 0x16e935bc0>
+             └ LiteLLMFunctions(model='meta/llama3-70b-instruct', temperature=1.0)
+
+  File "/Users/panna/code/valkyrie/src/external/tool_calling_llm.py", line 408, in _generate
+    response_message = super()._generate(  # type: ignore[safe-super]
+
+  File "/Users/panna/code/valkyrie/.venv/lib/python3.12/site-packages/langchain_nvidia_ai_endpoints/chat_models.py", line 211, in _generate
+    responses = self._get_generation(inputs=inputs, stop=stop, **kwargs)
+                │    │                      │            │       └ {}
+                │    │                      │            └ None
+                │    │                      └ [{'role': 'system', 'content': 'You have access to the following tools:\n\n[\n  {\n    "name": "fetch_user_activities",\n    ...
+                │    └ <function ChatNVIDIA._get_generation at 0x16e91a520>
+                └ LiteLLMFunctions(model='meta/llama3-70b-instruct', temperature=1.0)
+  File "/Users/panna/code/valkyrie/.venv/lib/python3.12/site-packages/langchain_nvidia_ai_endpoints/chat_models.py", line 323, in _get_generation
+    out = self._client.client.get_req_generation(payload=payload)
+          │    │                                         └ {'messages': [{'role': 'system', 'content': 'You have access to the following tools:\n\n[\n  {\n    "name": "fetch_user_activ...
+          │    └ <member '_client' of 'ChatNVIDIA' objects>
+          └ LiteLLMFunctions(model='meta/llama3-70b-instruct', temperature=1.0)
+  File "/Users/panna/code/valkyrie/.venv/lib/python3.12/site-packages/langchain_nvidia_ai_endpoints/_common.py", line 367, in get_req_generation
+    response = self.get_req(payload, invoke_url)
+               │    │       │        └ 'https://integrate.api.nvidia.com/v1/chat/completions'
+               │    │       └ {'messages': [{'role': 'system', 'content': 'You have access to the following tools:\n\n[\n  {\n    "name": "fetch_user_activ...
+               │    └ <function NVEModel.get_req at 0x16e918400>
+               └ NVEModel(base_url='https://integrate.api.nvidia.com/v1', infer_path='{base_url}/chat/completions', listing_path='{base_url}/m...
+  File "/Users/panna/code/valkyrie/.venv/lib/python3.12/site-packages/langchain_nvidia_ai_endpoints/_common.py", line 356, in get_req
+    response, session = self._post(invoke_url, payload)
+                        │    │     │           └ {'messages': [{'role': 'system', 'content': 'You have access to the following tools:\n\n[\n  {\n    "name": "fetch_user_activ...
+                        │    │     └ 'https://integrate.api.nvidia.com/v1/chat/completions'
+                        │    └ <function NVEModel._post at 0x16e90fec0>
+                        └ NVEModel(base_url='https://integrate.api.nvidia.com/v1', infer_path='{base_url}/chat/completions', listing_path='{base_url}/m...
+  File "/Users/panna/code/valkyrie/.venv/lib/python3.12/site-packages/langchain_nvidia_ai_endpoints/_common.py", line 204, in _post
+    self._try_raise(response)
+    │    │          └ <Response [402]>
+    │    └ <function NVEModel._try_raise at 0x16e918180>
+    └ NVEModel(base_url='https://integrate.api.nvidia.com/v1', infer_path='{base_url}/chat/completions', listing_path='{base_url}/m...
+  File "/Users/panna/code/valkyrie/.venv/lib/python3.12/site-packages/langchain_nvidia_ai_endpoints/_common.py", line 298, in _try_raise
+    raise Exception(f"{header}\n{body}") from None
+                       │         └ "Account '<redacted>': Cloud credits expired - Please contact NVIDIA representatives"
+                       └ '[402] Payment Required'
+
+Exception: [402] Payment Required
+Account '<redacted>': Cloud credits expired - Please contact NVIDIA representatives
+```
 
 [back to top](#main-tech)
 
