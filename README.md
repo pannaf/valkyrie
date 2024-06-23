@@ -354,6 +354,9 @@ But! I still really wanted to use the NVIDIA AI Foundation Endpoints in my LLM c
 self.llm = LiteLLMFunctions(model="meta/llama3-70b-instruct")
 ```
 
+> [!WARNING]
+> Using NIM, LangGraph, and NeMo Guardrails.. I blazed a trail through my NVIDIA AI Foundation Endpoints credits. In less than a day of adapting my Onboarding Wizard prompt from Claude to Llama 3, I ran out of my 1k credits.
+
 [back to top](#main-tech)
 
 # <img src="https://github.com/pannaf/valkyrie/assets/18562964/c579f82c-7fe8-4709-8b4c-379573843545" alt="image" width="55"/> [LangGraph] V as an Agent
