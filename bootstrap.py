@@ -10,6 +10,7 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 print(f"{DATABASE_URL=}")
 
 # SQL statements to create tables
+# TODO: remove the user_profiles table..
 CREATE_TABLES_SQL = """
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
@@ -21,7 +22,9 @@ CREATE TABLE IF NOT EXISTS users (
     date_of_birth DATE,
     height REAL,
     join_date DATE DEFAULT CURRENT_DATE,
-    onboarded BOOLEAN DEFAULT FALSE
+    fitness_level TEXT,
+    onboarded BOOLEAN DEFAULT FALSE,
+    goal_set BOOLEAN DEFAULT FALSE
 );
 
 CREATE TABLE IF NOT EXISTS user_profiles (
@@ -36,6 +39,16 @@ CREATE TABLE IF NOT EXISTS user_profiles (
     fitness_level TEXT,
     weight DOUBLE PRECISION,
     goal_weight DOUBLE PRECISION,
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+CREATE TABLE IF NOT EXISTS user_activities (
+    user_activity_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID,
+    activity_name TEXT,
+    activity_location TEXT,
+    activity_duration TEXT,
+    activity_frequency TEXT,
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
