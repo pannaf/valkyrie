@@ -317,8 +317,7 @@ The attributes provide the sufficient context needed for V to select appropriate
 [back to top](#main-tech)
 
 # <img src="https://github.com/pannaf/valkyrie/assets/18562964/3ec5b89a-8634-492f-8077-b636466de285" alt="image" width="20"/> [NVIDIA AI Foundation Endpoints] Giving V a Voice
-tl;dr
-- I used `meta/llama3-70b-instruct` as the primary voice for V
+> **TL;DR** I used `meta/llama3-70b-instruct` through NIM in LangChain as the primary voice for V.
 
 To create V, I followed the LangGraph Customer Support Bot tutorial [here](https://langchain-ai.github.io/langgraph/tutorials/customer-support/customer-support/). The tutorial uses Anthropic's Claude and binds tools to the LLM via something along the lines of:
 
@@ -326,13 +325,30 @@ To create V, I followed the LangGraph Customer Support Bot tutorial [here](https
 self.primary_assistant_runnable = self.primary_assistant_prompt | self.llm.bind_tools([primary_assistant_tools])
 ```
 
-This works *really* well for models where the `bind_tools()` method is implemented. In fact, in my original implementation of V I used Claude 3 Sonnet. [This loom](https://www.loom.com/share/9ab12783ef204f6daf834d149b17906a?sid=19b5cfab-7156-42a3-b2b7-301088cfb9bd) has a walkthrough showing V with that model. 
+This works *really* well for models where the `bind_tools()` method is implemented. I used Claude 3 Sonnet in my original implementation of V. [This loom](https://www.loom.com/share/9ab12783ef204f6daf834d149b17906a?sid=19b5cfab-7156-42a3-b2b7-301088cfb9bd) has a walkthrough showing V with that model. 
 
-I originally intended to use the NVIDIA AI Foundation endpoints in LangChain, however the `.bind_tools()` method isn't yet implemented for `ChatNVIDIA`, i.e., NVIDIA AI Foundation endpoints. NVIDIA representatives confirmed what I was finding..
+I had intended to replace the Claude 3 Sonnet LLM with one from the NVIDIA AI Foundation Endpoints in LangChain, however the `.bind_tools()` method isn't yet implemented for LangChain's `ChatNVIDIA` as seen in the docs [here](https://api.python.langchain.com/en/latest/_modules/langchain_nvidia_ai_endpoints/chat_models.html#ChatNVIDIA.bind_tools):
+
+```python
+def bind_tools(
+        self,
+        tools: Sequence[Union[Dict[str, Any], Type[BaseModel], Callable, BaseTool]],
+        *,
+        tool_choice: Optional[Union[dict, str, Literal["auto", "none"], bool]] = None,
+        **kwargs: Any,
+        ) -> Runnable[LanguageModelInput, BaseMessage]:
+        raise NotImplementedError(
+            "Not implemented, awaiting server-side function-recieving API"
+            " Consider following open-source LLM agent spec techniques:"
+            " https://huggingface.co/blog/open-source-llms-as-agents"
+        )
+```
+
+NVIDIA representatives confirmed what I was finding..
 
 <img width="1370" alt="Screenshot 2024-06-21 at 8 53 45 PM" src="https://github.com/pannaf/valkyrie/assets/18562964/d353b73a-49c2-4bb2-a95b-8438274348ff">
 
-But! I still really wanted to use the NVIDIA AI Foundation Endpoints in my LLM calls. After scanning through the official LangChain repo issues and pull requests, I found something relevant with [PR23193 experimental: Mixin to allow tool calling features for non tool calling chat models](https://github.com/langchain-ai/langchain/pull/23193). Because the PR was unmerged at the time when I found it, what ultimately worked for me was to just copy `libs/experimental/langchain_experimental/llms/tool_calling_llm.py` over to my codebase in `src/external/tool_calling_llm.py` and use it via:
+But! I still really wanted to use the NVIDIA AI Foundation Endpoints in my LLM calls. After scanning through the official LangChain repo issues and pull requests, I found something relevant with [PR23193 experimental: Mixin to allow tool calling features for non tool calling chat models](https://github.com/langchain-ai/langchain/pull/23193). Because the PR was unmerged at the time when I found it, what ultimately worked for me was to just copy `libs/experimental/langchain_experimental/llms/tool_calling_llm.py` over to my codebase in `src/external/tool_calling_llm.py` with a few minor changes to enforce a JSON output and use it via:
 
 ```python
 self.llm = LiteLLMFunctions(model="meta/llama3-70b-instruct")
