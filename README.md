@@ -357,8 +357,8 @@ self.llm = LiteLLMFunctions(model="meta/llama3-70b-instruct")
 [back to top](#main-tech)
 
 # <img src="https://github.com/pannaf/valkyrie/assets/18562964/c579f82c-7fe8-4709-8b4c-379573843545" alt="image" width="55"/> [LangGraph] V as an Agent
-To create V, I followed the LangGraph Customer Support Bot tutorial [here](https://langchain-ai.github.io/langgraph/tutorials/customer-support/customer-support/). Finding the ipynb with the code [here](https://github.com/langchain-ai/langgraph/blob/main/examples/customer-support/customer-support.ipynb) was clutch. As in the tutorial, I separated the sensitive tools (ones that update the DB) from the safe tools. Refer to [Section 2: Add Confirmation](https://langchain-ai.github.io/langgraph/tutorials/customer-support/customer-support/#part-2-add-confirmation) in the tutorial. But, I didn't like the user experience where an AI message didn't follow the human-in-the-loop approval when invoking a sensitive tool because it felt like the user needed to do more to drive the conversation than what I had in mind with V. For example:
-```bash
+To create V, I followed the LangGraph Customer Support Bot tutorial [here](https://langchain-ai.github.io/langgraph/tutorials/customer-support/customer-support/). Finding the ipynb with the code [here](https://github.com/langchain-ai/langgraph/blob/main/examples/customer-support/customer-support.ipynb) was clutch. As in the tutorial, I separated the sensitive tools (ones that update the DB) from the safe tools. For more details on that, refer to [Section 2: Add Confirmation](https://langchain-ai.github.io/langgraph/tutorials/customer-support/customer-support/#part-2-add-confirmation) in the tutorial. But, I didn't like the user experience where an AI message didn't follow the human-in-the-loop approval when invoking a sensitive tool because it felt like the user needed to do more to drive the conversation than what I had in mind with V. For example:
+```text
 Do you approve of the above actions? Type 'y' to continue; otherwise, explain your requested changed.
 
  y
@@ -366,7 +366,7 @@ Do you approve of the above actions? Type 'y' to continue; otherwise, explain yo
 
 <requires human message after approval>
 ```
-While I do see error modes with V where the database doesn't get updated in the ways that I had in mind, it wasn't sufficiently prohibitive to warrant exceeding my time box on investigating alternatives with including the user confirmation on sensitive tools. I do plan to circle back to this eventually though because it seems important for robustifying V. 
+While I do see error modes with V where the database doesn't get updated in the ways that I had in mind, it wasn't sufficiently prohibitive to warrant exceeding my time box on investigating alternatives with including the user confirmation on sensitive tools.
 
 ## V's LangGraph Structure
 ![v_graph](https://github.com/pannaf/valkyrie/assets/18562964/b9d18dc5-0fee-4a6f-889b-77fda728023d)
@@ -447,7 +447,10 @@ I wanted to mix a little personality and fun into V with this little easter egg.
 [back to top](#main-tech)
 
 # <img src="https://github.com/pannaf/valkyrie/assets/18562964/c579f82c-7fe8-4709-8b4c-379573843545" alt="image" width="55"/> [LangSmith] LangGraph Tracing
-Initially, I found it extremely helpful to look at the traces in LangSmith to verify that V was actually persistently staying in the correct wizard workflow. I used it to help identify a bug in my state where I wasn't correctly passing around the `dialog_state`.
+> [!TIP]
+> LangSmith tracing can help verify your agent is persistently staying in the correct part of your graph!
+
+Initially, I found it extremely helpful to look at the traces in LangSmith to verify that V was actually persistently staying in the correct wizard workflow. The traces helped me identify a bug in my state where I wasn't correctly passing around the `dialog_state`.
 
 Example from when I had the bug:
 
