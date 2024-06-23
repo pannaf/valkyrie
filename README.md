@@ -446,7 +446,7 @@ Correct version:
 [back to top](#main-tech)
 
 # <img src="https://github.com/pannaf/valkyrie/assets/18562964/3ec5b89a-8634-492f-8077-b636466de285" alt="image" width="25"/> [NeMo Guardrails] Ensuring V Avoids Medical Topics
-> **TL;DR** I used NeMo Guardrails with the NVIDIA AI Endpoint model `meta/llama3-70b-instruct` to apply checks on the user input message, as a way of ensuring V doesn't engage meaningfully with a user on medical domain topics where only a licensed medical professional has the requisite expertise.
+> **TL;DR** NeMo Guardrails with the NVIDIA AI Endpoint model `meta/llama3-70b-instruct` to apply checks on the user input message, as a way of ensuring V doesn't engage meaningfully with a user on medical domain topics where only a licensed medical professional has the requisite expertise.
 
 ## Standard `rails.generate()` in a LangGraph Node
 
