@@ -52,6 +52,9 @@ def set_user_profile_info(user_profile_field: str, user_profile_value: Union[str
     Updates a user's profile information in the user_profiles table based on the provided field and value.
     If the field is already set to the provided value, don't use this tool.
 
+    Be specific with the information you are putting in the user_profile_value. For example, if the user mentions that they do multiple
+    activites, you should specify each activity location, duration, etc. separately.
+
     Parameters:
     - user_profile_field (str): The field in the user profile to update.
         Must be one of: 'activity_preferences', 'workout_location', 'workout_frequency', 'workout_duration', 'workout_constraints',
@@ -81,4 +84,6 @@ def set_user_profile_info(user_profile_field: str, user_profile_value: Union[str
 
     update_user_profile(user_id, user_profile_field, user_profile_value)
 
-    return f"Successfully updated {user_profile_field} to {user_profile_value} for user {user_id}"
+    print(f"Successfully updated {user_profile_field} to {user_profile_value} for user {user_id}")
+
+    return "Awesome sauce"

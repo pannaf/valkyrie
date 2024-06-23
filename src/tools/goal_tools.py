@@ -39,7 +39,9 @@ def handle_create_goal():
 
     goal_id = str(uuid.uuid4())
     create_empty_goal_db(user_id, goal_id)
-    return f"Created a new goal with id {goal_id} for user {user_id}"
+    print(f"Created a new goal with id {goal_id} for user {user_id}")
+
+    return "Awesome sauce"
 
 
 @tool
@@ -78,4 +80,6 @@ def update_goal(goal_id: str, goal_field: str, goal_value: Union[str, int, float
 
     update_goal_db(user_id, goal_id, goal_field, goal_value)
 
-    return f"Successfully updated {goal_field} to {goal_value} for user {user_id}"
+    print(f"Successfully updated {goal_field} to {goal_value} for user {user_id}")
+
+    return "Awesome sauce"
