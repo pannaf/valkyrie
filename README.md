@@ -702,6 +702,38 @@ postgres@/tmp:zofit> select * from user_activities;
 SELECT 11
 ```
 
+Actually.. I found the reason for this was not returning from the tool information about what the tool did. I had changed it because I sometimes see messages like:
+
+```python
+----------------- V Message -----------------
+V: Got it!
+
+---------------- User Message ----------------
+User: great!
+2024-06-23 14:55:18.261 | DEBUG    | __main__:_log_event:51 - Current state: onboarding_wizard | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 14:55:18.261 | INFO     | __main__:_log_event:60 - ================================ Human Message =================================
+
+great! | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 14:55:18.273 | DEBUG    | __main__:_log_event:51 - Current state: onboarding_wizard | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 14:55:18.323 | INFO     | src.state_graph.graph_builder:guardrails_input_handler:74 - Checking guardrails on user input | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 14:55:22.102 | INFO     | src.state_graph.graph_builder:guardrails_input_handler:91 - Guardrails accepted the input. | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 14:55:22.103 | DEBUG    | langgraph.utils:invoke:95 - Function 'guardrails_input_handler' executed in 3.828081832965836s | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 14:55:22.103 | DEBUG    | langgraph.utils:invoke:95 - Exiting 'guardrails_input_handler' (result={'valid_input': True}) | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 14:55:22.107 | DEBUG    | __main__:_log_event:51 - Current state: onboarding_wizard | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 14:55:23.028 | DEBUG    | __main__:_log_event:51 - Current state: onboarding_wizard | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 14:55:23.028 | INFO     | __main__:_log_event:60 - ================================== Ai Message ==================================
+
+Successfully updated activity_duration to 90 minutes for user 7d2e2905-35a1-4954-abd9-d54e2a252da6 | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+
+----------------- V Message -----------------
+V: Successfully updated activity_duration to 90 minutes for user 7d2e2905-35a1-4954-abd9-d54e2a252da6
+
+---------------- User Message ----------------
+User: did you?
+```
+
+which are just weird messages.. so I thought if the tool just returns some random string like "Awesome sauce" then it wouldn't try to respond to the user with "Successfully updated...." but then I think the agent wasn't maintaining proper awareness on what entries it created in the table.
+
 [back to top](#main-tech)
 
 # <img src="https://github.com/pannaf/valkyrie/assets/18562964/c579f82c-7fe8-4709-8b4c-379573843545" alt="image" width="55"/> [LangSmith] LangGraph Tracing
