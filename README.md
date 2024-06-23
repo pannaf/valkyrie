@@ -462,6 +462,261 @@ Correct version:
 
 <img width="720" alt="langgraph-correct-trace" src="https://github.com/pannaf/valkyrie/assets/18562964/b638db69-c980-4ddf-89a2-39deb0047761">
 
+## Prompt Engineering with LangGraph and Llama 3 70B
+> [!WARNING]
+> Including language like "for each..." in the prompt can be problematic.
+
+The way I setup the activities and goals tables, I needed to:
+1. Create an empty entry in the table
+2. Keep track of the entry id
+3. Update the entry based on new info learned
+
+I didn't want to be prescriptive on whether a user should only talk about lifting weights, though I did have in mind that V would plan lifting workouts.. as a personal trainer IRL does. Partly because I swim, and I'd love to account for my swim volume when planning my lifts. I tried this as the conversation structure:
+
+```text
+<conversation structure>
+Follow these steps:
+Step 0 - If it's your first time meeting the user, introduce yourself (you are V, their new virtual personal trainer).
+Step 1 - Ask 1-2 basic getting-to-know-you icebreaker questions, one at a time.
+Step 2 - engage with the user in a brief conversation, double-clicking with them on their responses to the icebreaker questions.
+Step 3 - ask the user what activities they do. for each activity, make sure to call the tool create_activity before updating the activity.
+Step 4 - update the database with the information you learn about the user's activities. the information you need to fill out includes the activity name, the frequency, the duration, and the location. you will need to ask the user for this information, if they don't mention it. 
+</conversation structure>
+```
+
+I wanted it to be where the user could mention in the same message that, e.g., they like to swim *and* lift. And then the table would get populated with an entry for each of those. It should wind up with two new rows in that case. But.. what I ended up observing is that LangGraph kept creating new entries until the recursion limit was reached.
+
+```python
+----------------- V Message -----------------
+V: Cool beans! I'll make it quick and painless, I promise. Do you currently engage in any physical activities, like sports, gym, or outdoor activities? 🏃‍♀️
+
+---------------- User Message ----------------
+User: i swim and lift
+2024-06-23 06:58:17.621 | DEBUG    | __main__:_log_event:51 - Current state: onboarding_wizard | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:17.621 | INFO     | __main__:_log_event:60 - ================================ Human Message =================================
+
+i swim and lift | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:17.633 | DEBUG    | __main__:_log_event:51 - Current state: onboarding_wizard | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:17.688 | INFO     | src.state_graph.graph_builder:guardrails_input_handler:74 - Checking guardrails on user input | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:21.522 | INFO     | src.state_graph.graph_builder:guardrails_input_handler:91 - Guardrails accepted the input. | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:21.522 | DEBUG    | langgraph.utils:invoke:95 - Function 'guardrails_input_handler' executed in 3.8869216670282185s | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:21.522 | DEBUG    | langgraph.utils:invoke:95 - Exiting 'guardrails_input_handler' (result={'valid_input': True}) | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:21.526 | DEBUG    | __main__:_log_event:51 - Current state: onboarding_wizard | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:22.685 | DEBUG    | __main__:_log_event:51 - Current state: onboarding_wizard | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:22.686 | INFO     | __main__:_log_event:60 - ================================== Ai Message ==================================
+Tool Calls:
+  create_activity (call_88cb4d0ab7f0492d882a970ff41829da)
+ Call ID: call_88cb4d0ab7f0492d882a970ff41829da
+  Args: | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+Created a new activity with id 6ce2fd47-13cd-4a80-9e69-f18180edbf3c for user 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:22.707 | DEBUG    | __main__:_log_event:51 - Current state: onboarding_wizard | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:22.707 | INFO     | __main__:_log_event:60 - ================================= Tool Message =================================
+Name: create_activity
+
+Awesome sauce | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:23.298 | DEBUG    | __main__:_log_event:51 - Current state: onboarding_wizard | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:23.298 | INFO     | __main__:_log_event:60 - ================================== Ai Message ==================================
+Tool Calls:
+  create_activity (call_99daf1826db14e7d9a806bf3d16a7e0f)
+ Call ID: call_99daf1826db14e7d9a806bf3d16a7e0f
+  Args: | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+Created a new activity with id a9634b5b-a8ea-405f-a5a3-38a8fbecbb2a for user 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:23.317 | DEBUG    | __main__:_log_event:51 - Current state: onboarding_wizard | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:23.317 | INFO     | __main__:_log_event:60 - ================================= Tool Message =================================
+Name: create_activity
+
+Awesome sauce | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:23.914 | DEBUG    | __main__:_log_event:51 - Current state: onboarding_wizard | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:23.914 | INFO     | __main__:_log_event:60 - ================================== Ai Message ==================================
+Tool Calls:
+  create_activity (call_731c63f7f68f4cbeb3cc4bf3f47408ff)
+ Call ID: call_731c63f7f68f4cbeb3cc4bf3f47408ff
+  Args: | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+Created a new activity with id b1349072-b303-42c0-aee4-99337860ea59 for user 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:23.932 | DEBUG    | __main__:_log_event:51 - Current state: onboarding_wizard | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:23.932 | INFO     | __main__:_log_event:60 - ================================= Tool Message =================================
+Name: create_activity
+
+Awesome sauce | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:24.496 | DEBUG    | __main__:_log_event:51 - Current state: onboarding_wizard | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:24.497 | INFO     | __main__:_log_event:60 - ================================== Ai Message ==================================
+Tool Calls:
+  create_activity (call_85240c604c3a4238b92c3fdb50839734)
+ Call ID: call_85240c604c3a4238b92c3fdb50839734
+  Args: | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+Created a new activity with id 0d4cb834-b5a4-4c66-ad02-02225dca0832 for user 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:24.516 | DEBUG    | __main__:_log_event:51 - Current state: onboarding_wizard | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:24.516 | INFO     | __main__:_log_event:60 - ================================= Tool Message =================================
+Name: create_activity
+
+Awesome sauce | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:25.104 | DEBUG    | __main__:_log_event:51 - Current state: onboarding_wizard | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:25.104 | INFO     | __main__:_log_event:60 - ================================== Ai Message ==================================
+Tool Calls:
+  create_activity (call_667e21188152477fa072b77be5003ffa)
+ Call ID: call_667e21188152477fa072b77be5003ffa
+  Args: | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+Created a new activity with id ceec6c19-1d8e-4bb1-8b50-ca097103193c for user 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:25.115 | DEBUG    | __main__:_log_event:51 - Current state: onboarding_wizard | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:25.115 | INFO     | __main__:_log_event:60 - ================================= Tool Message =================================
+Name: create_activity
+
+Awesome sauce | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:25.758 | DEBUG    | __main__:_log_event:51 - Current state: onboarding_wizard | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:25.758 | INFO     | __main__:_log_event:60 - ================================== Ai Message ==================================
+Tool Calls:
+  create_activity (call_b50471b38f5543f9bd20949018866ef6)
+ Call ID: call_b50471b38f5543f9bd20949018866ef6
+  Args: | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+Created a new activity with id 36973d8a-20be-43e5-9274-dfd418b4b30d for user 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:25.777 | DEBUG    | __main__:_log_event:51 - Current state: onboarding_wizard | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:25.777 | INFO     | __main__:_log_event:60 - ================================= Tool Message =================================
+Name: create_activity
+
+Awesome sauce | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:26.372 | DEBUG    | __main__:_log_event:51 - Current state: onboarding_wizard | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:26.372 | INFO     | __main__:_log_event:60 - ================================== Ai Message ==================================
+Tool Calls:
+  create_activity (call_77f7d8e37a0b4f288592a261128c49ac)
+ Call ID: call_77f7d8e37a0b4f288592a261128c49ac
+  Args: | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+Created a new activity with id 1dff02c2-2c5b-447d-925a-2360386375d1 for user 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:26.392 | DEBUG    | __main__:_log_event:51 - Current state: onboarding_wizard | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:26.392 | INFO     | __main__:_log_event:60 - ================================= Tool Message =================================
+Name: create_activity
+
+Awesome sauce | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:26.937 | DEBUG    | __main__:_log_event:51 - Current state: onboarding_wizard | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:26.937 | INFO     | __main__:_log_event:60 - ================================== Ai Message ==================================
+Tool Calls:
+  create_activity (call_be8475d43b534b9a9b59337f33935da9)
+ Call ID: call_be8475d43b534b9a9b59337f33935da9
+  Args: | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+Created a new activity with id a5b40217-92b3-4046-afde-9a101ee6f9fc for user 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:26.959 | DEBUG    | __main__:_log_event:51 - Current state: onboarding_wizard | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:26.959 | INFO     | __main__:_log_event:60 - ================================= Tool Message =================================
+Name: create_activity
+
+Awesome sauce | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:27.600 | DEBUG    | __main__:_log_event:51 - Current state: onboarding_wizard | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:27.600 | INFO     | __main__:_log_event:60 - ================================== Ai Message ==================================
+Tool Calls:
+  create_activity (call_b2634df7b06f47c8ba14706f9ab5ec9a)
+ Call ID: call_b2634df7b06f47c8ba14706f9ab5ec9a
+  Args: | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+Created a new activity with id b503ab56-335f-4108-a28c-08f53047f573 for user 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:27.618 | DEBUG    | __main__:_log_event:51 - Current state: onboarding_wizard | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:27.619 | INFO     | __main__:_log_event:60 - ================================= Tool Message =================================
+Name: create_activity
+
+Awesome sauce | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:28.216 | DEBUG    | __main__:_log_event:51 - Current state: onboarding_wizard | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:28.216 | INFO     | __main__:_log_event:60 - ================================== Ai Message ==================================
+Tool Calls:
+  create_activity (call_6a8900fabe744c728b9ac0504c26baa8)
+ Call ID: call_6a8900fabe744c728b9ac0504c26baa8
+  Args: | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+Created a new activity with id 7fb67040-9c77-4154-9584-2307a235baf4 for user 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:28.234 | DEBUG    | __main__:_log_event:51 - Current state: onboarding_wizard | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:28.234 | INFO     | __main__:_log_event:60 - ================================= Tool Message =================================
+Name: create_activity
+
+Awesome sauce | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:28.931 | DEBUG    | __main__:_log_event:51 - Current state: onboarding_wizard | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:28.931 | INFO     | __main__:_log_event:60 - ================================== Ai Message ==================================
+Tool Calls:
+  create_activity (call_c2deed153f1847f8b133f9a21c3d128b)
+ Call ID: call_c2deed153f1847f8b133f9a21c3d128b
+  Args: | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+Created a new activity with id 9243e8f6-aeb6-445d-8919-fb6729aa3a9b for user 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:28.950 | DEBUG    | __main__:_log_event:51 - Current state: onboarding_wizard | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:28.950 | INFO     | __main__:_log_event:60 - ================================= Tool Message =================================
+Name: create_activity
+
+Awesome sauce | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:29.500 | DEBUG    | __main__:_log_event:51 - Current state: onboarding_wizard | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:29.501 | INFO     | __main__:_log_event:60 - ================================== Ai Message ==================================
+Tool Calls:
+  create_activity (call_fece61bc35244807b81b48160546f945)
+ Call ID: call_fece61bc35244807b81b48160546f945
+  Args: | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+2024-06-23 06:58:29.509 | ERROR    | __main__:main:78 - An error has been caught in function 'main', process 'MainProcess' (98520), thread 'MainThread' (8655780544): | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+Traceback (most recent call last):
+
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+
+  File "/Users/panna/code/valkyrie/src/assistant_system.py", line 100, in <module>
+    main()
+    └ <function main at 0x15cdaa200>
+
+  File "/Users/panna/code/valkyrie/.venv/lib/python3.12/site-packages/hydra/main.py", line 94, in decorated_main
+    _run_hydra(
+    └ <function _run_hydra at 0x103eca520>
+  File "/Users/panna/code/valkyrie/.venv/lib/python3.12/site-packages/hydra/_internal/utils.py", line 394, in _run_hydra
+    _run_app(
+    └ <function _run_app at 0x103eca5c0>
+  File "/Users/panna/code/valkyrie/.venv/lib/python3.12/site-packages/hydra/_internal/utils.py", line 457, in _run_app
+    run_and_report(
+    └ <function run_and_report at 0x103eca480>
+  File "/Users/panna/code/valkyrie/.venv/lib/python3.12/site-packages/hydra/_internal/utils.py", line 220, in run_and_report
+    return func()
+           └ <function _run_app.<locals>.<lambda> at 0x103e90b80>
+  File "/Users/panna/code/valkyrie/.venv/lib/python3.12/site-packages/hydra/_internal/utils.py", line 458, in <lambda>
+    lambda: hydra.run(
+            │     └ <function Hydra.run at 0x103fe7ba0>
+            └ <hydra._internal.hydra.Hydra object at 0x15cd99460>
+  File "/Users/panna/code/valkyrie/.venv/lib/python3.12/site-packages/hydra/_internal/hydra.py", line 119, in run
+    ret = run_job(
+          └ <function run_job at 0x103ec9440>
+  File "/Users/panna/code/valkyrie/.venv/lib/python3.12/site-packages/hydra/core/utils.py", line 186, in run_job
+    ret.return_value = task_function(task_cfg)
+    │   │              │             └ {'logging': {'console': {'enable': True, 'level': 'DEBUG', 'format': '<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>...
+    │   │              └ <function main at 0x15cdaa160>
+    │   └ <property object at 0x103e88bd0>
+    └ JobReturn(overrides=[], cfg={'logging': {'console': {'enable': True, 'level': 'DEBUG', 'format': '<green>{time:YYYY-MM-DD HH:...
+
+> File "/Users/panna/code/valkyrie/src/assistant_system.py", line 92, in main
+    response = assistant_system.handle_event(user_input)
+               │                │            └ 'i swim and lift'
+               │                └ <function AssistantSystem.handle_event at 0x15cdaa0c0>
+               └ <__main__.AssistantSystem object at 0x1565318e0>
+
+  File "/Users/panna/code/valkyrie/src/assistant_system.py", line 64, in handle_event
+    for event in events:
+        │        └ <generator object Pregel.stream at 0x120940620>
+        └ {'messages': [HumanMessage(content='hey', id='cde2bed2-42d3-475e-9076-928a85ae5673'), AIMessage(content='', id='run-63c14536-...
+
+  File "/Users/panna/code/valkyrie/.venv/lib/python3.12/site-packages/langgraph/pregel/__init__.py", line 1014, in stream
+    raise GraphRecursionError(
+          └ <class 'langgraph.errors.GraphRecursionError'>
+
+langgraph.errors.GraphRecursionError: Recursion limit of 25 reachedwithout hitting a stop condition. You can increase the limit by setting the `recursion_limit` config key.
+2024-06-23 06:58:29.513 | INFO     | __main__:main:96 - Completed execution for user 7d2e2905-35a1-4954-abd9-d54e2a252da6 | 7d2e2905-35a1-4954-abd9-d54e2a252da6
+```
+
+And this gave me the new table entries:
+
+```bash
+postgres@/tmp:zofit> select * from user_activities;
++--------------------------------------+--------------------------------------+---------------+-------------------+-------------------+--------------------+
+| user_activity_id                     | user_id                              | activity_name | activity_location | activity_duration | activity_frequency |
+|--------------------------------------+--------------------------------------+---------------+-------------------+-------------------+--------------------|
+| 6ce2fd47-13cd-4a80-9e69-f18180edbf3c | 7d2e2905-35a1-4954-abd9-d54e2a252da6 | <null>        | <null>            | <null>            | <null>             |
+| a9634b5b-a8ea-405f-a5a3-38a8fbecbb2a | 7d2e2905-35a1-4954-abd9-d54e2a252da6 | <null>        | <null>            | <null>            | <null>             |
+| b1349072-b303-42c0-aee4-99337860ea59 | 7d2e2905-35a1-4954-abd9-d54e2a252da6 | <null>        | <null>            | <null>            | <null>             |
+| 0d4cb834-b5a4-4c66-ad02-02225dca0832 | 7d2e2905-35a1-4954-abd9-d54e2a252da6 | <null>        | <null>            | <null>            | <null>             |
+| ceec6c19-1d8e-4bb1-8b50-ca097103193c | 7d2e2905-35a1-4954-abd9-d54e2a252da6 | <null>        | <null>            | <null>            | <null>             |
+| 36973d8a-20be-43e5-9274-dfd418b4b30d | 7d2e2905-35a1-4954-abd9-d54e2a252da6 | <null>        | <null>            | <null>            | <null>             |
+| 1dff02c2-2c5b-447d-925a-2360386375d1 | 7d2e2905-35a1-4954-abd9-d54e2a252da6 | <null>        | <null>            | <null>            | <null>             |
+| a5b40217-92b3-4046-afde-9a101ee6f9fc | 7d2e2905-35a1-4954-abd9-d54e2a252da6 | <null>        | <null>            | <null>            | <null>             |
+| b503ab56-335f-4108-a28c-08f53047f573 | 7d2e2905-35a1-4954-abd9-d54e2a252da6 | <null>        | <null>            | <null>            | <null>             |
+| 7fb67040-9c77-4154-9584-2307a235baf4 | 7d2e2905-35a1-4954-abd9-d54e2a252da6 | <null>        | <null>            | <null>            | <null>             |
+| 9243e8f6-aeb6-445d-8919-fb6729aa3a9b | 7d2e2905-35a1-4954-abd9-d54e2a252da6 | <null>        | <null>            | <null>            | <null>             |
++--------------------------------------+--------------------------------------+---------------+-------------------+-------------------+--------------------+
+SELECT 11
+```
+
 [back to top](#main-tech)
 
 # <img src="https://github.com/pannaf/valkyrie/assets/18562964/3ec5b89a-8634-492f-8077-b636466de285" alt="image" width="25"/> [NeMo Guardrails] Ensuring V Avoids Medical Topics
