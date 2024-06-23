@@ -2,6 +2,13 @@ from dotenv import load_dotenv
 from omegaconf import DictConfig
 import hydra
 
+from src.assistants import (
+    OnboardingWizard,
+    GoalWizard,
+    ProgrammingWizard,
+    VWizard,
+)
+
 from src.state_graph.graph_builder import GraphBuilder
 from src.tools import ToOnboardingWizard, ToGoalWizard, ToProgrammingWizard, ToVWizard, set_user_onboarded
 from src.utils.logtils import configure_logging, LoggingContextManager, get_bound_logger
@@ -14,11 +21,6 @@ class AssistantSystem:
         self.prompt_loader = hydra.utils.instantiate(cfg.prompt_loader)
         self.cfg = {"configurable": cfg.user}
         self.logger = get_bound_logger()
-
-        from src.assistants.goal_wizard import GoalWizard
-        from src.assistants.onboarding_wizard import OnboardingWizard
-        from src.assistants.programming_wizard import ProgrammingWizard
-        from src.assistants.v_wizard import VWizard
 
         self.wizards = {
             "onboarding_wizard": OnboardingWizard(self.llm, self.prompt_loader, "onboarding_wizard"),
@@ -67,6 +69,7 @@ class AssistantSystem:
 
 @hydra.main(config_path="../configs", config_name="base", version_base="1.3")
 def main(cfg: DictConfig):
+    """Main entry point for the V assistant system."""
     configure_logging(cfg)
     logger_context_manager = LoggingContextManager(cfg.user.user_id)
 
