@@ -355,7 +355,7 @@ self.llm = LiteLLMFunctions(model="meta/llama3-70b-instruct")
 ```
 
 > [!WARNING]
-> Using NIM, LangGraph, and NeMo Guardrails.. I blazed a trail through my NVIDIA AI Foundation Endpoints credits. In less than a day of adapting my Onboarding Wizard prompt from Claude to Llama 3: I ran out of my 1k credits, signed up for a different account, and ran out of that 1k credits too. All without feeling satisfied in the flow.
+> Using NIM, LangGraph, and NeMo Guardrails.. I blazed a trail through my NVIDIA AI Foundation Endpoints credits. In less than a day of adapting my Onboarding Wizard prompt from Claude to Llama 3: I ran out of my 1k credits, signed up for a different account, and ran out of that 1k credits too. All without feeling satisfied in the flow. I wanted to just buy some credits to not have to worry about it, but I wasn't able to easily find where I could even enter my CC info to purchase more credits.
 
 ```python
 2024-06-23 15:25:53.868 | ERROR    | __main__:main:78 - An error has been caught in function 'main', process 'MainProcess' (3843), thread 'MainThread' (8655780544): | 7d2e2905-35a1-4954-abd9-d54e2a252da6
