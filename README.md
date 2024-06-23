@@ -331,17 +331,17 @@ I had intended to replace the Claude 3 Sonnet LLM with one from the NVIDIA AI Fo
 
 ```python
 def bind_tools(
-        self,
-        tools: Sequence[Union[Dict[str, Any], Type[BaseModel], Callable, BaseTool]],
-        *,
-        tool_choice: Optional[Union[dict, str, Literal["auto", "none"], bool]] = None,
-        **kwargs: Any,
-        ) -> Runnable[LanguageModelInput, BaseMessage]:
-        raise NotImplementedError(
-            "Not implemented, awaiting server-side function-recieving API"
-            " Consider following open-source LLM agent spec techniques:"
-            " https://huggingface.co/blog/open-source-llms-as-agents"
-        )
+    self,
+    tools: Sequence[Union[Dict[str, Any], Type[BaseModel], Callable, BaseTool]],
+    *,
+    tool_choice: Optional[Union[dict, str, Literal["auto", "none"], bool]] = None,
+    **kwargs: Any,
+    ) -> Runnable[LanguageModelInput, BaseMessage]:
+    raise NotImplementedError(
+        "Not implemented, awaiting server-side function-recieving API"
+        " Consider following open-source LLM agent spec techniques:"
+        " https://huggingface.co/blog/open-source-llms-as-agents"
+    )
 ```
 
 NVIDIA representatives confirmed what I was finding..
