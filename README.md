@@ -444,24 +444,6 @@ I envisioned updating a database table with the planned workouts, and eventually
 
 I wanted to mix a little personality and fun into V with this little easter egg. Provides some very basic info about V 🙃
 
-[back to top](#main-tech)
-
-# <img src="https://github.com/pannaf/valkyrie/assets/18562964/c579f82c-7fe8-4709-8b4c-379573843545" alt="image" width="55"/> [LangSmith] LangGraph Tracing
-> [!TIP]
-> LangSmith tracing can help verify your agent is persistently staying in the correct part of your graph!
-
-Initially, I found it extremely helpful to look at the traces in LangSmith to verify that V was actually persistently staying in the correct wizard workflow. The traces helped me identify a bug in my state where I wasn't correctly passing around the `dialog_state`.
-
-Example from when I had the bug:
-
-<img width="720" alt="langgraph-debug-trace" src="https://github.com/pannaf/valkyrie/assets/18562964/11cdd753-7210-4356-a6bd-906f10011295">
-
-Notice that in the trace, V doesn't correctly leave the primary assistant to enter the Goal Wizard.
-
-Correct version:
-
-<img width="720" alt="langgraph-correct-trace" src="https://github.com/pannaf/valkyrie/assets/18562964/b638db69-c980-4ddf-89a2-39deb0047761">
-
 ## Prompt Engineering with LangGraph and Llama 3 70B
 > [!WARNING]
 > Including language like "for each..." in the prompt can be problematic.
@@ -716,6 +698,24 @@ postgres@/tmp:zofit> select * from user_activities;
 +--------------------------------------+--------------------------------------+---------------+-------------------+-------------------+--------------------+
 SELECT 11
 ```
+
+[back to top](#main-tech)
+
+# <img src="https://github.com/pannaf/valkyrie/assets/18562964/c579f82c-7fe8-4709-8b4c-379573843545" alt="image" width="55"/> [LangSmith] LangGraph Tracing
+> [!TIP]
+> LangSmith tracing can help verify your agent is persistently staying in the correct part of your graph!
+
+Initially, I found it extremely helpful to look at the traces in LangSmith to verify that V was actually persistently staying in the correct wizard workflow. The traces helped me identify a bug in my state where I wasn't correctly passing around the `dialog_state`.
+
+Example from when I had the bug:
+
+<img width="720" alt="langgraph-debug-trace" src="https://github.com/pannaf/valkyrie/assets/18562964/11cdd753-7210-4356-a6bd-906f10011295">
+
+Notice that in the trace, V doesn't correctly leave the primary assistant to enter the Goal Wizard.
+
+Correct version:
+
+<img width="720" alt="langgraph-correct-trace" src="https://github.com/pannaf/valkyrie/assets/18562964/b638db69-c980-4ddf-89a2-39deb0047761">
 
 [back to top](#main-tech)
 
