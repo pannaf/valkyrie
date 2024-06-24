@@ -382,13 +382,26 @@ I refer to each of V's assistants, except for the primary assistant as a "wizard
 
 Two primary objectives:
 1. Get to know a new user.
-2. Update the user's profile information.
+2. Update the user's workout activity information.
+
+Tools available:
+- `fetch_user_activities` : Used for retrieving the user's workout activities
+- `create_activity` : Used to record a workout activity for a user, including info about the name, frequency, duration, and location
+
+This is used to update the `user_activities` table, which has the following fields:
+- `activity_name` (str): The name of the activity to create. e.g., 'running', 'swimming', 'yoga', 'lifting weights', etc.
+- `activity_location` (str): The location of the activity. e.g., 'gym', 'home', 'outdoors', etc.
+- `activity_duration` (str): The duration of the activity. e.g., '30 minutes', '1 hour', '2 hours', etc.
+- `activity_frequency` (str): The frequency of the activity. e.g., '7 days a week', '3 times a week', 'every other week', etc.
+
+> [!WARNING]
+> These tools and table schema are part of the Claude 3 Sonnet workflow (my original workflow). When I pivoted to Llama 3 70B, I didn't find it worked very well with the complexity and ambiguity of the user profile. So, I simplified it by just gathering the workout activities that a user does. I'm leaving this in here though because it is relevant for the Streamlit-hosted version.
 
 Tools available:
 - `fetch_user_profile_info` : Used for retrieving the user's profile information, so that V can know what info is filled and what info still needs to be filled.
 - `set_user_profile_info` : Used to update the user's profile information, as V learns more about the user.  
 
-This is used to update the `user_profiles` table, which has the following keys:
+This is used to update the `user_profiles` table, which has the following fields:
 - `user_profile_id` (uuid) - This is just the uuid primary key.
 - `user_id` (uuid) - This is a foreign key to match the primary key of the `users` table.
 - `last_updated` (date)
@@ -409,8 +422,11 @@ Two objectives:
 
 Tools available:
 - `fetch_goals` : Used to retrieve the user's current goals.
-- `handle_create_goal` : Used to create a new, empty goal for the user. This gets called before a goal gets updated.
+- `create_goal` : Used to create a new, empty goal for the user. This requires the fields `goal_type`, `description`, `end_date`, `notes`.
 - `update_goal` : Used to update an existing goal with the fields described below.
+
+> [!WARNING]
+> When I pivoted to experiment with Llama 3 70b, I left the goals schema as it had been for the Claude 3 Sonnet workflow. But, I changed things to be where the `create_goal` actually accepts some info about the goal when it's creating it. I also changed the prompt to not try to fill in all the fields from my original schema, such as `target_value` and `current_value`. Instead, I let that info be contained in the goal description.
 
 This is used to update the `goals` table, which has the following keys:
 - `goal_id` (text) - This is just the primary key. I found some weirdness with Python's `uuid` generator and my table accepting that value. Wasn't able to solve it in my time box for it, but I found that setting this to type `text` worked just fine for now. It is a Pythong-generated `uuid` though.
@@ -433,6 +449,8 @@ One objective:
 1. Plan a one week workout routine for the user that aligns with their fitness goals, workout frequency, fitness level, etc.
 
 Tools available:
+- `fetch_user_activities` : Used for retrieving the user's workout activities
+- `fetch_goals` : Used to retrieve the user's current goals.
 - `fetch_exercises` : Used to identify different exercises for a target muscle group. Helps ensure excercise variety, keeping a user engaged. V doesn't consistently engage this tool yet. Depending on the conversation, V did use this tool really well but given how much LLMs already know about exercises.. I ran out of time to force V to use this tool when planning workouts.
 
 I envisioned updating a database table with the planned workouts, and eventually pulling previously planned workouts for a user to determine the next batch of workouts for them. But alas! Didn't quite get there in the competition timeframe. 
