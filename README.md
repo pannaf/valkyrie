@@ -624,7 +624,7 @@ Ultimately, I also modified the wording of the final bit of the prompt to be a l
 [back to top](#main-tech)
 
 # Challenges
-After the competition deadline was extended by a week, I told myself I wasn't going to continue pushing further toward the competition with V development. I had a couple other things I wanted to work on with it that weren't really relevant to the agentic behavior. For example, I wanted to add Google Auth and make the conversations persist in a PostgreSQL database. But, when poking around on the LangChain repo Friday (06.21.24) afternoon, I saw an open PR for attaching tools to ChatNVIDIA LLMs and I wanted to try it out! Things spiralled a bit and these are the challenges that I faced in the final 3 days of the competition.
+After the competition deadline was extended by a week, I told myself I wasn't going to continue pushing further toward the competition with V development. I had a couple other things I was up to that weren't really relevant to the agentic behavior. For example, adding Google Auth and making the conversations persist in a PostgreSQL database. But, when poking around on the LangChain repo Friday (06.21.24) afternoon, I saw an open PR for attaching tools to ChatNVIDIA LLMs and I wanted to try it out! Things escalated a bit and before I knew it, I was back to poking at my submission! These are the challenges that I faced in the final 4 days of the competition.
 
 ## Small context length on Llama 3 70B
 > 06.24.24 - Llama 3 70B context limit exceeded.
