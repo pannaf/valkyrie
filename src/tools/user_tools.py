@@ -27,11 +27,10 @@ def fetch_user_info():
 @tool
 def fetch_user_activities():
     """
-    Fetch all known mutable information about the user: activity preferences, workout location, workout frequency, workout duration, workout constraints,
-         fitness level, weight, goal weight
+    Fetch the user's activites
 
     Returns:
-        The user's profile information, as described above.
+        The user's activity information.
     """
     print("Fetching user profile info.......")
     cfg = ensure_config()
@@ -40,10 +39,9 @@ def fetch_user_activities():
     if not user_id:
         raise ValueError("User ID is not set in the configuration")
 
-    user_profile = fetch_user_activities_db(user_id)
-    print(f"Fetched user profile for user_id {user_id}: {user_profile}")
+    user_activities = fetch_user_activities_db(user_id)
 
-    return f"Fetched user profile for user_id {user_id}: {user_profile}"
+    return f"Fetched user activities for user_id {user_id=} : {user_activities=}"
 
 
 @tool

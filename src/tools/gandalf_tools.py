@@ -2,7 +2,7 @@ from langchain_core.pydantic_v1 import BaseModel, Field
 from langchain_core.tools import tool
 from langchain_core.runnables import ensure_config
 
-from src.db.db_utils import set_user_onboarded_db
+from src.db.db_utils import set_user_field_db
 
 
 class ToOnboardingWizard(BaseModel):
@@ -36,7 +36,7 @@ class ToVWizard(BaseModel):
 def set_user_onboarded():
     """
     Set the user's onboarded status to True.
-    Once the user's profile and goals are set, this tool should be called to indicate that the user has completed the onboarding process.
+    Once the user's activities are recorded, i.e., when the Onboarding Wizard returns the user to you, this tool should be called to indicate that the user has completed the onboarding process.
     """
 
     cfg = ensure_config()
@@ -45,6 +45,45 @@ def set_user_onboarded():
     if not user_id:
         raise ValueError("User ID is not set in the configuration")
 
-    set_user_onboarded_db(user_id)
+    set_user_field_db(user_id, "onboarded", True)
 
     return f"Successfully updated 'onboarded' to 'true' for user {user_id}"
+
+
+@tool
+def set_user_goal_set():
+    """
+    Set the user's goal_set status to True.
+    Once the user's goals are recorded, i.e., when the Goal Wizard returns the user to you, this tool should be called to indicate that the user has completed the goal setting process.
+    """
+
+    cfg = ensure_config()
+    configuration = cfg.get("configurable", {})
+    user_id = configuration.get("user_id")
+    if not user_id:
+        raise ValueError("User ID is not set in the configuration")
+
+    set_user_field_db(user_id, "goal_set", True)
+
+    return f"Successfully updated 'goal_set' to 'true' for user {user_id}"
+
+
+@tool
+def set_user_fitness_level(fitness_level: str):
+    """
+    Set the user's fitness level to fitness_level.
+    You should infer this information based on the user's activity volume which you can get from the user_activities and goals tables.
+
+    Parameters:
+    - fitness_level (str): The user's fitness level. Can be one of: 'beginner', 'intermediate', 'advanced'
+    """
+
+    cfg = ensure_config()
+    configuration = cfg.get("configurable", {})
+    user_id = configuration.get("user_id")
+    if not user_id:
+        raise ValueError("User ID is not set in the configuration")
+
+    set_user_field_db(user_id, "fitness_level", fitness_level)
+
+    return f"Successfully updated 'fitness_level' to {fitness_level} for user {user_id}"

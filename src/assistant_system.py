@@ -10,7 +10,17 @@ from src.assistants import (
 )
 
 from src.state_graph.graph_builder import GraphBuilder
-from src.tools import ToOnboardingWizard, ToGoalWizard, ToProgrammingWizard, ToVWizard, set_user_onboarded
+from src.tools import (
+    ToOnboardingWizard,
+    ToGoalWizard,
+    ToProgrammingWizard,
+    ToVWizard,
+    set_user_onboarded,
+    set_user_goal_set,
+    set_user_fitness_level,
+    fetch_user_activities,
+    fetch_goals,
+)
 from src.utils.logtils import configure_logging, LoggingContextManager, get_bound_logger
 
 
@@ -31,7 +41,8 @@ class AssistantSystem:
 
         self.primary_assistant_prompt = self.prompt_loader.get_prompt("gandalf")
         self.primary_assistant_runnable = self.primary_assistant_prompt | self.llm.bind_tools(
-            [set_user_onboarded] + [ToOnboardingWizard, ToGoalWizard, ToProgrammingWizard, ToVWizard]
+            [set_user_onboarded, set_user_goal_set, set_user_fitness_level, fetch_user_activities, fetch_goals]
+            + [ToOnboardingWizard, ToGoalWizard, ToProgrammingWizard, ToVWizard]
         )
 
         self.logger.info("Building graph")
@@ -49,6 +60,7 @@ class AssistantSystem:
             current_state = event.get("dialog_state")
             if current_state:
                 self.logger.debug(f"Current state: {current_state[-1]}")
+
             message = event.get("messages")
             if message:
                 if isinstance(message, list):

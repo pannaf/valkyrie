@@ -10,9 +10,9 @@ class GoalWizard(BaseWizard):
 
     @property
     def sensitive_tools(self):
-        from src.tools import handle_create_goal, update_goal
+        from src.tools import create_goal, update_goal
 
-        return [handle_create_goal, update_goal]
+        return [create_goal, update_goal]
 
     @property
     def name(self):

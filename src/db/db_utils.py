@@ -29,15 +29,13 @@ def fetch_user(user_id):
             return user
 
 
-def set_user_onboarded_db(user_id):
-    field = "onboarded"
-    value = True
+def set_user_field_db(user_id, field, value):
     with get_db_connection() as conn:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             query = f"UPDATE users SET {field} = %s WHERE user_id = %s"
             cur.execute(query, (value, user_id))
             conn.commit()
-    return f"User profile updated successfully {field} = {value}"
+    return f"User profile updated successfully {field=} : {value=}"
 
 
 def set_user_fitness_level_db(user_id, value):
