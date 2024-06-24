@@ -52,10 +52,8 @@ def fetch_user_activities_db(user_id):
     with get_db_connection() as conn:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute("SELECT * FROM user_activities WHERE user_id = %s", (user_id,))
-            user = cur.fetchone()
-            if not user:
-                raise ValueError(f"User with ID {user_id} not found")
-            return user
+            activities = cur.fetchall()
+            return activities
 
 
 def update_user_activities_db(user_id, activity_id, field, value):
