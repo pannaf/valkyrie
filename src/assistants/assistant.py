@@ -14,6 +14,7 @@ class Assistant:
             if len(messages) >= 20:
                 if messages[-1].type != "tool":
                     break
+        # TODO: change this to a log statement
         print(f"LENGTH OF MESSAGES: {len(messages)}")
         response = self.runnable.invoke(
             {
@@ -23,7 +24,6 @@ class Assistant:
                 "dialog_state": state.get("dialog_state"),
             }
         )
-        # We return a list, because this will get added to the existing list
         return response
 
     def __call__(self, state, config: RunnableConfig):
