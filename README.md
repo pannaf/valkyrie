@@ -146,7 +146,7 @@ Updated configs/agent.yaml with user_id: <uuid that was created>
 > **TL;DR**
 > Running V locally!
 
-Check out a full walkthrough of using V from onboarding to goal setting to workout planning in [this loom](https://www.loom.com/share/9ab12783ef204f6daf834d149b17906a?sid=19b5cfab-7156-42a3-b2b7-301088cfb9bd).
+Check out a full walkthrough of using V from onboarding to goal setting to workout planning in [this loom](https://www.loom.com/share/f45e4ffa8fc348bea2f4cc2397b971ef?sid=31fdf9c7-30d2-47fa-b876-0aa8ee177a1f) (Llama 3 70b workflow walkthrough) and [this loom](https://www.loom.com/share/9ab12783ef204f6daf834d149b17906a?sid=19b5cfab-7156-42a3-b2b7-301088cfb9bd) (Claude 3 Sonnet workflow walkthrough).
 
 > [!IMPORTANT]  
 > This will only be runnable after you've setup the code, your virtual environment, environment variables, and PostgreSQL tables as outlined in [Setup](#setup) above.
