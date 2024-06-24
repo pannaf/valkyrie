@@ -395,7 +395,7 @@ This is used to update the `user_activities` table, which has the following fiel
 - `activity_frequency` (str): The frequency of the activity. e.g., '7 days a week', '3 times a week', 'every other week', etc.
 
 > [!WARNING]
-> These tools and table schema are part of the Claude 3 Sonnet workflow (my original workflow). When I pivoted to Llama 3 70B, I didn't find it worked very well with the complexity and ambiguity of the user profile. So, I simplified it by just gathering the workout activities that a user does. I'm leaving this in here though because it is relevant for the Streamlit-hosted version.
+> The following tools and table schema are part of the Claude 3 Sonnet workflow (my original workflow). When I pivoted to Llama 3 70B, I didn't find it worked very well with the complexity and ambiguity of the user profile. So, I simplified it by just gathering the workout activities that a user does. I'm leaving this in here though because it is relevant for the Streamlit-hosted version.
 
 Tools available:
 - `fetch_user_profile_info` : Used for retrieving the user's profile information, so that V can know what info is filled and what info still needs to be filled.
