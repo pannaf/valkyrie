@@ -627,28 +627,33 @@ Ultimately, I also modified the wording of the final bit of the prompt to be a l
 After the competition deadline was extended by a week, I told myself I wasn't going to continue pushing further toward the competition with V development. I had a couple other things I wanted to work on with it that weren't really relevant to the agentic behavior. For example, I wanted to add Google Auth and make the conversations persist in a PostgreSQL database. But, when poking around on the LangChain repo Friday (06.21.24) afternoon, I saw an open PR for attaching tools to ChatNVIDIA LLMs and I wanted to try it out! Things spiralled a bit and these are the challenges that I faced in the final 3 days of the competition.
 
 ## Small context length on Llama 3 70B
+> 06.24.24 - Llama 3 70B context limit exceeded.
+
 Initially, I had been using Claude 3 Sonnet, which has a 200k token context window. I didn't need to worry at all about coming up to this in the short (20mins) conversations I was having with V. But, pivoting to Llama 3 70B with the NVIDIA AI Foundation Endpoints, I ran into the max context length just from chatting with V about the workout program V planned for me during prompt iteration of the Programming Wizard.
 
-```bash
+```text
 This model's maximum context length is 8192 tokens. However, you requested 8193 tokens (7169 in the messages, 1024 in the completion). Please reduce the length of the messages or completion.
 RequestID: 6be782f5-9357-47ab-8e6b-ceea51544828
 ```
 
-When previously reading the LangGraph tutorials, fortunately I remembered having come across something [here](https://langchain-ai.github.io/langgraph/how-tos/managing-agent-steps/#define-the-nodes) that showed an easy way of adjusting the number of messages carried around in the state. I adapted their example to create the `call_model_limit_message_history` method in my `Assistant` class [here](src/assistants/assistant.py).
+When previously reading the LangGraph tutorials, fortunately I remembered having come across something [here](https://langchain-ai.github.io/langgraph/how-tos/managing-agent-steps/#define-the-nodes) that showed an easy way of adjusting the number of messages carried around in the state. I adapted their example to create the `call_model_limit_message_history` method in my `Assistant` class [here](src/assistants/assistant.py) that limits the number of messages to generally be at most 20, unless the 20th has type `"tool"` and then it will be more messages.
 
 ## Rate-limited on LangSmith
+> 06.24.24 - LangSmith number of monthly unique traces limit exceeded.
 
-```bash
+While iterating on my Programming Wizard prompt, started noticing my LangSmith traces weren't getting logged:
+```text
 Failed to batch ingest runs: LangSmithConnectionError('Connection error caused failure to POST https://api.smith.langchain.com/runs/batch  in LangSmith API. Please confirm your internet connection.. SSLError(MaxRetryError("HTTPSConnectionPool(host=\'api.smith.langchain.com\', port=443): Max retries exceeded with url: /runs/batch (Caused by SSLError(SSLEOFError(8, \'EOF occurred in violation of protocol (_ssl.c:2406)\')))"))')
 ```
 
-Really.. I just ran out of trace room..
+After multiple `LangSmithConnectionError` messages, finally noticed what I think is the real issue. I exceed my monthly unique traces usage limit 🙃
 
-```bash
+```text
 Failed to batch ingest runs: LangSmithRateLimitError('Rate limit exceeded for https://api.smith.langchain.com/runs/batch. HTTPError(\'429 Client Error: Too Many Requests for url: https://api.smith.langchain.com/runs/batch\', \'{"detail":"Monthly unique traces usage limit exceeded"}\')')
 ```
 
 ## NVIDIA AI Foundation Endpoints Token Limit
+> 06.21.24 - NVIDIA credits expired!
 
 > [!WARNING]
 > Using NIM, LangGraph, and NeMo Guardrails.. I blazed a trail through my NVIDIA AI Foundation Endpoints credits. In less than a day of adapting my Onboarding Wizard prompt from Claude to Llama 3: I ran out of my 1k credits, signed up for a different account, and ran out of that 1k credits too. All without feeling satisfied in the flow. I wanted to just buy some credits to not have to worry about it, but I wasn't able to easily find where I could even enter my CC info to purchase more credits.
@@ -798,6 +803,8 @@ Account '<redacted>': Cloud credits expired - Please contact NVIDIA representati
 ```
 
 ## LangGraph repeating....
+> 06.22.24 - LangGraph recursion limit reached!
+
 > [!WARNING]
 > Including language like "for each..." in the prompt can be problematic.
 
