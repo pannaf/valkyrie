@@ -5,9 +5,10 @@ Meet V! Your new virtual personal trainer! 🙃
 This repo has the code for my entry in the [Generative AI Agents Developer Contest by NVIDIA and LangChain](https://www.nvidia.com/en-us/ai-data-science/generative-ai/developer-contest-with-langchain/).
 
 ## Links
-- Short demo video in [this loom](https://www.loom.com/share/af5e088d3c574ef08d76a74c66729103?sid=65166f8c-8c25-413e-b32f-2ecc1002aa9e)
-- Check out a full walkthrough of using V from onboarding to goal setting to workout planning in [this loom](https://www.loom.com/share/9ab12783ef204f6daf834d149b17906a?sid=19b5cfab-7156-42a3-b2b7-301088cfb9bd).
-- Live-hosted Streamlit dashboard available [here](https://v-ai-personal-trainer.onrender.com/). Password was provided in my contest submission form. For other folks- feel free to join the waitlist and I'll keep you updated on when V is more broadly available!
+- Short demo video in [this loom](https://www.loom.com/share/af5e088d3c574ef08d76a74c66729103?sid=65166f8c-8c25-413e-b32f-2ecc1002aa9e).
+- Full walkthrough using V from onboarding to goal setting to workout planning in [this loom](https://www.loom.com/share/f45e4ffa8fc348bea2f4cc2397b971ef?sid=31fdf9c7-30d2-47fa-b876-0aa8ee177a1f). Note that I pivoted to use Llama 3 70b after I got `bind_tools` working with NVIDIA AI Foundation Endpoint models in LangChain because I wanted to explore developing with as many NVIDIA tools as possible for the competition. The Llama-based Agent is not as robust as the Claude-based agent. I made many prompt updates to improve robustness, but not everything in the Llama-based workflow works seamlessly. You'll see in the Loom where I call out some of the shortcomings.
+- Bonus! Using Claude 3 Sonnet, with a slightly different toolset and workflow, [this loom](https://www.loom.com/share/9ab12783ef204f6daf834d149b17906a?sid=19b5cfab-7156-42a3-b2b7-301088cfb9bd) is a second (more robust!) walkthrough of using V from onboarding to goal setting to workout planning.
+- Live-hosted Streamlit dashboard available [here](https://v-ai-personal-trainer.onrender.com/). Password was provided in my contest submission form. For other folks- feel free to join the waitlist and I'll keep you updated on when V is more broadly available! Note that the streamlit dashboard uses the Claude 3 Sonnet LLM and original workflow.
 - Contact me at [panna(at)berkeley(dot)edu](mailto:panna@berkeley.edu) for any comments, questions, thoughts, etc!
 
 # Main Tech
@@ -16,9 +17,6 @@ This repo has the code for my entry in the [Generative AI Agents Developer Conte
 - [x] <img src="https://github.com/pannaf/valkyrie/assets/18562964/c579f82c-7fe8-4709-8b4c-379573843545" alt="image" width="35"/> [LangGraph](#-langgraph-v-as-an-agent) - V as an agent
 - [x] <img src="https://github.com/pannaf/valkyrie/assets/18562964/c579f82c-7fe8-4709-8b4c-379573843545" alt="image" width="35"/> [LangSmith](#-langsmith-langgraph-tracing) - LangGraph tracing
 - [x] <img src="https://github.com/pannaf/valkyrie/assets/18562964/3ec5b89a-8634-492f-8077-b636466de285" alt="image" width="15"/> [NeMo Guardrails](#-nemo-guardrails-ensuring-v-avoids-medical-topics) - ensure V doesn't respond to medical domain inquiries
-
-# Overview of How V Works
-TODO
 
 # Setup
 > **TL;DR**
