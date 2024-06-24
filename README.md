@@ -146,7 +146,7 @@ Updated configs/agent.yaml with user_id: <uuid that was created>
 > **TL;DR**
 > Running V locally!
 
-Check out a full walkthrough of using V from onboarding to goal setting to workout planning in [this loom](https://www.loom.com/share/9ab12783ef204f6daf834d149b17906a?sid=19b5cfab-7156-42a3-b2b7-301088cfb9bd).
+Check out a full walkthrough of using V from onboarding to goal setting to workout planning in [this loom](https://www.loom.com/share/f45e4ffa8fc348bea2f4cc2397b971ef?sid=31fdf9c7-30d2-47fa-b876-0aa8ee177a1f) (Llama 3 70b workflow walkthrough) and [this loom](https://www.loom.com/share/9ab12783ef204f6daf834d149b17906a?sid=19b5cfab-7156-42a3-b2b7-301088cfb9bd) (Claude 3 Sonnet workflow walkthrough).
 
 > [!IMPORTANT]  
 > This will only be runnable after you've setup the code, your virtual environment, environment variables, and PostgreSQL tables as outlined in [Setup](#setup) above.
@@ -193,6 +193,18 @@ graph TD;
 User: 
 ```
 From there, you can start chatting with V. Notice that the uuid attached to each log message should match the uuid that was created during bootstrap for the user you created. In the example above, the uuid is `f7877a93-30e4-43ff-9969-1ec6b1e03b9b`.
+
+## Bonus! Running V through Streamlit
+First create a `.streamlit` folder in the root directory of your code:
+```bash
+➜  valkyrie git:(main) ✗ mkdir -p .streamlit && echo 'password = "password"' > .streamlit/secrets.toml
+```
+This will set your password to the very secure `"password"` 😂
+
+Now you can run the dashboard as:
+```bash
+➜  valkyrie git:(main) ✗ streamlit run st_app.py
+```
 
 [back to top](#main-tech)
 
@@ -640,12 +652,14 @@ Ultimately, I also modified the wording of the final bit of the prompt to be a l
 [back to top](#main-tech)
 
 # Challenges
-After the competition deadline was extended by a week, I told myself I wasn't going to continue pushing further toward the competition with V development. I had a couple other things I was up to that weren't really relevant to the agentic behavior. For example, adding Google Auth and making the conversations persist in a PostgreSQL database. But, when poking around on the LangChain repo Friday (06.21.24) afternoon, I saw an open PR for attaching tools to ChatNVIDIA LLMs and I wanted to try it out! Things escalated a bit and before I knew it, I was back to poking at my submission! These are the challenges that I faced in the final 4 days of the competition.
+When I learned the competition deadline was extended by a week, I didn't anticipate working more on V for the competition 🙃. I had a couple other things I was up to that weren't really relevant to the agentic behavior. For example, adding Google Auth and making the conversations persist in a PostgreSQL database. But, when poking around on the LangChain repo Friday (06.21.24) afternoon, I saw an open PR for attaching tools to ChatNVIDIA LLMs and I wanted to try it out! Things escalated a bit and before I knew it, I was back to poking at my submission! These are the challenges that I faced in the final 4 days of the competition.
+
+> **TL;DR** Exceeding limits left and right 🙃
 
 ## Small context length on Llama 3 70B
 > 06.24.24 - Llama 3 70B context limit exceeded.
 
-Initially, I had been using Claude 3 Sonnet, which has a 200k token context window. I didn't need to worry at all about coming up to this in the short (20mins) conversations I was having with V. But, pivoting to Llama 3 70B with the NVIDIA AI Foundation Endpoints, I ran into the max context length just from chatting with V about the workout program V planned for me during prompt iteration of the Programming Wizard.
+Initially, I had been using Claude 3 Sonnet, which has a 200k token context window. I didn't need to worry at all about coming up to this in the short (20mins) conversations I was having with V. But, pivoting to Llama 3 70B with the NVIDIA AI Foundation Endpoints, I ran into the max context length pretty quick.
 
 ```text
 This model's maximum context length is 8192 tokens. However, you requested 8193 tokens (7169 in the messages, 1024 in the completion). Please reduce the length of the messages or completion.
@@ -657,7 +671,7 @@ Fortunately I remembered having come across something [here](https://langchain-a
 ## Rate-limited on LangSmith
 > 06.24.24 - LangSmith number of monthly unique traces limit exceeded.
 
-While iterating on my Programming Wizard prompt, started noticing my LangSmith traces weren't getting logged:
+While iterating on my Programming Wizard prompt, I started noticing my LangSmith traces weren't getting logged when I saw these messages in my terminal:
 ```text
 Failed to batch ingest runs: LangSmithConnectionError('Connection error caused failure to POST https://api.smith.langchain.com/runs/batch  in LangSmith API. Please confirm your internet connection.. SSLError(MaxRetryError("HTTPSConnectionPool(host=\'api.smith.langchain.com\', port=443): Max retries exceeded with url: /runs/batch (Caused by SSLError(SSLEOFError(8, \'EOF occurred in violation of protocol (_ssl.c:2406)\')))"))')
 ```
@@ -671,8 +685,7 @@ Failed to batch ingest runs: LangSmithRateLimitError('Rate limit exceeded for ht
 ## NVIDIA AI Foundation Endpoints Token Limit
 > 06.21.24 - NVIDIA credits expired!
 
-> [!WARNING]
-> Using NIM, LangGraph, and NeMo Guardrails.. I blazed a trail through my NVIDIA AI Foundation Endpoints credits. In less than a day of adapting my Onboarding Wizard prompt from Claude to Llama 3: I ran out of my 1k credits, signed up for a different account, and ran out of that 1k credits too. All without feeling satisfied in the flow. I wanted to just buy some credits to not have to worry about it, but I wasn't able to easily find where I could even enter my CC info to purchase more credits.
+Using NIM, LangGraph, and NeMo Guardrails.. I blazed a trail through my NVIDIA AI Foundation Endpoints credits. In less than a day of adapting my Onboarding Wizard prompt from Claude to Llama 3: I ran out of my 1k credits, signed up for a different account, and ran out of that 1k credits too. All without feeling satisfied in the flow. I wanted to just buy some credits to not have to worry about it, but I wasn't able to easily find where I could even enter my CC info to purchase more credits. In all, I went through ~3.7k credits on multiple 1k credit-limited accounts. I'm still not totally satisfied with the prompts because I really wanted a smooth experience with the tool-calling.
 
 ```python
 2024-06-23 15:25:53.868 | ERROR    | __main__:main:78 - An error has been caught in function 'main', process 'MainProcess' (3843), thread 'MainThread' (8655780544): | 7d2e2905-35a1-4954-abd9-d54e2a252da6
@@ -818,18 +831,10 @@ Exception: [402] Payment Required
 Account '<redacted>': Cloud credits expired - Please contact NVIDIA representatives
 ```
 
-## LangGraph repeating....
+## LangGraph Repeating the Same Tool Call Again and Again And Again .....
 > 06.22.24 - LangGraph recursion limit reached!
 
-> [!WARNING]
-> Including language like "for each..." in the prompt can be problematic.
-
-The way I setup the activities and goals tables, I needed to:
-1. Create an empty entry in the table
-2. Keep track of the entry id
-3. Update the entry based on new info learned
-
-I didn't want to be prescriptive on whether a user should only talk about lifting weights, though I did have in mind that V would plan lifting workouts.. as a personal trainer IRL does. Partly because I swim, and I'd love to account for my swim volume when planning my lifts. I tried this as the conversation structure:
+I first thought this might just be the way I worded the prompt. When I added things like "for each activity..." I thought it might be getting stuck somehow. Refer to Step 3 in this prompt snippet:
 
 ```text
 <conversation structure>
@@ -842,7 +847,7 @@ Step 4 - update the database with the information you learn about the user's act
 </conversation structure>
 ```
 
-I wanted it to be where the user could mention in the same message that, e.g., they like to swim *and* lift. And then the table would get populated with an entry for each of those. It should wind up with two new rows in that case. But.. what I ended up observing is that LangGraph kept creating new entries until the recursion limit was reached.
+When I told V I like to lift and swim, my table should have ended up with two new rows. But.. what I ended up observing is that LangGraph kept creating new entries until the recursion limit was reached.
 
 ```python
 ----------------- V Message -----------------
@@ -1075,7 +1080,10 @@ postgres@/tmp:zofit> select * from user_activities;
 SELECT 11
 ```
 
-Actually.. I found the reason for this was not returning from the tool information about what the tool did. I had changed it because I sometimes see messages like:
+> [!TIP]
+> The recursion limit was getting reached because I wasn't returning the relevant info from the tool call.
+
+In my Llama 3 70b pivot, I had changed my tool return values because I wanted to avoid these types of messages where V would send to the user something like `"Successfully updated activity_duration..."`. That had been my original tool return value, and I thought since V was seeing some tools return those statements.. V might just be trying to shortcut the tool call and jump straight to a message. Only with it being an AI message, it felt like a super confusing user experience. Here's a quick example:
 
 ```python
 ----------------- V Message -----------------
@@ -1105,4 +1113,4 @@ V: Successfully updated activity_duration to 90 minutes for user 7d2e2905-35a1-4
 User: did you?
 ```
 
-which are just weird messages.. so I thought if the tool just returns some random string like "Awesome sauce" then it wouldn't try to respond to the user with "Successfully updated...." but then I think the agent wasn't maintaining proper awareness on what entries it created in the table.
+I thought if the tool just returns some random string like "Awesome sauce" then it wouldn't try to respond to the user with "Successfully updated....". This turned out to be a really bad idea because then the agent didn't seem to know what the outcome of the tool call was and then, unsatisfied, just wanted to call the tool again and again. I ended up just reverting back to my original `return` statements on these tools and then my graph didn't get stuck in a tool-calling loop.
