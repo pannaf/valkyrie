@@ -194,6 +194,18 @@ User:
 ```
 From there, you can start chatting with V. Notice that the uuid attached to each log message should match the uuid that was created during bootstrap for the user you created. In the example above, the uuid is `f7877a93-30e4-43ff-9969-1ec6b1e03b9b`.
 
+## Bonus! Running V through Streamlit
+First create a `.streamlit` folder in the root directory of your code:
+```bash
+➜  valkyrie git:(main) ✗ mkdir -p .streamlit && echo 'password = "password"' > .streamlit/secrets.toml
+```
+This will set your password to the very secure `"password"` 😂
+
+Now you can run the dashboard as:
+```bash
+➜  valkyrie git:(main) ✗ streamlit run st_app.py
+```
+
 [back to top](#main-tech)
 
 # <img src="https://github.com/pannaf/valkyrie/assets/18562964/3ec5b89a-8634-492f-8077-b636466de285" alt="image" width="25"/> [NeMo Curator] Building an Exercise Dataset
