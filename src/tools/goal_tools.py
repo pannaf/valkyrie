@@ -28,8 +28,6 @@ def fetch_goals():
 def handle_create_goal():
     """
     Create a new goal for the user.
-    Parameters:
-        state: The current state of the dialog.
     """
     cfg = ensure_config()
     configuration = cfg.get("configurable", {})

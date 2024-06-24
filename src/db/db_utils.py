@@ -40,21 +40,31 @@ def set_user_onboarded_db(user_id):
     return f"User profile updated successfully {field} = {value}"
 
 
-def fetch_user_profile(user_id):
+def set_user_fitness_level_db(user_id, value):
+    field = "fitness_level"
     with get_db_connection() as conn:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            cur.execute("SELECT * FROM user_profiles WHERE user_id = %s", (user_id,))
+            query = f"UPDATE users SET {field} = %s, last_updated = NOW() WHERE user_id = %s"
+            cur.execute(query, (value, user_id))
+            conn.commit()
+    return f"User profile updated successfully {field} = {value}"
+
+
+def fetch_user_activities_db(user_id):
+    with get_db_connection() as conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("SELECT * FROM user_activities WHERE user_id = %s", (user_id,))
             user = cur.fetchone()
             if not user:
                 raise ValueError(f"User with ID {user_id} not found")
             return user
 
 
-def update_user_profile(user_id, field, value):
+def update_user_activities_db(user_id, activity_id, field, value):
     with get_db_connection() as conn:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            query = f"UPDATE user_profiles SET {field} = %s, last_updated = NOW() WHERE user_id = %s"
-            cur.execute(query, (value, user_id))
+            query = f"UPDATE user_activities SET {field} = %s WHERE user_id = %s AND user_activity_id = %s"
+            cur.execute(query, (value, user_id, activity_id))
             conn.commit()
     return f"User profile updated successfully {field} = {value}"
 
@@ -88,6 +98,20 @@ def create_empty_goal_db(user_id, goal_id):
             )
             conn.commit()
     return goal_id
+
+
+def create_empty_activity_db(user_id, user_activity_id):
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO user_activities (user_activity_id, user_id, activity_name, activity_location, activity_duration, activity_frequency)
+                VALUES (%s, %s, %s, %s, %s, %s)
+            """,
+                (user_activity_id, user_id, None, None, None, None),
+            )
+            conn.commit()
+    return user_activity_id
 
 
 def insert_user(first_name, last_name, email, date_of_birth, height_cm):

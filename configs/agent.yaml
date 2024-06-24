@@ -1,9 +1,9 @@
 defaults:
 - _self_
 llm:
-  _target_: src.external.lite_llm_functions.LiteLLMFunctions 
-  model: meta/llama3-70b-instruct 
-  temperature: 1
+  _target_: src.external.lite_llm_functions.LiteLLMFunctions
+  model: meta/llama3-70b-instruct
+  temperature: 0.5 
 prompt_loader:
   _target_: src.prompts.yaml_prompt_loader.YamlPromptLoader
   yaml_path: ${prompts.path}
@@ -11,4 +11,4 @@ prompts:
   path: src/prompts/prompts.yaml
 user:
   thread_id: ${user.user_id}
-  user_id: 2670468f-e089-4986-87f9-e02af6a9dc13 
+  user_id: 7d2e2905-35a1-4954-abd9-d54e2a252da6
