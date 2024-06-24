@@ -2,13 +2,16 @@
 
 Meet V! Your new virtual personal trainer! 🙃
 
-This repo has the code for my entry in the [Generative AI Agents Developer Contest by NVIDIA and LangChain](https://www.nvidia.com/en-us/ai-data-science/generative-ai/developer-contest-with-langchain/).
+Code for my entry in the [Generative AI Agents Developer Contest by NVIDIA and LangChain](https://www.nvidia.com/en-us/ai-data-science/generative-ai/developer-contest-with-langchain/).
+
+> [!NOTE]  
+> In the past 4 days, after getting `.bind_tools` to work with `ChatNVIDIA` models, I pivoted from using Claude 3 Sonnet to Llama 3 70b so that I could experiment with an NVIDIA hosted model. The Llama-based V is not as robust as the Claude-based one. They're also not apples-to-apples comparable because I substantially modified the prompts and tools for Llama 3 70b, which didn't handle ambiguity as well as Claude 3 Sonnet.
 
 ## Links
 - Short demo video in [this loom](https://www.loom.com/share/af5e088d3c574ef08d76a74c66729103?sid=65166f8c-8c25-413e-b32f-2ecc1002aa9e).
-- Full walkthrough using V from onboarding to goal setting to workout planning in [this loom](https://www.loom.com/share/f45e4ffa8fc348bea2f4cc2397b971ef?sid=31fdf9c7-30d2-47fa-b876-0aa8ee177a1f). Note that I pivoted to use Llama 3 70b after I got `bind_tools` working with NVIDIA AI Foundation Endpoint models in LangChain because I wanted to explore developing with as many NVIDIA tools as possible for the competition. The Llama-based Agent is not as robust as the Claude-based agent. I made many prompt updates to improve robustness, but not everything in the Llama-based workflow works seamlessly. You'll see in the Loom where I call out some of the shortcomings.
-- Bonus! Using Claude 3 Sonnet, with a slightly different toolset and workflow, [this loom](https://www.loom.com/share/9ab12783ef204f6daf834d149b17906a?sid=19b5cfab-7156-42a3-b2b7-301088cfb9bd) is a second (more robust!) walkthrough of using V from onboarding to goal setting to workout planning.
-- Live-hosted Streamlit dashboard available [here](https://v-ai-personal-trainer.onrender.com/). Password was provided in my contest submission form. For other folks- feel free to join the waitlist and I'll keep you updated on when V is more broadly available! Note that the streamlit dashboard uses the Claude 3 Sonnet LLM and original workflow.
+- (Llama 3 70b) Full walkthrough of chatting with V from onboarding to goal setting to workout planning in [this loom](https://www.loom.com/share/f45e4ffa8fc348bea2f4cc2397b971ef?sid=31fdf9c7-30d2-47fa-b876-0aa8ee177a1f).
+- (Claude 3 Sonnet) Bonus! A second full walkthrough of chatting with V in [this loom](https://www.loom.com/share/9ab12783ef204f6daf834d149b17906a?sid=19b5cfab-7156-42a3-b2b7-301088cfb9bd).
+- (Claude 3 Sonnet) Live-hosted Streamlit dashboard available [here](https://v-ai-personal-trainer.onrender.com/). Password was provided in my contest submission form. For other folks- feel free to join the waitlist and I'll keep you updated on when V is more broadly available! Since I'm pretty low on NVIDIA credits, I've left this as the Claude workflow.
 - Contact me at [panna(at)berkeley(dot)edu](mailto:panna@berkeley.edu) for any comments, questions, thoughts, etc!
 
 # Main Tech
@@ -41,13 +44,13 @@ source .venv/bin/activate
 pip install nemoguardrails==0.9.0
 pip install -r requirements.txt
 ```
-There's a small dependency conflict with the LangChain version for `nemoguardrails` that I did a small workaround for by installing `nemoguardrails` first. I still wind up with this warning:
+`nemoguardrails` gets installed first separately to avoid dependency conflicts. I still wind up with this warning:
 ```text
 ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
 nemoguardrails 0.9.0 requires langchain!=0.1.9,<0.2.0,>=0.1.0, but you have langchain 0.2.3 which is incompatible.
 nemoguardrails 0.9.0 requires langchain-community<0.1.0,>=0.0.16, but you have langchain-community 0.2.4 which is incompatible.
 ```
-But.. things ran fine for me with this setup, so I didn't spend time looking into resolving this further.  
+But.. things ran fine 🤷‍♀️  
 
 ## Environment Variables
 ### `.env` File Template
@@ -65,7 +68,7 @@ LANGCHAIN_TRACING_V2="true"
 LANGCHAIN_PROJECT=...
 ```
 ### Handling `TOKENIZERS_PARALLELISM` Env Variable
-To avoid seeing the following warnings, set the `TOKENIZERS_PARALLELISM` environment variable to `false`:
+To avoid the following warnings, set the `TOKENIZERS_PARALLELISM` environment variable to `false` via `export TOKENIZERS_PARALLELISM=False` in terminal.
 ```text
 huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
 To disable this warning, you can either:
@@ -77,10 +80,6 @@ To disable this warning, you can either:
         - Avoid using `tokenizers` before the fork if possible
         - Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
 ```
-Use this command to set the environment variable:
-```bash
-(.venv) ➜  valkyrie git:(main) ✗ export TOKENIZERS_PARALLELISM=False
-```
 
 ## PostgreSQL Install and Table Setup
 PostgreSQL can be installed with `brew` on a Mac and `apt` on Ubuntu.
@@ -89,7 +88,7 @@ PostgreSQL can be installed with `brew` on a Mac and `apt` on Ubuntu.
 (.venv) ➜  valkyrie git:(main) ✗ brew install postgresql
 (.venv) ➜  valkyrie git:(main) ✗ brew services start postgresql
 ```
-Verify PostgreSQL is running via `brew services list`. On my machine, I see the following:
+Verify PostgreSQL is running via `brew services list`. On my machine, this displays:
 ```bash
 (.venv) ➜  valkyrie git:(main) ✗ brew services list
 Name          Status  User  File
@@ -146,7 +145,7 @@ Updated configs/agent.yaml with user_id: <uuid that was created>
 > **TL;DR**
 > Running V locally!
 
-Check out a full walkthrough of using V from onboarding to goal setting to workout planning in [this loom](https://www.loom.com/share/f45e4ffa8fc348bea2f4cc2397b971ef?sid=31fdf9c7-30d2-47fa-b876-0aa8ee177a1f) (Llama 3 70b workflow walkthrough) and [this loom](https://www.loom.com/share/9ab12783ef204f6daf834d149b17906a?sid=19b5cfab-7156-42a3-b2b7-301088cfb9bd) (Claude 3 Sonnet workflow walkthrough).
+Check out full walkthroughs of using V from onboarding to goal setting to workout planning in [this loom](https://www.loom.com/share/f45e4ffa8fc348bea2f4cc2397b971ef?sid=31fdf9c7-30d2-47fa-b876-0aa8ee177a1f) (Llama 3 70b workflow walkthrough) and [this loom](https://www.loom.com/share/9ab12783ef204f6daf834d149b17906a?sid=19b5cfab-7156-42a3-b2b7-301088cfb9bd) (Claude 3 Sonnet workflow walkthrough).
 
 > [!IMPORTANT]  
 > This will only be runnable after you've setup the code, your virtual environment, environment variables, and PostgreSQL tables as outlined in [Setup](#setup) above.
@@ -155,7 +154,7 @@ To run V:
 ```bash
 ➜  valkyrie git:(main) ✗ python -m src.assistant_system
 ``` 
-You should see something along the lines of:
+You should log messages like:
 ```python
 2024-06-17 10:57:36.160 | INFO     | __main__:main:76 - Starting V | f7877a93-30e4-43ff-9969-1ec6b1e03b9b
 2024-06-17 10:57:36.273 | INFO     | __main__:__init__:35 - Building graph | f7877a93-30e4-43ff-9969-1ec6b1e03b9b
@@ -192,16 +191,15 @@ graph TD;
 ---------------- User Message ----------------
 User: 
 ```
-From there, you can start chatting with V. Notice that the uuid attached to each log message should match the uuid that was created during bootstrap for the user you created. In the example above, the uuid is `f7877a93-30e4-43ff-9969-1ec6b1e03b9b`.
+From there, you can start chatting with V!
 
 ## Bonus! Running V through Streamlit
-First create a `.streamlit` folder in the root directory of your code:
+Setup your streamlit dashboard password to be the very secure `"password"`:
 ```bash
 ➜  valkyrie git:(main) ✗ mkdir -p .streamlit && echo 'password = "password"' > .streamlit/secrets.toml
 ```
-This will set your password to the very secure `"password"` 😂
 
-Now you can run the dashboard as:
+Run the dashboard as:
 ```bash
 ➜  valkyrie git:(main) ✗ streamlit run st_app.py
 ```
@@ -218,14 +216,14 @@ Now you can run the dashboard as:
 > | Seated Barbell Shoulder Press | Strength      | Shoulders            | Push             | Intermediate                 | Barbell            | Sit on a bench with back support and press the barbell overhead.         | Can be done standing for more core engagement.   | Avoid locking your elbows to prevent joint strain. | Build shoulder strength and size. | Slow and controlled      | Main workout      | Strength       | Deltoids        | Triceps, Upper Chest           | Latissimus Dorsi    | Core, Scapular Stabilizers     |
 > | Dumbbell Goblet Squat       | Strength      | Legs                 | Squat            | Beginner                     | Dumbbell           | Hold a dumbbell close to your chest and perform a squat.                 | Can be done with kettlebell.                      | Keep your back straight and knees behind toes.  | Build leg strength.             | Controlled descent and ascent | Main workout      | Strength       | Quadriceps      | Glutes, Hamstrings            | Hip Flexors         | Core, Lower Back              |
 
-To construct meaningful workouts, V needed to draw from a solid exercise list with a diverse set of movements. While this list could have been generated by prompting an LLM, doing so runs the risk of hallucination and lack of comprehensiveness. On the other hand, scraping credible fitness websites ensures accurate, relevant, and consistent information from domain experts.
+To construct meaningful workouts, V should draw from a solid exercise list with a diverse set of movements. While this list could have been generated by prompting an LLM, doing so runs the risk of hallucination and lack of comprehensiveness. On the other hand, scraping credible fitness websites ensures accurate, relevant, and consistent information from domain experts.
 
 ## <img src="https://github.com/pannaf/valkyrie/assets/18562964/3ec5b89a-8634-492f-8077-b636466de285" alt="image" width="20"/> [NeMo Curator] Generating an Exercise List
 I built a [NeMo Curator](https://github.com/NVIDIA/NeMo-Curator) pipeline that gathers, cleans, and processes a web-scraped list of exercises.
 
 ### Pipeline Overview
 
-Following the NeMo Curator tutorial [here](https://developer.nvidia.com/blog/curating-custom-datasets-for-llm-training-with-nvidia-nemo-curator/), my pipeline includes the following steps:
+Following the NeMo Curator tutorial [here](https://developer.nvidia.com/blog/curating-custom-datasets-for-llm-training-with-nvidia-nemo-curator/), my pipeline has the steps:
 
 1. Download and Extract Data:
 - `ExerciseDownloader` (custom): Downloads HTML from specified URLs that contain exercise lists.
@@ -247,12 +245,15 @@ Following the NeMo Curator tutorial [here](https://developer.nvidia.com/blog/cur
 - Saves the final dataset in JSONL format.
 
 ### Code
-Refer to [src/datasets/nemo_exercise_downloader.py](src/datasets/nemo_exercise_downloader.py) for the full implementation. Note that this file will not run in the main project virtual environment. I found that Python 3.10.X was required for NeMo Curator to run.
+> [!WARNING]
+> My NeMo Curator pipeline does not run in the main project virtual environment. Python 3.10.X was required for me to get NeMo Curator running, whereas the main code uses Python 3.12.X.
+
+Implementation is in [src/datasets/nemo_exercise_downloader.py](src/datasets/nemo_exercise_downloader.py).
 
 #### Installation
-Installation on my Mac laptop was painful 😅. I did see in the GitHub Issues [here](https://github.com/NVIDIA/NeMo-Curator/issues/76#issuecomment-2135907968) that it's really meant for Linux machines. This didn't stop me from trying to install on my Mac anyway 🙃. After some trial and error, I landed on something that ultimately worked. `conda` with a Python 3.10.X version was clutch. Later versions of Python (3.11 & 3.12) didn't work for me. The README of the NeMo text processing repo [here](https://github.com/NVIDIA/NeMo-text-processing) recommended `conda` for the `pyini` install that `nemo_text_processing` needs. 
+Installation on my Mac laptop was painful 😅. I saw in the GitHub Issues [here](https://github.com/NVIDIA/NeMo-Curator/issues/76#issuecomment-2135907968) that it's really meant for Linux machines. I tried installing on my Mac anyway 🙃. To get this working, `conda` with a Python 3.10.X version was clutch. Later versions of Python (3.11 & 3.12) didn't work for me. The README of the NeMo text processing repo [here](https://github.com/NVIDIA/NeMo-text-processing) recommended `conda` for the `pyini` install that `nemo_text_processing` needs. 
 
-In case others find this helpful, I've got the following in my `~/.zsh_history` as the steps just prior to getting things working:
+My install steps:
 ```zsh
 ➜ conda install -c conda-forge pynini=2.1.5
 ➜ pip install nemo_text_processing
@@ -264,7 +265,7 @@ NeMo-Curator git:(main) ➜ export DYLD_LIBRARY_PATH=/opt/homebrew/Cellar/opencc
 ```
 
 ### Legality of Web Scraping for this Use Case
-Given that I'm only scraping the names of exercises, this does not violate copyright laws according to [this article](https://www.mintz.com/insights-center/viewpoints/2012-06-26-one-less-copyright-issue-worry-about-gym) that discusses the implications of the U.S. Copyright Office's June 18, 2012 [Statement of Policy](https://www.govinfo.gov/content/pkg/FR-2012-06-22/html/2012-15235.htm). In particular, this direct quote makes clear that pulling the list of exercises alone does violate copyright laws:
+Given that I'm only scraping the names of exercises, this does not violate copyright laws according to [this article](https://www.mintz.com/insights-center/viewpoints/2012-06-26-one-less-copyright-issue-worry-about-gym) that discusses the implications of the U.S. Copyright Office's June 18, 2012 [Statement of Policy](https://www.govinfo.gov/content/pkg/FR-2012-06-22/html/2012-15235.htm). In particular, this direct quote clarifies that pulling the list of exercises alone does violate copyright laws:
 
 > An example that has occupied the attention of the Copyright Office 
 for quite some time involves the copyrightability of the selection and 
@@ -279,7 +280,7 @@ not a category of authorship in section 102 and thus a compilation of
 exercises would not be copyrightable subject matter.
 
 ### NeMo Magic Sauce
-I didn't get a chance to take full advantage of what I think is a key ingredient in the magic sauce for NeMo Curator. Namely the GPU acceleration that makes it possible to more efficiently process massive amounts of data. My exercise dataset doesn't really fall into that "massive amounts" category, so I didn't view it as super necessary to use in my case. But.. I think it would have been super fun to explore their multi-node, multi-GPU classifier inference for distributed data classification (example [here](https://github.com/NVIDIA/NeMo-Curator/blob/main/docs/user-guide/DistributedDataClassification.rst)). Next time!
+I didn't get a chance to take full advantage of what I think is a key ingredient in the magic sauce for NeMo Curator.. the GPU acceleration that makes it possible to more efficiently process massive amounts of data. My exercise dataset doesn't really fall into that "massive amounts" category, so I didn't view it as super necessary to use in my case. But.. I think it would have been super fun to explore their multi-node, multi-GPU classifier inference for distributed data classification (example [here](https://github.com/NVIDIA/NeMo-Curator/blob/main/docs/user-guide/DistributedDataClassification.rst)). Next time!
 
 ### Experiments that didn't make the cut
 I explored a couple aspects of NeMo Curator that ultimately aren't part of my final system:
@@ -287,7 +288,7 @@ I explored a couple aspects of NeMo Curator that ultimately aren't part of my fi
 - Common data crawler - no insights to report.. [this example](https://github.com/NVIDIA/NeMo-Curator/blob/main/examples/download_common_crawl.py) worked pretty well for me, just requires you to specify a reasonable directory
 
 ## Cleaning the `.jsonl` format a little
-My `.jsonl` files output from my NeMo Curator pipeline ended up with this type of format:
+My NeMo Curator pipeline output `.jsonl` files of format:
 
 ```json
 {"filename":"exercises-0.jsonl","id":"doc_id-04900","text":"Seated Barbell Shoulder Press","word_count":4}
@@ -295,12 +296,10 @@ My `.jsonl` files output from my NeMo Curator pipeline ended up with this type o
 {"filename":"exercises-0.jsonl","id":"doc_id-07500","text":"Curtsy Lunge","word_count":2}
 ```
 
-I wanted to transform this into a simple text file that has just the text fields extracted. There's lotsa ways I could have done this in Python and some things I think I could have done differently with NeMo Curator to help achieve this, but there's also this pretty sweet command line JSON processor `jq` for these types of things. 
-
 > [!TIP]
 > `jq` is a command line JSON processor. Head over [here](https://jqlang.github.io/jq/) if you haven't heard of `jq` before. On a Mac, `brew install jq`.
 
-Here's the command:
+I wanted just a list of exercise names though, which is pretty easy to get with `jq`:
 
 ```zsh
 for file in exercises-*.jsonl; do
@@ -317,7 +316,7 @@ Curtsy Lunge
 ```
 
 ## Annotating Exercises with Attributes
-To get the final list of exercises for V to use in workout planning, I took a couple additional Human-in-the-loop steps:
+To get the final dataset of exercises for V to use in workout planning, I took a couple additional Human-in-the-loop steps:
 
 1. Collaborated with ChatGPT to fill out an initial pass at annotating each of the ~1400 exercises with the following attributes: `Exercise Name,Exercise Type,Target Muscle Groups,Movement Pattern,Exercise Difficulty/Intensity,Equipment Required,Exercise Form and Technique,Exercise Modifications and Variations,Safety Considerations,Primary Goals,Exercise Dynamics,Exercise Sequence,Exercise Focus,Agonist Muscles,Synergist Muscles,Antagonist Muscles,Stabilizer Muscles`
 2. Scanned through the ChatGPT annotations to correct any obvious mistakes.
@@ -335,9 +334,9 @@ To create V, I followed the LangGraph Customer Support Bot tutorial [here](https
 self.primary_assistant_runnable = self.primary_assistant_prompt | self.llm.bind_tools([primary_assistant_tools])
 ```
 
-This works *really* well for models where the `bind_tools()` method is implemented. I used Claude 3 Sonnet in my original implementation of V. [This loom](https://www.loom.com/share/9ab12783ef204f6daf834d149b17906a?sid=19b5cfab-7156-42a3-b2b7-301088cfb9bd) has a walkthrough showing V with that model. 
+This works *really* well for models where the `bind_tools()` method is implemented. The smoothness can be seen in my Claude 3 Sonnet walkthrough in [this loom](https://www.loom.com/share/9ab12783ef204f6daf834d149b17906a?sid=19b5cfab-7156-42a3-b2b7-301088cfb9bd). 
 
-I had intended to replace the Claude 3 Sonnet LLM with one from the NVIDIA AI Foundation Endpoints in LangChain, however the `.bind_tools()` method isn't yet implemented for LangChain's `ChatNVIDIA` as seen in the docs [here](https://api.python.langchain.com/en/latest/_modules/langchain_nvidia_ai_endpoints/chat_models.html#ChatNVIDIA.bind_tools):
+When developing initially, I intended to replace the Claude 3 Sonnet LLM with one from the NVIDIA AI Foundation Endpoints in LangChain, however the `.bind_tools()` method isn't yet implemented for LangChain's `ChatNVIDIA` as seen in the docs [here](https://api.python.langchain.com/en/latest/_modules/langchain_nvidia_ai_endpoints/chat_models.html#ChatNVIDIA.bind_tools):
 
 ```python
 def bind_tools(
