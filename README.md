@@ -636,7 +636,7 @@ This model's maximum context length is 8192 tokens. However, you requested 8193 
 RequestID: 6be782f5-9357-47ab-8e6b-ceea51544828
 ```
 
-When previously reading the LangGraph tutorials, fortunately I remembered having come across something [here](https://langchain-ai.github.io/langgraph/how-tos/managing-agent-steps/#define-the-nodes) that showed an easy way of adjusting the number of messages carried around in the state. I adapted their example to create the `call_model_limit_message_history` method in my `Assistant` class [here](src/assistants/assistant.py) that limits the number of messages to generally be at most 20, unless the 20th has type `"tool"` and then it will be more messages.
+Fortunately I remembered having come across something [here](https://langchain-ai.github.io/langgraph/how-tos/managing-agent-steps/#define-the-nodes) in the LangGraph tutorials that showed an easy way of adjusting the number of messages carried around in the state. I adapted their example to create the `call_model_limit_message_history` method in my `Assistant` class [here](src/assistants/assistant.py) that limits the number of messages to generally be at most 20, unless the 20th has type `"tool"` and then it will be more messages.
 
 ## Rate-limited on LangSmith
 > 06.24.24 - LangSmith number of monthly unique traces limit exceeded.
