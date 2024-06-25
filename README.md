@@ -466,6 +466,17 @@ Tools available:
 
 I envisioned updating a database table with the planned workouts, and eventually pulling previously planned workouts for a user to determine the next batch of workouts for them. But alas! Didn't quite get there in the competition timeframe. 
 
+Here we can see the `fetch_exercises` tool actually being called:
+![Screenshot 2024-06-24 at 5 00 20 PM](https://github.com/pannaf/valkyrie/assets/18562964/971b92d4-2a89-458f-9f56-fe045b9451c5)
+
+With V telling the user:
+
+```text
+AI
+
+For biceps, some solid options are: - Alternating dumbbell curls - Barbell curls (straight or EZ bar grip) - Hammer curls - Concentration curls - Cable curls I'll aim to have 2-3 of those bicep exercises paired with the back/pulling work on the upper days.
+```
+
 ### Answer Questions about V
 `v_wizard`
 
